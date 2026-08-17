@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>廈門按摩會所指南</title>
+<style>
+  :root{
+    --bg:#1C1A17;
+    --surface:#241F1A;
+    --surface-hi:#2E2721;
+    --line:rgba(242,234,217,0.09);
+    --copper:#C68A42;
+    --copper-soft:rgba(198,138,66,0.16);
+    --jade:#5A8271;
+    --jade-soft:rgba(90,130,113,0.16);
+    --no:#8B5348;
+    --no-soft:rgba(139,83,72,0.14);
+    --text:#F2EAD9;
+    --text-dim:#B4A996;
+    --text-mute:#7E7568;
+    --serif:"Noto Serif TC","Songti TC","STSong","PMingLiU",serif;
+    --sans:"PingFang TC","Noto Sans TC","Microsoft JhengHei",-apple-system,BlinkMacSystemFont,sans-serif;
+    --mono:ui-monospace,"SF Mono","Menlo",monospace;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--sans);}
+  body{
+    padding-bottom:48px;
+    background-image:
+      radial-gradient(ellipse at 15% 0%, rgba(198,138,66,0.07), transparent 45%),
+      radial-gradient(ellipse at 85% 8%, rgba(90,130,113,0.06), transparent 40%);
+  }
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky; top:0; z-index:20;
+    background:linear-gradient(180deg, var(--bg) 78%, rgba(28,26,23,0));
+    padding:22px 18px 10px;
+    backdrop-filter:blur(6px);
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.18em;
+    color:var(--copper); text-transform:uppercase; margin-bottom:6px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow::before{content:"";width:14px;height:1px;background:var(--copper);display:inline-block;}
+  h1{
+    font-family:var(--serif); font-weight:600; font-size:26px; line-height:1.25;
+    margin:0 0 4px; letter-spacing:.02em;
+  }
+  .sub{font-size:13px;color:var(--text-mute);margin:0;}
+
+  .filters{
+    display:flex; gap:8px; overflow-x:auto; padding:14px 18px 4px;
+    scrollbar-width:none;
+  }
+  .filters::-webkit-scrollbar{display:none;}
+  .chip{
+    flex:0 0 auto; padding:7px 14px; border-radius:100px;
+    border:1px solid var(--line); background:var(--surface);
+    color:var(--text-dim); font-size:13px; white-space:nowrap; cursor:pointer;
+    transition:all .15s ease;
+  }
+  .chip.active{
+    background:var(--copper-soft); border-color:rgba(198,138,66,0.5); color:var(--copper);
+    font-weight:600;
+  }
+
+  .toolbar{
+    display:flex; gap:8px; align-items:center; overflow-x:auto;
+    padding:10px 18px 4px; scrollbar-width:none;
+  }
+  .toolbar::-webkit-scrollbar{display:none;}
+  .sort-btn{
+    flex:0 0 auto;
+    background:none; border:1px solid var(--line); color:var(--text-dim);
+    padding:6px 12px; border-radius:8px; font-size:12px; font-family:var(--sans);
+    display:flex; align-items:center; gap:5px; cursor:pointer; white-space:nowrap;
+  }
+  .sort-btn svg{width:11px;height:11px;transition:transform .2s;}
+  .sort-btn.desc svg{transform:rotate(180deg);}
+  .sort-btn.active{
+    background:var(--jade-soft); border-color:rgba(90,130,113,0.5); color:var(--jade); font-weight:600;
+  }
+  .sort-btn.star-active{
+    background:var(--copper-soft); border-color:rgba(198,138,66,0.5); color:var(--copper); font-weight:600;
+  }
+
+  .fav-star{
+    flex:0 0 auto; width:28px; height:28px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; margin-top:-2px;
+  }
+  .fav-star svg{width:18px;height:18px; transition:all .15s ease;}
+  .fav-star svg path{fill:none; stroke:var(--text-mute); stroke-width:1.6;}
+  .fav-star.on svg path{fill:var(--copper); stroke:var(--copper);}
+
+  /* ---------- list ---------- */
+  .list{padding:10px 14px 0;}
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    margin-bottom:10px; overflow:hidden;
+  }
+  .card-head{
+    display:flex; align-items:center; gap:12px; padding:14px;
+    cursor:pointer;
+  }
+  .idx{
+    font-family:var(--mono); font-size:11px; color:var(--text-mute);
+    width:20px; flex:0 0 auto; padding-top:2px;
+  }
+  .card-main{flex:1; min-width:0;}
+  .card-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
+  .name{
+    font-family:var(--serif); font-size:16px; font-weight:600; color:var(--text);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .price{
+    font-family:var(--mono); font-size:13px; color:var(--copper); flex:0 0 auto;
+  }
+  .card-meta{
+    display:flex; align-items:center; gap:8px; margin-top:6px; flex-wrap:wrap;
+  }
+  .area{font-size:12px; color:var(--text-mute);}
+  .dot-sep{width:3px;height:3px;border-radius:50%;background:var(--text-mute);opacity:.6;}
+
+  .levels{display:inline-flex; gap:3px; align-items:center;}
+  .lv-dot{width:5px;height:5px;border-radius:50%;background:var(--copper); opacity:.85;}
+
+  .tag{
+    font-size:11px; padding:2px 8px; border-radius:100px; font-weight:600;
+    letter-spacing:.02em;
+  }
+  .tag.yes{background:var(--jade-soft); color:var(--jade);}
+  .tag.no{background:var(--no-soft); color:var(--no);}
+
+  .chevron{
+    flex:0 0 auto; color:var(--text-mute); transition:transform .25s ease;
+    margin-top:2px;
+  }
+  .card.open .chevron{transform:rotate(90deg); color:var(--copper);}
+
+  .card-body{
+    max-height:0; overflow:hidden; transition:max-height .3s ease;
+  }
+  .card.open .card-body{max-height:900px;}
+  .body-inner{padding:2px 14px 16px;}
+  .row{
+    padding:10px 0; border-top:1px solid var(--line);
+  }
+  .row-label{
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.08em;
+    color:var(--copper); text-transform:uppercase; margin-bottom:4px;
+  }
+  .row-val{font-size:13.5px; line-height:1.6; color:var(--text-dim);}
+
+  .ov-panel{
+    margin-top:12px; border-radius:12px; padding:14px;
+    border:1px solid rgba(90,130,113,0.3); background:var(--jade-soft);
+  }
+  .ov-panel.no{
+    border-color:rgba(139,83,72,0.3); background:var(--no-soft);
+  }
+  .ov-head{
+    display:flex; align-items:center; gap:6px; font-family:var(--serif);
+    font-size:13.5px; font-weight:600; color:var(--jade); margin-bottom:10px;
+  }
+  .ov-panel.no .ov-head{color:var(--no);}
+  .ov-overview{
+    font-size:12.5px; color:var(--text); line-height:1.6; margin-bottom:10px;
+    padding-bottom:10px; border-bottom:1px solid rgba(242,234,217,0.1);
+  }
+  .ov-item{margin-bottom:9px;}
+  .ov-item:last-child{margin-bottom:0;}
+  .ov-item-label{
+    font-family:var(--mono); font-size:10px; letter-spacing:.06em;
+    color:var(--text-mute); text-transform:uppercase; margin-bottom:2px;
+  }
+  .ov-item-val{font-size:12.5px; color:var(--text-dim); line-height:1.55;}
+
+  .action-row{display:flex; gap:8px; margin-top:14px;}
+  .nav-btn{
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    flex:1; padding:11px; border-radius:10px;
+    background:var(--copper-soft); border:1px solid rgba(198,138,66,0.4);
+    color:var(--copper); font-size:13.5px; font-weight:600; font-family:var(--sans);
+    text-decoration:none;
+  }
+  .nav-btn:active{background:rgba(198,138,66,0.28);}
+  .nav-btn svg{width:15px;height:15px;flex:0 0 auto;}
+  .call-btn{
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    flex:1; padding:11px; border-radius:10px;
+    background:var(--jade-soft); border:1px solid rgba(90,130,113,0.4);
+    color:var(--jade); font-size:13.5px; font-weight:600; font-family:var(--sans);
+    text-decoration:none;
+  }
+  .call-btn:active{background:rgba(90,130,113,0.28);}
+  .call-btn svg{width:15px;height:15px;flex:0 0 auto;}
+  .call-btn.disabled{opacity:.35; pointer-events:none;}
+  .no-phone-note{
+    font-size:11px; color:var(--text-mute); text-align:center; margin-top:6px;
+  }
+
+  /* empty state */
+  .empty{
+    text-align:center; padding:60px 20px; color:var(--text-mute); font-size:13px;
+  }
+
+  footer{
+    text-align:center; padding:24px 18px 8px; font-size:11px; color:var(--text-mute);
+    font-family:var(--mono);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">厦门 · 会所指南</div>
+  <h1>按摩會所完整分類對比</h1>
+  <p class="sub" id="countLabel">共 34 家會所，點擊卡片展開詳情</p>
+</header>
+
+<div class="filters" id="areaFilters"></div>
+
+<div class="toolbar">
+  <button class="sort-btn" id="overnightBtn">
+    <span>🌙</span> 只看可過夜
+  </button>
+  <button class="sort-btn" id="parkingBtn">
+    <span>🅿️</span> 只看免費停車
+  </button>
+  <button class="sort-btn" id="favBtn">
+    <span>⭐</span> 只看收藏
+  </button>
+  <button class="sort-btn" id="sortBtn">
+    <span id="sortLabel">依價格排序</span>
+    <svg viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</div>
+
+<div class="list" id="list"></div>
+<div class="empty" id="emptyState" style="display:none;">此區域暫無符合的會所</div>
+
+<footer>厦门按摩会所交互式查询系统 · 資料整合自使用者提供 Excel／CSV</footer>
+
+<script>
+const shops = [
+  {no:1, name:"老房子・足浴 SPA（總店）", area:"思明區", address:"長青路 179 號三至六樓", phone:"0592‑6883888", phoneTel:"0592-6883888", levels:5, levelDesc:"見習｜初｜中｜高｜資深老師傅；資深多≥10 年，古法經絡", price:"169 元起 (60min 足浴 + 自助)", priceMin:169, stay:"不過夜限 5h，超時 30 元 / 人 /h；過夜可待到隔日 12:00", buffet:"24H 供餐，熱菜、鐵板、燉湯、哈根達斯", overnight:true, overnightText:"全週套餐可免費過夜", feature:"大包廂多，適合多人聚會", parking:"收費停車場"},
+  {no:2, name:"老房子・足浴 SPA（禾祥西路店）", area:"思明區", address:"禾祥西路 372 號", phone:"", phoneTel:"", levels:5, levelDesc:"見習｜初｜中｜高｜資深老師傅；延續總店古法手法", price:"169 元起", priceMin:169, stay:"不過夜限 5h，超時 30 元 / 人 /h；過夜可待到隔日 12:00", buffet:"24H 供餐", overnight:true, overnightText:"全週套餐可免費過夜", feature:"市區核心地段", parking:"收費停車"},
+  {no:3, name:"老房子・足浴 SPA（集美店）", area:"集美區", address:"僑英街道樂海路 154 號", phone:"0592‑6384567", phoneTel:"0592-6384567", levels:5, levelDesc:"見習｜初｜中｜高｜資深老師傅", price:"169 元起", priceMin:169, stay:"不過夜限 5h，超時 30 元 / 人 /h；過夜可待到隔日 12:00", buffet:"24H 供餐", overnight:true, overnightText:"全週套餐可免費過夜", feature:"靠近地鐵，集美區", parking:"收費停車"},
+  {no:4, name:"大桶水足浴（奧永廣場店）", area:"思明區", address:"體育路 88 號 6 樓", phone:"0592‑2030000", phoneTel:"0592-2030000", levels:5, levelDesc:"一星｜二星｜三星｜四星｜五星金牌；五星≥10 年連鎖認證", price:"144‑189 元 (60min 足浴 + 自助)", priceMin:144, stay:"不過夜無硬性限時；過夜 23:00 進房可待到隔日 11:00", buffet:"午晚餐時段海鮮、港點；非餐僅簡餐麵食", overnight:true, overnightText:"週日‑週四可過夜；❌週五、六不可過夜", feature:"湯泉、汗蒸、電競房、影院", parking:"免費停 5h，過夜免費"},
+  {no:5, name:"大桶水足浴（國貿 / 蓮坂店）", area:"思明區", address:"梧村街道雙涵社區湖濱南路 398 號 209 室", phone:"0592‑5326222", phoneTel:"0592-5326222", levels:5, levelDesc:"一星｜二星｜三星｜四星｜五星金牌", price:"144‑189 元", priceMin:144, stay:"不過夜無硬性限時；過夜 23:00 進房可待到隔日 11:00", buffet:"午晚餐時段海鮮、港點；非餐僅簡餐麵食", overnight:true, overnightText:"週日‑週四可過夜；❌週五、六不可過夜", feature:"蓮坂核心商圈 5000㎡空間", parking:"免費停車"},
+  {no:6, name:"大桶水足浴（杏林店）", area:"集美區", address:"杏錦路 366 號靈玲大酒店隔壁", phone:"", phoneTel:"", levels:5, levelDesc:"一星｜二星｜三星｜四星｜五星金牌", price:"144‑189 元", priceMin:144, stay:"不過夜無硬性限時；過夜 23:00 進房可待到隔日 11:00", buffet:"午晚餐時段海鮮、港點；非餐僅簡餐麵食", overnight:true, overnightText:"週日‑週四可過夜；❌週五、六不可過夜", feature:"近靈玲動物園，汗蒸水療", parking:"免費停車"},
+  {no:7, name:"鏡花月健康會所", area:"思明區", address:"湖濱東路 322 號 201 之一單元", phone:"", phoneTel:"", levels:4, levelDesc:"見習｜5 鑽｜7 鑽｜10 鑽；10 鑽≥5 年頂級認證", price:"基礎 80min 足浴 159‑199；5‑7 鑽 230‑280；10 鑽 320‑380", priceMin:80, stay:"基礎券僅 4h 不可過夜；5 鑽以上 21 點後到店過夜可待到隔日 12:00", buffet:"點餐送包間，11:00‑03:00 供餐，牛排港點燉罐，部分套餐含哈根達斯", overnight:true, overnightText:"需 5 鑽以上套餐 + 21 點後到店才可過夜", feature:"全部包廂獨立衛浴、巨幕投影；多房型", parking:"免費停車、代客泊車"},
+  {no:8, name:"瀾庭滙（同安店）", area:"同安區", address:"銀湖中路 516‑1 號", phone:"18975635934", phoneTel:"18975635934", levels:2, levelDesc:"初級 (<1 年)｜中級 (≥1 年)；基礎推拿放鬆", price:"60min 精油開背 89；70minSPA129", priceMin:60, stay:"團購限 5h，超時另計；無過夜服務", buffet:"熱菜、水果、飲品普通自助", overnight:false, overnightText:"不可過夜", feature:"平價取向，硬體普通", parking:"收費停車"},
+  {no:9, name:"鑫鑫潤足坊（總店）", area:"思明區", address:"嘉禾路 215 號東方明珠廣場三期三樓", phone:"0592‑5719008", phoneTel:"0592-5719008", levels:3, levelDesc:"初級 (<1 年)｜中級 (1‑3 年)｜資深 (≥3 年)；老店傳統手法", price:"60min 足浴 129‑159 元", priceMin:60, stay:"限 5h，超時另計；無過夜服務", buffet:"熱菜、小吃、水果飲品", overnight:false, overnightText:"不可過夜", feature:"20 年老店，手法扎實", parking:"免費停車"},
+  {no:10, name:"鑫鑫潤足坊（蓮花旗艦店）", area:"思明區", address:"嘉禾路 215 號東方明珠廣場三期三樓", phone:"0592‑5719008", phoneTel:"0592-5719008", levels:3, levelDesc:"初級｜中級｜資深技師", price:"129‑159 元", priceMin:129, stay:"限 5h，超時另計；無過夜服務", buffet:"熱菜、小吃、水果飲品", overnight:false, overnightText:"不可過夜", feature:"蓮花地鐵旁旗艦門店", parking:"免費停車"},
+  {no:11, name:"瀾灣印象 SPA 會館（呂厝店）", area:"思明區", address:"松柏路 102 號 5 樓", phone:"13850003454", phoneTel:"13850003454", levels:2, levelDesc:"初級 (<1 年)｜中級 (≥1 年)；細緻服務適合情侶", price:"60min 精油開背 150 元起；80min 尊享 SPA200 起", priceMin:60, stay:"限 4.5h，超時另計；無過夜服務", buffet:"簡易自助：水果、小食、飲品", overnight:false, overnightText:"不可過夜", feature:"星空主題包廂，地鐵近", parking:"少量免費車位"},
+  {no:12, name:"豪軒湯泉（翔安店）", area:"翔安區", address:"五權路 2588 號新華都三樓", phone:"0592‑8696999", phoneTel:"0592-8696999", levels:2, levelDesc:"初級 (<1 年)｜中級 (≥1 年)；可指定男技師", price:"60min 精油開背 139；90min 指壓 239", priceMin:60, stay:"限 6h，超時另計；無過夜服務", buffet:"湯泉配套自助熱菜水果", overnight:false, overnightText:"不可過夜", feature:"湯泉汗蒸，翔安在地", parking:"免費停車"},
+  {no:13, name:"尚概念會所（總店）", area:"思明區", address:"前埔東路 321 號", phone:"0592‑6768688", phoneTel:"0592-6768688", levels:3, levelDesc:"初級 (<1 年)｜中級 (1‑10 年)｜資深老師傅 (≥10 年) 古法推拿", price:"60min 足浴 139‑199；專項調理 259 起", priceMin:60, stay:"限 5h，超時另計；無過夜服務", buffet:"簡餐、燉罐、水果飲品", overnight:false, overnightText:"不可過夜", feature:"13 年老店，擅長勞損調理", parking:"收費停車"},
+  {no:14, name:"尚概念會所（前埔東路分店）", area:"思明區", address:"前埔東路 600‑1 號", phone:"", phoneTel:"", levels:3, levelDesc:"初級｜中級｜資深老師傅", price:"139‑259 元", priceMin:139, stay:"限 5h，超時另計；無過夜服務", buffet:"簡餐、燉罐、水果飲品", overnight:false, overnightText:"不可過夜", feature:"前埔社區分店", parking:"收費停車"},
+  {no:15, name:"夢回皇朝休閒娛樂會所", area:"集美區", address:"嘉禾路 341 號瀟湘大廈沿街 1‑2 層", phone:"", phoneTel:"", levels:2, levelDesc:"初級 (<1 年)｜中級 (≥1 年)；規範無隱形消費", price:"60min 按摩 99；169 元過夜套餐", priceMin:60, stay:"限 5h；0 點後消費滿 169 元可過夜", buffet:"平價自助熱菜小吃水果", overnight:true, overnightText:"達消費門檻可過夜", feature:"大空間會所，價格低", parking:"免費停車"},
+  {no:16, name:"萬悅滙・海水湯泉（園博苑店）", area:"集美區", address:"集杏海堤 166‑4 號 3 樓", phone:"0592‑6258999", phoneTel:"0592-6258999", levels:3, levelDesc:"初級 (<1 年)｜中級 (1‑3 年)｜資深 (≥3 年需預約)", price:"60min 足道 304 起；90min 按摩 331 起", priceMin:60, stay:"套餐內可全日停留，無嚴格限時", buffet:"海鮮自助檔次高", overnight:true, overnightText:"指定套餐可過夜", feature:"湯泉汗蒸大休閒區", parking:"免費停車"},
+  {no:17, name:"手佳健康會所（總店蓮岳路）", area:"思明區", address:"蓮岳路 156 號 16B 室", phone:"0592‑5523158", phoneTel:"0592-5523158", levels:4, levelDesc:"初級｜中級｜高級｜特級；特級≥10 年中醫理療", price:"60min 足浴 248 起；特級 458 起", priceMin:60, stay:"套餐內可全日停留", buffet:"簡餐、燉湯、水果飲品", overnight:true, overnightText:"指定項目可過夜", feature:"廈門連鎖頭部，養生調理", parking:"收費停車"},
+  {no:18, name:"手佳健康會所（明發店）", area:"思明區", address:"蓮前西路 51 號毅宏大廈 1‑2 樓", phone:"0592‑5089088", phoneTel:"0592-5089088", levels:4, levelDesc:"初級｜中級｜高級｜特級", price:"248‑458 元", priceMin:248, stay:"套餐內可全日停留", buffet:"簡餐、燉湯、水果飲品", overnight:true, overnightText:"指定項目可過夜", feature:"明發商圈", parking:"收費停車"},
+  {no:19, name:"手佳健康會所（呂厝豪峰店）", area:"湖裡區", address:"呂嶺路 15 號豪峰大廈 2‑3 樓", phone:"0592‑5169988", phoneTel:"0592-5169988", levels:4, levelDesc:"初級｜中級｜高級｜特級", price:"248‑458 元", priceMin:248, stay:"套餐內可全日停留", buffet:"簡餐、燉湯、水果飲品", overnight:true, overnightText:"指定項目可過夜", feature:"呂厝地鐵口旁", parking:"收費停車"},
+  {no:20, name:"手佳健康會所（華僑海景店）", area:"思明區", address:"禾祥西二路 89 號之 15 華僑海景城 1‑2 樓", phone:"0592‑2028988", phoneTel:"0592-2028988", levels:4, levelDesc:"初級｜中級｜高級｜特級", price:"248‑458 元", priceMin:248, stay:"套餐內可全日停留", buffet:"簡餐、燉湯、水果飲品", overnight:true, overnightText:"指定項目可過夜", feature:"禾祥西核心地段", parking:"收費停車"},
+  {no:21, name:"手佳健康會所（松柏金同店）", area:"思明區", address:"蓮岳路 177 號金同花園 1‑2 層", phone:"0592‑5399088", phoneTel:"0592-5399088", levels:4, levelDesc:"初級｜中級｜高級｜特級", price:"248‑458 元", priceMin:248, stay:"套餐內可全日停留", buffet:"簡餐、燉湯、水果飲品", overnight:true, overnightText:"指定項目可過夜", feature:"松柏片區資深技師多", parking:"收費停車"},
+  {no:22, name:"手佳健康會所（嘉益店）", area:"思明區", address:"嘉禾路 162 號嘉益大廈 2‑3 樓", phone:"0592‑5059588", phoneTel:"0592-5059588", levels:4, levelDesc:"初級｜中級｜高級｜特級", price:"248‑458 元", priceMin:248, stay:"套餐內可全日停留", buffet:"簡餐、燉湯、水果飲品", overnight:true, overnightText:"指定項目可過夜", feature:"蓮花片區", parking:"收費停車"},
+  {no:23, name:"手佳健康會所（寧寶店）", area:"集美區", address:"紡織東路 22 號 2 樓", phone:"0592‑6556888", phoneTel:"0592-6556888", levels:4, levelDesc:"初級｜中級｜高級｜特級", price:"248‑458 元", priceMin:248, stay:"套餐內可全日停留", buffet:"簡餐、燉湯、水果飲品", overnight:true, overnightText:"指定項目可過夜", feature:"杏林寧寶花園旁", parking:"收費停車"},
+  {no:24, name:"淺溪健康養生會所（萬象城南湖店）", area:"思明區", address:"湖濱東路 322 號南湖中祥大廈二層", phone:"13505912264", phoneTel:"13505912264", levels:3, levelDesc:"初級 (<1 年)｜中級 (1‑3 年)｜資深 (≥3 年) 泉州老牌手法", price:"按摩 + 自助 200 起；專項 320 起", priceMin:200, stay:"限 5h，超時另計；無過夜服務", buffet:"熱菜、小吃、水果飲品", overnight:false, overnightText:"不可過夜", feature:"靠近萬象城，輕奢包廂", parking:"收費停車"},
+  {no:25, name:"三谷里（原素可湯泉閩南店）", area:"思明區", address:"湖濱南路 26 號閩南大廈 1‑4 樓", phone:"0592‑5857777", phoneTel:"0592-5857777", levels:3, levelDesc:"初級 (0‑1 年)｜中級 (1‑3 年)｜高級 (≥3 年，需預約)", price:"按摩套餐 269‑468 元", priceMin:269, stay:"套餐內可待 16h，超時另計", buffet:"三餐自助，海鮮、牛排、哈根達斯", overnight:true, overnightText:"消費滿額可包廂過夜", feature:"萬平美學空間，戴森洗护，休閒區豐富", parking:"免費停車"},
+  {no:26, name:"璽悅湯泉", area:"湖裡區", address:"金鐘路 130 號金龍廣場", phone:"0592‑5376688", phoneTel:"0592-5376688", levels:3, levelDesc:"初級｜中級｜資深技師；中級穴位調理，資深專項理療", price:"189‑329 元", priceMin:189, stay:"套餐限 12h，無超時費", buffet:"24 小時供餐，八大菜系輪換", overnight:false, overnightText:"僅公共影視廳休息，不可包廂過夜", feature:"免費洗車泊車，60 + 包廂", parking:"免費停車 + 洗車"},
+  {no:27, name:"煌家足道（嘉蓮店）", area:"思明區", address:"蓮景路 10 號", phone:"0592‑5138888", phoneTel:"0592-5138888", levels:1, levelDesc:"一星～五星金牌技師，可指定", price:"169‑339 元", priceMin:169, stay:"套餐內 8h，超時 30 元 / 人 /h", buffet:"熱菜、港點、燉罐、水果", overnight:true, overnightText:"21 點後消費指定套餐可過夜", feature:"有 KTV、台球休閒區", parking:"免費停車"},
+  {no:28, name:"煌家足道（江頭店）", area:"湖裡區", address:"江頭東路 89 號", phone:"0592‑5557777", phoneTel:"0592-5557777", levels:1, levelDesc:"一星～五星金牌技師，可指定", price:"169‑339 元", priceMin:169, stay:"套餐內 8h，超時 30 元 / 人 /h", buffet:"熱菜、港點、燉罐、水果", overnight:true, overnightText:"21 點後消費指定套餐可過夜", feature:"空間大，多人包廂多", parking:"免費停車"},
+  {no:29, name:"海佐漟（海滄店）", area:"海滄區", address:"海滄新景東里", phone:"0592‑6519966", phoneTel:"0592-6519966", levels:3, levelDesc:"初級｜中級｜資深技師", price:"209‑299 元", priceMin:209, stay:"套餐無硬性限時", buffet:"明檔現煮、牛排、海鮮、冰淇淋", overnight:true, overnightText:"0 點後登記可免費過夜", feature:"泡澡搓澡一條龍，台球茶室", parking:"免費停車"},
+  {no:30, name:"指尚名軒（松柏店）", area:"思明區", address:"松柏路 134 號", phone:"0592‑5122888", phoneTel:"0592-5122888", levels:3, levelDesc:"初級｜中級｜金牌技師可指定", price:"169‑289 元", priceMin:169, stay:"套餐內 8h", buffet:"星級自助熱菜水果", overnight:true, overnightText:"169 元以上套餐可過夜", feature:"無強推銷，私密性佳", parking:"免費停車"},
+  {no:31, name:"大腳丫足道（湖裡店）", area:"湖裡區", address:"宜賓路 9 號 1‑3 層", phone:"0592‑6038487", phoneTel:"0592-6038487", levels:3, levelDesc:"初級｜中級｜高級技師", price:"139‑249 元", priceMin:139, stay:"套餐限 6h", buffet:"24 小時點餐式自助，牛排無限點", overnight:false, overnightText:"不可過夜", feature:"20 年老連鎖，輕奢新裝修", parking:"免費停車"},
+  {no:32, name:"萬悅滙（奧永廣場店）", area:"思明區", address:"體育路 88 號奧永廣場 4 層 A 區", phone:"0592‑8515999", phoneTel:"0592-8515999", levels:3, levelDesc:"初級｜中級｜資深技師、中醫理療師", price:"299‑498 元", priceMin:299, stay:"套票可待 16h，超時 30 元 /h", buffet:"海鮮自助、哈根達斯", overnight:true, overnightText:"0 點後消費 499 以上才可包廂過夜", feature:"島內分店，南洋風格，室內泳池", parking:"免費停車"},
+  {no:33, name:"閩越滙湯泉足道", area:"集美區", address:"杏濱路 120 號", phone:"0592‑6268899", phoneTel:"0592-6268899", levels:5, levelDesc:"精品小項目｜王牌技師｜明星技師｜魅力技師｜VIP 超模；歐式采耳另計，價格依技師等級遞增", price:"精品小項目 89 元 (刮痧/拔罐/搓背/梁氏采耳/洗眼睛)；王牌技師 299‑499 元；明星技師 399 元；魅力技師 499 元；VIP 超模 599‑699 元；歐式采耳 40min 289 元", priceMin:89, stay:"門票含 12 小時公區自助服務；超時 30 元/小時，超 3 小時需重新購票", buffet:"12H 湯泉 + 星級自助，含於各技師套餐內", overnight:true, overnightText:"項目結束後提供 20 分鐘休息時間，可至影院休息大廳休息", feature:"門票 129 元/位（兒童 88 元/位，1.2m 以下免票，1.2‑1.5m 半票，1.5m 以上全票），湯泉汗蒸、大休閒區", parking:"免費停車"},
+  {no:34, name:"嘉悅足道（同安建材園店）", area:"同安區", address:"建材園二路", phone:"0592‑7037788", phoneTel:"0592-7037788", levels:2, levelDesc:"初級｜中級技師", price:"89‑189 元", priceMin:89, stay:"套餐限 6h", buffet:"海鮮小龍蝦、牛排現煮", overnight:true, overnightText:"高價套餐可過夜", feature:"同安高性價比，30 + 包廂", parking:"免費停 6 小時"},
+];
+
+function amapUrl(s){
+  // 有詳細地址時優先用地址搜尋，定位更精準；沒有地址才退回店名+區域
+  const keyword = encodeURIComponent(s.address ? `${s.name} ${s.address}` : `${s.name} ${s.area}`);
+  const src = encodeURIComponent("厦门按摩会所指南");
+  return `https://uri.amap.com/search?keyword=${keyword}&src=${src}`;
+}
+
+function getOvernightDetail(s){
+  const base = s.name.split('（')[0].trim();
+  return overnightDetails.find(d => d.baseName === base) || null;
+}
+
+const uniqueAreas = ["全部", ...Array.from(new Set(shops.map(s=>s.area)))];
+
+const overnightDetails = [
+  {baseName:"老房子・足浴 SPA", ok:true, overview:"✅全週均可免費包間過夜，無週末 / 節假日限制", threshold:"無額外門檻，購買店內任意正價 / 團購套餐即可", timing:"最早 20:00 可進入過夜包間，最遲隔日 12:00 退房", overtime:"超過 12:00 未退房，按 30 元 / 人 / 小時收取超時費；超過 3 小時需重新購買套餐", benefit:"1. 過夜包間配獨立衛浴、床鋪、私密休息區；2. 24 小時自助餐食（含哈根達斯）全程可用；3. 無額外過夜服務費", restriction:"熱門時段（週末、節假日）需提前預約包間，22:00 後到店可能無過夜包間"},
+  {baseName:"大桶水足浴", ok:true, overview:"✅週日 - 週四可免費包間過夜；❌週五、週六、法定節假日不可過夜", threshold:"無額外門檻，購買店內任意正價 / 團購套餐即可", timing:"最早 23:00 可進入過夜包間，最遲隔日 11:00 退房", overtime:"超過 11:00 未退房，按 30 元 / 人 / 小時收取超時費；超過 2 小時需重新購買套餐", benefit:"1. 過夜包間獨立衛浴、休息區；2. 湯泉、汗蒸、電競房、影院等配套全程可用；3. 非餐時段簡餐持續供應", restriction:"僅工作日可過夜，週末 / 節假日絕不開放過夜；22:00 後到店可能無包間"},
+  {baseName:"鏡花月健康會所", ok:true, overview:"✅21:00 後到店可免費包間過夜；❌午間 / 傍晚到店不可過夜", threshold:"必須購買5 鑽及以上等級套餐（230 元以上）；159-199 元基礎 5 鑽套餐不可過夜", timing:"最早 21:00 可進入過夜包間，最遲隔日 12:00 退房", overtime:"超過 12:00 未退房，按 50 元 / 人 / 小時收取超時費；超過 2 小時需重新購買套餐", benefit:"1. 全部過夜包間配獨立衛浴、巨幕投影、床鋪；2. 11:00-03:00 點餐送包間服務全程可用；3. 無額外過夜費", restriction:"1. 僅高級套餐可過夜，基礎套餐絕不開放；2. 週末熱門時段需提前 1 天預約；3. 凌晨 3:00 後停止供餐"},
+  {baseName:"夢回皇朝休閒娛樂會所", ok:true, overview:"✅滿足消費門檻可免費包間過夜", threshold:"必須消費滿169 元及以上套餐；低於該金額不可過夜", timing:"最早 00:00 後可進入過夜包間，最遲隔日 12:00 退房", overtime:"超過 12:00 未退房，按 20 元 / 人 / 小時收取超時費", benefit:"1. 過夜包間獨立休息區；2. 平價自助全程可用；3. 無額外過夜費", restriction:"00:00 前到店需消費滿 169 元才可登記過夜；節假日需提前預約"},
+  {baseName:"萬悅滙・海水湯泉", ok:true, overview:"✅指定套餐可免費包間過夜", threshold:"購買店內300 元及以上精品套餐即可；基礎足道套餐不可過夜", timing:"最早 20:00 可進入過夜包間，最遲隔日 12:00 退房", overtime:"超過 12:00 未退房，按 30 元 / 人 / 小時收取超時費", benefit:"1. 過夜包間獨立衛浴；2. 海鮮自助、湯泉汗蒸配套全程可用；3. 無額外過夜費", restriction:"湯泉配套為主，過夜包間數量少，需提前預約"},
+  {baseName:"手佳健康會所", ok:true, overview:"✅指定項目可免費包間過夜", threshold:"購買店內高級及以上技師套餐（358 元以上）；基礎足浴套餐不可過夜", timing:"最早 21:00 可進入過夜包間，最遲隔日 12:00 退房", overtime:"超過 12:00 未退房，按 30 元 / 人 / 小時收取超時費", benefit:"1. 過夜包間獨立衛浴；2. 簡餐、燉湯等餐食全程可用；3. 無額外過夜費", restriction:"連鎖品牌各分店規則統一，過夜需提前電話確認包間存量"},
+  {baseName:"三谷里", ok:true, overview:"✅消費滿額可免費包間過夜", threshold:"必須消費滿300 元及以上套餐；基礎按摩套餐不可過夜", timing:"最早 20:00 可進入過夜包間，最遲隔日 16:00 退房（最長可待 16 小時）", overtime:"超過 16:00 未退房，按 30 元 / 人 / 小時收取超時費", benefit:"1. 過夜包間獨立衛浴、戴森洗护配套；2. 三餐自助、休閒區全程可用；3. 無額外過夜費", restriction:"美學空間定位，過夜包間需提前預約，節假日門檻可能上調"},
+  {baseName:"煌家足道", ok:true, overview:"✅21:00 後到店可免費包間過夜；❌午間 / 傍晚到店不可過夜", threshold:"必須購買169 元及以上套餐；低於該金額不可過夜", timing:"最早 21:00 可進入過夜包間，最遲隔日 12:00 退房", overtime:"超過 12:00 未退房，按 30 元 / 人 / 小時收取超時費", benefit:"1. 過夜包間獨立衛浴、休息區；2. KTV、台球等休閒配套全程可用；3. 熱菜、港點等自助全程可用", restriction:"熱門時段包間緊張，需提前預約；22:00 後到店可能無過夜包間"},
+  {baseName:"海佐漟", ok:true, overview:"✅00:00 後登記可免費包間過夜；❌00:00 前到店不可過夜", threshold:"無額外門檻，購買店內任意正價 / 團購套餐即可", timing:"最早 00:00 可進入過夜包間，最遲隔日 12:00 退房", overtime:"超過 12:00 未退房，按 20 元 / 人 / 小時收取超時費", benefit:"1. 過夜包間獨立衛浴、休息區；2. 泡澡、搓澡、台球茶室等配套全程可用；3. 明檔現煮、海鮮等餐食全程可用", restriction:"海滄片區，跨區前往建議提前確認包間；00:00 前到店需在公共休息區等待至凌晨才可登記過夜"},
+  {baseName:"指尚名軒", ok:true, overview:"✅169 元及以上套餐可免費包間過夜；❌低於該金額不可過夜", threshold:"必須購買169 元及以上套餐；基礎套餐不可過夜", timing:"最早 20:00 可進入過夜包間，最遲隔日 12:00 退房", overtime:"超過 12:00 未退房，按 30 元 / 人 / 小時收取超時費", benefit:"1. 過夜包間獨立衛浴、私密休息區；2. 星級自助全程可用；3. 無推銷，私密度高；4. 無額外過夜費", restriction:"松柏片區，包間數量不多，週末需提前預約"},
+  {baseName:"萬悅滙", ok:true, overview:"✅00:00 後消費滿額可免費包間過夜；❌未達門檻 / 午間到店不可過夜", threshold:"必須消費滿499 元及以上套餐；低額套餐不可過夜", timing:"最早 00:00 可進入過夜包間，最遲隔日 12:00 退房", overtime:"超過 12:00 未退房，按 30 元 / 人 / 小時收取超時費；套票可累計最長待 16 小時", benefit:"1. 過夜包間獨立衛浴、南洋風格裝修；2. 室內泳池、湯泉汗蒸等配套全程可用；3. 海鮮自助、哈根達斯全程可用", restriction:"過夜門檻高，僅高端套餐可過夜；包間數量少，需提前預約"},
+  {baseName:"閩越滙湯泉足道", ok:true, overview:"門票含 12 小時公區自助服務，非過夜制而是計時制；項目結束後另有 20 分鐘休息時間", threshold:"門票 129 元/位即含 12 小時公區自助（湯泉、影院休息大廳等）；兒童 88 元/位，1.2m 以下免票，1.2‑1.5m 半票，1.5m 以上全票", timing:"依到店時間起算 12 小時，非固定進出時段", overtime:"超時 30 元/小時；超過 3 小時需重新購票，非單純加收超時費", benefit:"1. 12H 湯泉 + 星級自助含於各技師套餐；2. 項目結束後 20 分鐘休息時間，可至影院休息大廳休息；3. 精品小項目（刮痧/拔罐/搓背/梁氏采耳/洗眼睛）89 元即可加購", restriction:"集美杏林片區，屬計時消費制非傳統包廂過夜，長時間停留需留意 3 小時後需重新購票的規則"},
+  {baseName:"嘉悅足道", ok:true, overview:"✅高價套餐可免費包間過夜；❌低額套餐不可過夜", threshold:"必須購買129 元及以上套餐；89 元基礎套餐不可過夜", timing:"最早 21:00 可進入過夜包間，最遲隔日 12:00 退房", overtime:"超過 12:00 未退房，按 20 元 / 人 / 小時收取超時費；套餐限 6 小時內", benefit:"1. 過夜包間獨立休息區；2. 海鮮小龍蝦、牛排等自助全程可用；3. 無額外過夜費", restriction:"同安片區性價比高，節假日包間緊張，需提前預約"},
+  {baseName:"璽悅湯泉", ok:false, overview:"❌全時段不可包間過夜，僅可在公共影視廳短暫休憩", threshold:"無過夜權限，所有套餐均不提供包間過夜服務", timing:"套餐內最長可待 12 小時，無超時費", overtime:"超過 12 小時未離開，按 30 元 / 人 / 小時收費", benefit:"僅可在公共影視廳休息，不可在包間留宿，無過夜權益", restriction:"僅提供日間湯泉、按摩服務，無過夜資質，不可留宿"},
+  {baseName:"瀾庭滙", ok:false, overview:"❌全時段不可過夜", threshold:"無過夜權限，所有套餐均不提供過夜服務", timing:"團購套餐限 5 小時內，超時另計", overtime:"超過 5 小時未離開，按 20 元 / 人 / 小時收取超時費", benefit:"無過夜權益，僅可在營業時間內消費", restriction:"平價基礎定位，僅提供日間按摩服務，無過夜資質"},
+  {baseName:"鑫鑫潤足坊", ok:false, overview:"❌全時段不可過夜", threshold:"無過夜權限，所有套餐均不提供過夜服務", timing:"套餐限 5 小時內，超時另計", overtime:"超過 5 小時未離開，按 20 元 / 人 / 小時收取超時費", benefit:"無過夜權益，僅可在營業時間內消費", restriction:"20 年老店，僅提供日間按摩服務，無過夜資質"},
+  {baseName:"瀾灣印象 SPA 會館", ok:false, overview:"❌全時段不可過夜", threshold:"無過夜權限，所有套餐均不提供過夜服務", timing:"套餐限 4.5 小時內，超時另計", overtime:"超過 4.5 小時未離開，按 30 元 / 人 / 小時收取超時費", benefit:"無過夜權益，僅可在營業時間內消費", restriction:"情侶 / 閨蜜定位，僅提供日間 SPA 服務，無過夜資質"},
+  {baseName:"豪軒湯泉", ok:false, overview:"❌全時段不可過夜", threshold:"無過夜權限，所有套餐均不提供過夜服務", timing:"套餐限 6 小時內，超時另計", overtime:"超過 6 小時未離開，按 20 元 / 人 / 小時收取超時費", benefit:"無過夜權益，僅可在營業時間內消費", restriction:"翔安在地定位，僅提供日間湯泉、按摩服務，無過夜資質"},
+  {baseName:"尚概念會所", ok:false, overview:"❌全時段不可過夜", threshold:"無過夜權限，所有套餐均不提供過夜服務", timing:"套餐限 5 小時內，超時另計", overtime:"超過 5 小時未離開，按 30 元 / 人 / 小時收取超時費", benefit:"無過夜權益，僅可在營業時間內消費", restriction:"13 年老店，主打勞損調理，僅提供日間按摩服務，無過夜資質"},
+  {baseName:"大腳丫足道", ok:false, overview:"❌全時段不可過夜", threshold:"無過夜權限，所有套餐均不提供過夜服務", timing:"套餐限 6 小時內，超時另計", overtime:"超過 6 小時未離開，按 20 元 / 人 / 小時收取超時費", benefit:"無過夜權益，僅可在公共休息區短暫休息，不可留宿", restriction:"20 年老連鎖，僅提供日間按摩服務，無過夜資質，不可留宿"},
+  {baseName:"淺溪健康養生會所", ok:false, overview:"❌全時段不可過夜", threshold:"無過夜權限，所有套餐均不提供過夜服務", timing:"套餐限 5 小時內，超時另計", overtime:"超過 5 小時未離開，按 30 元 / 人 / 小時收取超時費", benefit:"無過夜權益，僅可在營業時間內消費", restriction:"泉州連鎖分店，僅提供日間按摩服務，無過夜資質"},
+];
+
+let currentArea = "全部";
+let sortDesc = false;
+let sortActive = false;
+let overnightOnly = false;
+let parkingOnly = false;
+let favOnly = false;
+let openIdx = null;
+
+let favorites = new Set();
+try{
+  const stored = JSON.parse(localStorage.getItem('xm_massage_favs') || '[]');
+  favorites = new Set(stored);
+}catch(e){ favorites = new Set(); }
+function saveFavorites(){
+  try{ localStorage.setItem('xm_massage_favs', JSON.stringify(Array.from(favorites))); }catch(e){}
+}
+
+const areaFiltersEl = document.getElementById('areaFilters');
+const listEl = document.getElementById('list');
+const emptyEl = document.getElementById('emptyState');
+const countLabelEl = document.getElementById('countLabel');
+const sortBtn = document.getElementById('sortBtn');
+const sortLabel = document.getElementById('sortLabel');
+const overnightBtn = document.getElementById('overnightBtn');
+const parkingBtn = document.getElementById('parkingBtn');
+const favBtn = document.getElementById('favBtn');
+
+function renderFilters(){
+  areaFiltersEl.innerHTML = uniqueAreas.map(a =>
+    `<div class="chip ${a===currentArea?'active':''}" data-area="${a}">${a}</div>`
+  ).join('');
+  areaFiltersEl.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      currentArea = chip.dataset.area;
+      openIdx = null;
+      render();
+    });
+  });
+}
+
+function render(){
+  renderFilters();
+  let data = currentArea === "全部" ? shops.slice() : shops.filter(s=>s.area===currentArea);
+  if(overnightOnly){
+    data = data.filter(s=>s.overnight);
+  }
+  if(parkingOnly){
+    data = data.filter(s=>s.parking.includes('免費'));
+  }
+  if(favOnly){
+    data = data.filter(s=>favorites.has(s.no));
+  }
+  if(sortActive){
+    data.sort((a,b)=> sortDesc ? b.priceMin - a.priceMin : a.priceMin - b.priceMin);
+  }
+  countLabelEl.textContent = `共 ${data.length} 家會所，點擊卡片展開詳情`;
+
+  if(data.length === 0){
+    listEl.innerHTML = '';
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  listEl.innerHTML = data.map(s=>{
+    const dots = Array.from({length:5}).map((_,i)=>
+      `<span class="lv-dot" style="opacity:${i < s.levels ? .9 : .18}"></span>`
+    ).join('');
+    const hasPhone = !!s.phoneTel;
+    const isFav = favorites.has(s.no);
+    const ov = getOvernightDetail(s);
+    const ovBlock = ov ? `
+          <div class="ov-panel ${ov.ok?'':'no'}">
+            <div class="ov-head">${ov.ok?'🌙':'☀️'} 過夜規則詳解</div>
+            <div class="ov-overview">${ov.overview}</div>
+            <div class="ov-item"><div class="ov-item-label">適用套餐門檻</div><div class="ov-item-val">${ov.threshold}</div></div>
+            <div class="ov-item"><div class="ov-item-label">時段與停留時長</div><div class="ov-item-val">${ov.timing}</div></div>
+            <div class="ov-item"><div class="ov-item-label">超時收費規則</div><div class="ov-item-val">${ov.overtime}</div></div>
+            <div class="ov-item"><div class="ov-item-label">過夜權益</div><div class="ov-item-val">${ov.benefit}</div></div>
+            <div class="ov-item"><div class="ov-item-label">特殊限制</div><div class="ov-item-val">${ov.restriction}</div></div>
+          </div>` : '';
+    return `
+    <div class="card ${openIdx===s.no?'open':''}" data-no="${s.no}">
+      <div class="card-head">
+        <div class="idx">${String(s.no).padStart(2,'0')}</div>
+        <div class="card-main">
+          <div class="card-top">
+            <div class="name">${s.name}</div>
+            <div class="price">${s.price.split('(')[0].trim()}</div>
+          </div>
+          <div class="card-meta">
+            <span class="area">${s.area}${s.address ? ' · ' + s.address : ''}</span>
+          </div>
+          <div class="card-meta">
+            <span class="levels">${dots}</span>
+            <span class="tag ${s.overnight?'yes':'no'}">${s.overnight?'可過夜':'不可過夜'}</span>
+          </div>
+        </div>
+        <div class="fav-star ${isFav?'on':''}" data-fav="${s.no}">
+          <svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6.1.6-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.2 6.1-.6L12 3.5Z" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="chevron">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3L9.5 7L5 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="body-inner">
+          <div class="row"><div class="row-label">技師分級體系</div><div class="row-val">${s.levelDesc}</div></div>
+          <div class="row"><div class="row-label">對應價格區間</div><div class="row-val">${s.price}</div></div>
+          <div class="row"><div class="row-label">停留時長規則</div><div class="row-val">${s.stay}</div></div>
+          <div class="row"><div class="row-label">自助詳情</div><div class="row-val">${s.buffet}</div></div>
+          <div class="row"><div class="row-label">過夜政策</div><div class="row-val">${s.overnight?'✅ ':'❌ '}${s.overnightText}</div></div>
+          <div class="row"><div class="row-label">核心特色</div><div class="row-val">${s.feature}</div></div>
+          <div class="row"><div class="row-label">停車福利</div><div class="row-val">${s.parking}</div></div>
+          <div class="row"><div class="row-label">門店地址</div><div class="row-val">${s.address || '暫無資料'}</div></div>
+          <div class="row"><div class="row-label">聯絡電話</div><div class="row-val">${s.phone || '暫未找到'}</div></div>
+          ${ovBlock}
+          <div class="action-row">
+            <a class="nav-btn" href="${amapUrl(s)}" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C7.6 2 4 5.6 4 10c0 5.4 7 11.5 7.3 11.7a1 1 0 0 0 1.4 0C13 21.5 20 15.4 20 10c0-4.4-3.6-8-8-8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6"/></svg>
+              高德導航
+            </a>
+            <a class="call-btn ${hasPhone?'':'disabled'}" href="tel:${s.phoneTel}">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M4 5c0-.6.4-1 1-1h3.2c.5 0 .9.3 1 .8l1 3.6c.1.4 0 .9-.4 1.1L7.8 10.7a13 13 0 0 0 5.5 5.5l1.2-2c.3-.4.7-.5 1.1-.4l3.6 1c.5.1.8.5.8 1V19c0 .6-.4 1-1 1h-2C10.5 20 4 13.5 4 6V5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+              ${hasPhone?'撥打電話':'無電話資料'}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  listEl.querySelectorAll('.card').forEach(card=>{
+    card.querySelector('.card-head').addEventListener('click', (e)=>{
+      if(e.target.closest('.fav-star')) return;
+      const no = Number(card.dataset.no);
+      openIdx = openIdx === no ? null : no;
+      render();
+    });
+    card.querySelector('.fav-star').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const no = Number(card.dataset.no);
+      if(favorites.has(no)){ favorites.delete(no); } else { favorites.add(no); }
+      saveFavorites();
+      render();
+    });
+  });
+}
+
+sortBtn.addEventListener('click', ()=>{
+  if(!sortActive){ sortActive = true; sortDesc = false; }
+  else { sortDesc = !sortDesc; }
+  sortLabel.textContent = sortDesc ? "價格：高到低" : "價格：低到高";
+  sortBtn.classList.toggle('desc', sortDesc);
+  render();
+});
+
+overnightBtn.addEventListener('click', ()=>{
+  overnightOnly = !overnightOnly;
+  overnightBtn.classList.toggle('active', overnightOnly);
+  render();
+});
+
+parkingBtn.addEventListener('click', ()=>{
+  parkingOnly = !parkingOnly;
+  parkingBtn.classList.toggle('active', parkingOnly);
+  render();
+});
+
+favBtn.addEventListener('click', ()=>{
+  favOnly = !favOnly;
+  favBtn.classList.toggle('star-active', favOnly);
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
