@@ -59,12 +59,21 @@ nav.tabs button:hover:not(.active){border-color:var(--gold);color:var(--ink);}
 .add-item{width:100%;border:1.5px dashed var(--line);background:none;border-radius:12px;padding:12px;color:var(--muted);font-family:inherit;font-size:13px;cursor:pointer;margin-top:4px;}
 .add-item:hover{border-color:var(--coral);color:var(--coral);}
 .day-total{text-align:right;font-size:12px;color:var(--muted);margin:10px 2px 0;}
-table.simple{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line);}
-table.simple th{background:var(--navy);color:var(--paper);font-size:12px;font-weight:500;text-align:left;padding:8px 10px;}
+table.simple{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line);table-layout:fixed;}
+table.simple th{background:var(--navy);color:var(--paper);font-size:12px;font-weight:500;text-align:left;padding:8px 10px;word-break:break-word;}
 table.simple td{padding:0;border-bottom:1px solid var(--line);vertical-align:top;}
-table.simple td input,table.simple td textarea{width:100%;border:none;background:none;padding:8px 10px;font-family:inherit;font-size:12.5px;color:var(--ink);resize:vertical;}
-table.simple td input:focus,table.simple td textarea:focus{outline:2px solid var(--coral-dim);background:#fff;}
+table.simple td textarea{width:100%;border:none;background:none;padding:8px 10px;font-family:inherit;font-size:12.5px;color:var(--ink);resize:none;overflow:hidden;white-space:pre-wrap;word-break:break-word;display:block;line-height:1.6;}
+table.simple td textarea:focus{outline:2px solid var(--coral-dim);background:#fff;}
 table.simple tr:last-child td{border-bottom:none;}
+@media (max-width:680px){
+  table.simple thead{display:none;}
+  table.simple, table.simple tbody, table.simple tr, table.simple td{display:block;width:100%;}
+  table.simple tr{border-bottom:2px solid var(--line);padding:10px 0;position:relative;}
+  table.simple td{border-bottom:none;padding:2px 10px;}
+  table.simple td[data-label]::before{content:attr(data-label);display:block;font-size:11px;color:var(--muted);font-weight:700;margin-top:6px;}
+  table.simple td:first-child[data-label]::before{margin-top:0;}
+  table.simple td:last-child{position:absolute;top:10px;right:6px;padding:0;}
+}
 .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 20px;}
 .btn{border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:8px;padding:8px 14px;font-family:inherit;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
 .btn:hover{border-color:var(--navy);}
@@ -358,6 +367,7 @@ function renderPanels(){
   if(activeMainTab==='days') panel.appendChild(renderDaysPanel());
   else panel.appendChild(renderSimplePanel(activeMainTab));
   root.appendChild(panel);
+  root.querySelectorAll('table.simple textarea').forEach(autosize);
 }
 
 function renderDaysPanel(){
@@ -476,12 +486,12 @@ function renderItem(day, it, idx){
   return el;
 }
 
-function renderSimplePanel(key){
-  const wrap = document.createElement('div');
-  const data = state[key];
-  const headers = data.headers;
-  const rows = data.rows;
+function autosize(ta){
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
+}
 
+function buildSimpleTable(headers, rows, onEdit, onDelete){
   const table = document.createElement('table');
   table.className = 'simple';
   const thead = document.createElement('thead');
@@ -490,22 +500,34 @@ function renderSimplePanel(key){
   const tbody = document.createElement('tbody');
   rows.forEach((row,ri)=>{
     const tr = document.createElement('tr');
-    tr.innerHTML = row.map((cell,ci)=>`<td><input value="${esc(cell)}" data-r="${ri}" data-c="${ci}" /></td>`).join('') +
-      `<td><button class="del-btn" data-del="${ri}">✕</button></td>`;
+    tr.innerHTML = row.map((cell,ci)=>`<td data-label="${esc(headers[ci])}"><textarea rows="1" data-r="${ri}" data-c="${ci}">${esc(cell)}</textarea></td>`).join('') +
+      `<td data-label=""><button class="del-btn" data-del="${ri}">✕</button></td>`;
     tbody.appendChild(tr);
   });
   table.appendChild(tbody);
-  table.querySelectorAll('input').forEach(inp=>{
-    inp.addEventListener('input',e=>{
-      rows[+e.target.dataset.r][+e.target.dataset.c] = e.target.value;
+  table.querySelectorAll('textarea').forEach(ta=>{
+    autosize(ta);
+    ta.addEventListener('input',e=>{
+      onEdit(+e.target.dataset.r, +e.target.dataset.c, e.target.value);
+      autosize(e.target);
     });
   });
   table.querySelectorAll('[data-del]').forEach(b=>{
-    b.addEventListener('click',()=>{
-      data.rows.splice(+b.dataset.del,1);
-      renderAll();
-    });
+    b.addEventListener('click',()=>onDelete(+b.dataset.del));
   });
+  return table;
+}
+
+function renderSimplePanel(key){
+  const wrap = document.createElement('div');
+  const data = state[key];
+  const headers = data.headers;
+  const rows = data.rows;
+
+  const table = buildSimpleTable(headers, rows,
+    (ri,ci,val)=>{ rows[ri][ci] = val; },
+    (ri)=>{ data.rows.splice(ri,1); renderAll(); }
+  );
   wrap.appendChild(table);
 
   const addBtn = document.createElement('button');
@@ -532,22 +554,10 @@ function renderSimplePanel(key){
     h3.style.margin='24px 0 10px';
     h3.textContent = '清萊交通方案比較';
     wrap.appendChild(h3);
-    const t2 = document.createElement('table');
-    t2.className='simple';
-    t2.innerHTML = '<thead><tr>' + data.plans.headers.map(h=>`<th>${esc(h)}</th>`).join('') + '<th style="width:36px;"></th></tr></thead>';
-    const tb2 = document.createElement('tbody');
-    data.plans.rows.forEach((row,ri)=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML = row.map((cell,ci)=>`<td><input value="${esc(cell)}" data-pr="${ri}" data-pc="${ci}" /></td>`).join('') + `<td><button class="del-btn" data-pdel="${ri}">✕</button></td>`;
-      tb2.appendChild(tr);
-    });
-    t2.appendChild(tb2);
-    t2.querySelectorAll('input').forEach(inp=>{
-      inp.addEventListener('input',e=>{ data.plans.rows[+e.target.dataset.pr][+e.target.dataset.pc]=e.target.value; });
-    });
-    t2.querySelectorAll('[data-pdel]').forEach(b=>{
-      b.addEventListener('click',()=>{ data.plans.rows.splice(+b.dataset.pdel,1); renderAll(); });
-    });
+    const t2 = buildSimpleTable(data.plans.headers, data.plans.rows,
+      (ri,ci,val)=>{ data.plans.rows[ri][ci] = val; },
+      (ri)=>{ data.plans.rows.splice(ri,1); renderAll(); }
+    );
     wrap.appendChild(t2);
     const addBtn2=document.createElement('button');
     addBtn2.className='add-item';
