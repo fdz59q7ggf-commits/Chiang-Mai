@@ -117,7 +117,7 @@ footer{text-align:center;font-size:11px;color:var(--muted);margin-top:30px;}
 const uid = (()=>{let n=0;return ()=>'id'+(n++)+'_'+Math.random().toString(36).slice(2,7);})();
 
 function defaultData(){
-  const mk = (time,title,location,note,cost,pinned,map)=>({id:uid(),time,title,location,note:note||"",cost:cost||"",pinned:!!pinned,map:map||""});
+  const mk = (time,title,location,note,cost,pinned,map,booking)=>({id:uid(),time,title,location,note:note||"",cost:cost||"",pinned:!!pinned,map:map||"",booking:booking||""});
   return {
     meta:{ title:"清邁 8 天 7 夜行程規劃", range:"2026/11/11（三）→ 11/18（三）", people:"6 人全程包車" },
     days:[
@@ -132,7 +132,7 @@ function defaultData(){
         mk("16:30","塔佩門 Tha Phae Gate 拍照散步","古城東門","免費，鴿子廣場","免費"),
         mk("17:00","回民宿休息","Loi Kroh Road","",""),
         mk("18:00","晚餐＋長康路夜市 Night Bazaar","Chang Klan Rd","走路就到！Anusarn美食廣場、Kalare夜市","200～400"),
-        mk("21:00","💆 Health Land Spa & Massage 清邁（指定必去）","288/55 Chang Klan Rd（近長康路夜市）","CNN評選全球15大最幸福按摩店之一，環境高級乾淨，營業09:00-23:00，強烈建議提前電話/官網預約（+66 53 278 855），2小時套餐","700～900",true,"https://www.google.com/maps/search/?api=1&query=Health+Land+Spa+%26+Massage+Chiang+Mai+288%2F55+Chang+Klan+Road"),
+        mk("21:00","💆 Health Land Spa & Massage 清邁（指定必去）","288/55 Chang Klan Rd（近長康路夜市）","CNN評選全球15大最幸福按摩店之一，環境高級乾淨，營業09:00-23:00，強烈建議提前電話/官網預約（+66 53 278 855），2小時套餐","700～900",true,"https://www.google.com/maps/search/?api=1&query=Health+Land+Spa+%26+Massage+Chiang+Mai+288%2F55+Chang+Klan+Road","https://www.klook.com/zh-TW/activity/31359-health-land-spa-treatments-chiang-mai/"),
       ]},
       {date:"11/12",weekday:"四",theme:"素帖山雙龍寺＋寧曼路悠閒一日（Ginger Farm Kitchen 米其林午餐）",stay:"清邁（已訂）",items:[
         mk("08:00","早餐：民宿附近（泰式粥品/咖啡廳/7-11）","民宿附近","民宿無早餐，自理，見美食清單","50～150"),
@@ -430,6 +430,7 @@ function renderItem(day, it, idx){
       <input class="time-input" value="${esc(it.time)}" data-f="time" />
       <input class="title-input" value="${esc(it.title)}" data-f="title" />
       <a class="map-btn" href="${esc(mapUrl)}" target="_blank" rel="noopener" title="在 Google Map 開啟">📍</a>
+      ${it.booking ? `<a class="map-btn book-btn" href="${esc(it.booking)}" target="_blank" rel="noopener" title="預約／購票連結">🎫</a>` : ''}
       <button class="pin-badge ${it.pinned?'':'off'}" data-act="pin">${it.pinned?'★ 必去':'☆ 標為必去'}</button>
       <button class="del-btn" data-act="del" ${it.pinned?'disabled title="必去項目請先取消釘選才能刪除"':''}>✕</button>
     </div>
@@ -437,13 +438,32 @@ function renderItem(day, it, idx){
       <div><label>地點</label><input value="${esc(it.location)}" data-f="location" /></div>
       <div><label>預估花費(銖/人)</label><input value="${esc(it.cost)}" data-f="cost" /></div>
       <div style="grid-column:1/-1;"><label>自訂 Google Map 連結（選填，留空會自動用「行程名稱＋地點」搜尋）</label><input value="${esc(it.map||'')}" data-f="map" placeholder="https://maps.google.com/..." /></div>
+      <div style="grid-column:1/-1;"><label>預約／購票連結（選填，例如 Klook、官網）</label><input value="${esc(it.booking||'')}" data-f="booking" placeholder="https://www.klook.com/..." /></div>
       <textarea data-f="note" placeholder="備註">${esc(it.note)}</textarea>
     </div>`;
   el.querySelectorAll('[data-f]').forEach(inp=>{
     inp.addEventListener('input',e=>{
-      it[e.target.dataset.f]=e.target.value;
-      if(e.target.dataset.f==='title' || e.target.dataset.f==='location' || e.target.dataset.f==='map'){
+      const f = e.target.dataset.f;
+      it[f]=e.target.value;
+      if(f==='title' || f==='location' || f==='map'){
         el.querySelector('.map-btn').href = it.map ? it.map : autoMapUrl(it);
+      }
+      if(f==='booking'){
+        let bBtn = el.querySelector('.book-btn');
+        if(it.booking){
+          if(!bBtn){
+            bBtn = document.createElement('a');
+            bBtn.className = 'map-btn book-btn';
+            bBtn.target = '_blank';
+            bBtn.rel = 'noopener';
+            bBtn.title = '預約／購票連結';
+            bBtn.textContent = '🎫';
+            el.querySelector('.map-btn').after(bBtn);
+          }
+          bBtn.href = it.booking;
+        } else if(bBtn){
+          bBtn.remove();
+        }
       }
     });
   });
