@@ -3,452 +3,618 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>清邁 8 天 7 夜行程規劃 | 2026.11.11 - 11.18</title>
+<title>清邁 8 天 7 夜行程規劃</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --primary: #2F5496;
-    --primary-light: #D6E4F0;
-    --accent: #E8743B;
-    --michelin: #FFF2CC;
-    --massage: #D6EAF8;
-    --urgent: #FADBD8;
-    --bg: #F7F9FC;
-    --card: #FFFFFF;
-    --text: #2C3E50;
-    --text-light: #7F8C8D;
-    --border: #E5E8EB;
-    --radius: 12px;
-    --shadow: 0 2px 12px rgba(0,0,0,0.06);
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", "PingFang TC", sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-  }
-  .hero {
-    background: linear-gradient(135deg, #2F5496 0%, #5B86C4 100%);
-    color: white;
-    padding: 48px 24px 40px;
-    text-align: center;
-  }
-  .hero h1 { font-size: 28px; margin-bottom: 8px; font-weight: 700; }
-  .hero .subtitle { font-size: 15px; opacity: 0.9; }
-  .hero .tags { margin-top: 16px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-  .hero .tag {
-    background: rgba(255,255,255,0.2);
-    padding: 4px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-  }
-  .container { max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
-  .overview-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin-bottom: 32px;
-  }
-  .stat-card {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 16px;
-    box-shadow: var(--shadow);
-    text-align: center;
-  }
-  .stat-card .num { font-size: 24px; font-weight: 700; color: var(--primary); }
-  .stat-card .label { font-size: 13px; color: var(--text-light); margin-top: 4px; }
-  .section { margin-bottom: 36px; }
-  .section-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--primary);
-    margin-bottom: 16px;
-    padding-left: 12px;
-    border-left: 4px solid var(--accent);
-  }
-  .day-tabs {
-    display: flex;
-    gap: 6px;
-    overflow-x: auto;
-    padding-bottom: 8px;
-    margin-bottom: 16px;
-    -webkit-overflow-scrolling: touch;
-  }
-  .day-tab {
-    flex-shrink: 0;
-    padding: 8px 16px;
-    border: 2px solid var(--border);
-    border-radius: 20px;
-    background: var(--card);
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .day-tab:hover { border-color: var(--primary); }
-  .day-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
-  .day-content { display: none; }
-  .day-content.active { display: block; }
-  .timeline { position: relative; padding-left: 28px; }
-  .timeline::before {
-    content: '';
-    position: absolute;
-    left: 8px; top: 8px; bottom: 8px;
-    width: 2px; background: var(--primary-light);
-  }
-  .timeline-item {
-    position: relative;
-    margin-bottom: 16px;
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    box-shadow: var(--shadow);
-  }
-  .timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -24px; top: 18px;
-    width: 12px; height: 12px;
-    border-radius: 50%;
-    background: var(--primary);
-    border: 2px solid white;
-  }
-  .timeline-item.michelin { background: var(--michelin); }
-  .timeline-item.massage { background: var(--massage); }
-  .timeline-item.urgent { background: var(--urgent); }
-  .timeline-item .time { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 2px; }
-  .timeline-item .title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-  .timeline-item .meta { font-size: 13px; color: var(--text-light); }
-  .timeline-item .cost {
-    display: inline-block; margin-top: 6px;
-    font-size: 12px; background: var(--primary-light);
-    color: var(--primary); padding: 2px 10px;
-    border-radius: 10px; font-weight: 600;
-  }
-  .timeline-item a { color: var(--primary); word-break: break-all; }
-  .day-header {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 16px 20px;
-    margin-bottom: 16px;
-    box-shadow: var(--shadow);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .day-header .day-title { font-size: 18px; font-weight: 700; color: var(--primary); }
-  .day-header .day-theme { font-size: 14px; color: var(--text-light); }
-  .day-header .day-stay {
-    font-size: 13px; background: var(--primary-light);
-    color: var(--primary); padding: 4px 12px;
-    border-radius: 12px; font-weight: 600;
-  }
-  .day-header .day-stay.warn { background: var(--urgent); color: #C0392B; }
-  .table-wrap { overflow-x: auto; }
-  table {
-    width: 100%; border-collapse: collapse;
-    background: var(--card); border-radius: var(--radius);
-    overflow: hidden; box-shadow: var(--shadow); font-size: 14px;
-  }
-  th {
-    background: var(--primary); color: white;
-    padding: 10px 12px; text-align: left;
-    font-weight: 600; white-space: nowrap;
-  }
-  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
-  tr:last-child td { border-bottom: none; }
-  tr.michelin-row td { background: var(--michelin); }
-  tr.urgent-row td { background: var(--urgent); }
-  .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; font-size: 13px; }
-  .legend-item { display: flex; align-items: center; gap: 6px; }
-  .legend-dot { width: 14px; height: 14px; border-radius: 4px; }
-  .tip-list { list-style: none; }
-  .tip-list li {
-    background: var(--card); border-radius: var(--radius);
-    padding: 12px 16px; margin-bottom: 8px;
-    box-shadow: var(--shadow); font-size: 14px;
-  }
-  .tip-list li strong { color: var(--primary); }
-  footer { text-align: center; padding: 24px; color: var(--text-light); font-size: 13px; }
-  @media (max-width: 600px) {
-    .hero h1 { font-size: 22px; }
-    .container { padding: 16px 12px 40px; }
-    table { font-size: 13px; }
-    th, td { padding: 8px; }
-  }
+:root{
+  --navy:#1B2A44; --navy-2:#24344F; --gold:#C9A227; --gold-dim:#E8D9A8;
+  --coral:#E8622C; --coral-dim:#F6D3C2; --paper:#FBF7EC; --paper-2:#F1EAD8;
+  --ink:#2A2118; --muted:#8A7F6D; --line:#E3D9C2; --danger:#B23A2E; --ok:#3C6E4C;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Noto Sans TC',sans-serif;line-height:1.6;}
+h1,h2,h3,.serif{font-family:'Noto Serif TC',serif;}
+.wrap{max-width:960px;margin:0 auto;padding:24px 16px 80px;}
+header.hero{background:var(--navy);color:var(--paper);border-radius:16px;padding:28px 24px;margin-bottom:20px;position:relative;overflow:hidden;}
+header.hero::after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:var(--navy-2);opacity:.6;}
+header.hero h1{font-size:22px;font-weight:700;margin:0 0 6px;position:relative;}
+header.hero .sub{font-size:13px;color:var(--gold-dim);position:relative;}
+.hero-edit{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;position:relative;}
+.hero-edit input{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25);color:var(--paper);border-radius:8px;padding:6px 10px;font-size:13px;font-family:inherit;}
+.hero-edit input::placeholder{color:rgba(255,255,255,.5);}
+nav.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;-webkit-overflow-scrolling:touch;}
+nav.tabs button{flex:none;padding:9px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted);font-family:'Noto Sans TC',sans-serif;font-weight:500;font-size:13px;cursor:pointer;transition:.15s;}
+nav.tabs button.active{background:var(--navy);border-color:var(--navy);color:var(--paper);}
+nav.tabs button:hover:not(.active){border-color:var(--gold);color:var(--ink);}
+.panel{display:none;}
+.panel.active{display:block;}
+.daytabs{display:flex;gap:4px;overflow-x:auto;margin-bottom:14px;border-bottom:2px solid var(--line);}
+.daytabs button{flex:none;padding:8px 14px 10px;border:none;background:none;font-family:'Noto Sans TC',sans-serif;font-size:13px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;}
+.daytabs button.active{color:var(--navy);font-weight:700;border-bottom-color:var(--coral);}
+.day-theme{background:var(--paper-2);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--navy-2);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.day-theme input{flex:1;min-width:200px;background:transparent;border:none;border-bottom:1px dashed var(--line);font-family:inherit;font-size:13px;color:var(--navy-2);padding:2px 0;}
+.timeline{position:relative;padding-left:26px;}
+.timeline::before{content:"";position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:var(--line);}
+.item{position:relative;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+.item.pinned{border-color:var(--gold);background:linear-gradient(0deg,#fff,#fff),linear-gradient(0deg,#FFF9E8,#FFF9E8);box-shadow:0 0 0 1px var(--gold) inset;}
+.item::before{content:"";position:absolute;left:-21px;top:18px;width:10px;height:10px;border-radius:50%;background:var(--navy);border:2px solid var(--paper);}
+.item.pinned::before{background:var(--gold);}
+.item-row1{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.time-input{width:76px;font-weight:700;color:var(--navy);border:none;background:var(--paper-2);border-radius:6px;padding:5px 6px;font-family:'Noto Sans TC',sans-serif;font-size:13px;text-align:center;}
+.title-input{flex:1;min-width:140px;border:none;border-bottom:1px solid transparent;background:transparent;font-family:'Noto Serif TC',serif;font-weight:700;font-size:15px;color:var(--ink);padding:4px 2px;}
+.title-input:focus,.time-input:focus{outline:none;border-bottom:1px solid var(--coral);}
+.map-btn{flex:none;text-decoration:none;font-size:15px;background:var(--paper-2);border-radius:999px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);transition:.15s;}
+.map-btn:hover{background:var(--coral-dim);border-color:var(--coral);}
+.pin-badge{display:flex;align-items:center;gap:4px;font-size:11px;color:#8A6D06;background:var(--gold-dim);border-radius:999px;padding:3px 9px;flex:none;cursor:pointer;border:none;font-weight:700;}
+.pin-badge.off{background:var(--paper-2);color:var(--muted);}
+.del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;flex:none;padding:2px 6px;border-radius:6px;}
+.del-btn:hover{color:var(--danger);background:#FBEAF0;}
+.del-btn:disabled{opacity:.25;cursor:not-allowed;}
+.item-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12.5px;}
+.item-grid label{display:block;color:var(--muted);font-size:11px;margin-bottom:2px;}
+.item-grid input{width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-family:inherit;font-size:12.5px;background:var(--paper);}
+.item-grid textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-family:inherit;font-size:12.5px;background:var(--paper);resize:vertical;min-height:32px;grid-column:1/-1;}
+.add-item{width:100%;border:1.5px dashed var(--line);background:none;border-radius:12px;padding:12px;color:var(--muted);font-family:inherit;font-size:13px;cursor:pointer;margin-top:4px;}
+.add-item:hover{border-color:var(--coral);color:var(--coral);}
+.day-total{text-align:right;font-size:12px;color:var(--muted);margin:10px 2px 0;}
+table.simple{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line);table-layout:fixed;}
+table.simple th{background:var(--navy);color:var(--paper);font-size:12px;font-weight:500;text-align:left;padding:8px 10px;word-break:break-word;}
+table.simple td{padding:0;border-bottom:1px solid var(--line);vertical-align:top;}
+table.simple td textarea{width:100%;border:none;background:none;padding:8px 10px;font-family:inherit;font-size:12.5px;color:var(--ink);resize:none;overflow:hidden;white-space:pre-wrap;word-break:break-word;display:block;line-height:1.6;}
+table.simple td textarea:focus{outline:2px solid var(--coral-dim);background:#fff;}
+table.simple tr:last-child td{border-bottom:none;}
+@media (max-width:680px){
+  table.simple thead{display:none;}
+  table.simple, table.simple tbody, table.simple tr, table.simple td{display:block;width:100%;}
+  table.simple tr{border-bottom:2px solid var(--line);padding:10px 0;position:relative;}
+  table.simple td{border-bottom:none;padding:2px 10px;}
+  table.simple td[data-label]::before{content:attr(data-label);display:block;font-size:11px;color:var(--muted);font-weight:700;margin-top:6px;}
+  table.simple td:first-child[data-label]::before{margin-top:0;}
+  table.simple td:last-child{position:absolute;top:10px;right:6px;padding:0;}
+}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 20px;}
+.btn{border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:8px;padding:8px 14px;font-family:inherit;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+.btn:hover{border-color:var(--navy);}
+.btn.primary{background:var(--coral);color:#fff;border-color:var(--coral);}
+.btn.primary:hover{background:#CF5222;}
+.btn.danger{color:var(--danger);}
+.hint{font-size:12px;color:var(--muted);margin:0 0 14px;}
+.summary-card{background:var(--navy);color:var(--paper);border-radius:12px;padding:16px 20px;margin-bottom:18px;display:flex;gap:24px;flex-wrap:wrap;}
+.summary-card div b{display:block;font-family:'Noto Serif TC',serif;font-size:20px;color:var(--gold-dim);}
+.summary-card div span{font-size:11px;color:rgba(255,255,255,.7);}
+footer{text-align:center;font-size:11px;color:var(--muted);margin-top:30px;}
+@media print{
+  nav.tabs,.toolbar,.add-item,.del-btn,.pin-badge{display:none!important;}
+  .panel{display:block!important;}
+  .daytabs{display:none!important;}
+  body{background:#fff;}
+  .item{break-inside:avoid;}
+}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="hero">
-  <h1>清邁 8 天 7 夜行程規劃</h1>
-  <div class="subtitle">2026.11.11（三）～ 11.18（三）｜ 6 人全程包車</div>
-  <div class="tags">
-    <span class="tag">🏛️ 古城寺廟</span>
-    <span class="tag">🐘 大象保護營</span>
-    <span class="tag">🍳 泰式料理課</span>
-    <span class="tag">🏔️ 茵他儂國家公園</span>
-    <span class="tag">🕌 清萊白廟藍廟</span>
-    <span class="tag">💆 每天按摩</span>
-    <span class="tag">⭐ 米其林美食</span>
+  <header class="hero">
+    <h1 class="serif" id="tripTitleDisplay">清邁 8 天 7 夜行程規劃</h1>
+    <div class="sub" id="tripSubDisplay">2026/11/11（三）→ 11/18（三）｜6 人全程包車</div>
+    <div class="hero-edit">
+      <input id="metaTitle" placeholder="行程標題" />
+      <input id="metaRange" placeholder="日期範圍" />
+      <input id="metaPeople" placeholder="人數/交通方式" />
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <button class="btn primary" id="btnExport"><i>⭳</i>匯出 JSON 存檔</button>
+    <label class="btn" style="cursor:pointer;">⭱ 匯入 JSON<input type="file" id="fileImport" accept="application/json" style="display:none;"></label>
+    <button class="btn" id="btnPrint">🖨 列印 / 存成 PDF</button>
+    <button class="btn danger" id="btnReset">↺ 還原成預設行程</button>
   </div>
+  <p class="hint">此頁面完全在你的瀏覽器裡運作，重新整理頁面會回到最初版本 — 修改後記得按「匯出 JSON 存檔」，下次用「匯入 JSON」把檔案讀回來即可繼續編輯。標示 <span style="color:#8A6D06;">★ 必去</span> 的項目已鎖定，需先取消釘選才能刪除。</p>
+
+  <nav class="tabs" id="mainTabs"></nav>
+
+  <div id="panels"></div>
+
+  <footer>清邁行程規劃 · 純前端本機編輯，資料不會上傳到任何伺服器</footer>
 </div>
-
-<div class="container">
-  <div class="overview-grid">
-    <div class="stat-card"><div class="num">8</div><div class="label">天 7 夜</div></div>
-    <div class="stat-card"><div class="num">6</div><div class="label">人全程包車</div></div>
-    <div class="stat-card"><div class="num">9</div><div class="label">人座廂型車</div></div>
-    <div class="stat-card"><div class="num">22K~42K</div><div class="label">銖/人預估</div></div>
-  </div>
-
-  <div class="legend">
-    <div class="legend-item"><div class="legend-dot" style="background:var(--michelin)"></div>⭐ 米其林/必去</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--massage)"></div>💆 按摩</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--urgent)"></div>⚠️ 須提前預訂</div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">每日詳細行程</div>
-    <div class="day-tabs" id="dayTabs"></div>
-    <div id="dayContents"></div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">米其林＆美食清單</div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>餐廳</th><th>類型</th><th>米其林</th><th>推薦料理</th><th>價位(銖)</th></tr></thead>
-        <tbody id="foodTable"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">預訂資訊（標⚠️必須提前預訂）</div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>活動/項目</th><th>日期</th><th>須預訂</th><th>預訂連結</th><th>備註</th></tr></thead>
-        <tbody id="bookingTable"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">預估花費（每人，6 人分攤）</div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>項目</th><th>費用(銖/人)</th><th>備註</th></tr></thead>
-        <tbody id="budgetTable"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">注意事項</div>
-    <ul class="tip-list" id="tipsList"></ul>
-  </div>
-</div>
-
-<footer>清邁行程規劃 | 2026.11.11 - 11.18 | 實際營業時間與票價以現場公告為準</footer>
 
 <script>
-const days = [
-  {date:"11/11",day:"三",theme:"抵達清邁＋古城寺廟＋Akha Ama Coffee＋長康路夜市",stay:"清邁 Loi Kroh Road（已訂）",stayWarn:false,items:[
-    {time:"07:20",title:"桃園機場起飛",meta:"飛行約3.5～4小時，泰國比台灣慢1小時",cost:"—"},
-    {time:"~10:30",title:"抵達清邁機場(CNX)，包車接機",meta:"車程約15～20分鐘到民宿",cost:"—"},
-    {time:"11:00",title:"民宿 Check-in / 寄放行李",meta:"Loi Kroh Road，近長康路夜市",cost:"—"},
-    {time:"12:00",title:"午餐：Lemongrass Thai Cuisine",meta:"推薦 Khao Soi 泰北咖哩麵、香蕉捲",cost:"150～250"},
-    {time:"13:30",title:"契迪龍寺 Wat Chedi Luang",meta:"門票50銖，清邁最具歷史感寺廟",cost:"50"},
-    {time:"14:30",title:"帕辛寺 Wat Phra Singh",meta:"門票40銖，古城內最美蘭納寺廟",cost:"40"},
-    {time:"15:30",title:"★ Akha Ama Coffee (The New Original)",meta:"必去！阿卡族咖啡，Moonmueang Soi 9；08:00-17:00",cost:"80～150",type:"michelin"},
-    {time:"16:30",title:"塔佩門 Tha Phae Gate 拍照散步",meta:"免費，鴿子廣場",cost:"免費"},
-    {time:"17:00",title:"回民宿休息",meta:"",cost:"—"},
-    {time:"18:00",title:"晚餐＋長康路夜市 Night Bazaar",meta:"走路就到！Anusarn美食廣場、Kalare夜市",cost:"200～400"},
-    {time:"21:00",title:"💆 Loi Kroh Road 按摩",meta:"每天按摩！泰式250～350銖/小時",cost:"250～350",type:"massage"},
-  ]},
-  {date:"11/12",day:"四",theme:"素帖山雙龍寺＋寧曼路悠閒一日",stay:"清邁（已訂）",stayWarn:false,items:[
-    {time:"08:00",title:"早餐：民宿附近",meta:"民宿無早餐，自理（泰式粥/7-11/咖啡廳）",cost:"50～150"},
-    {time:"09:00",title:"包車上素帖山雙龍寺",meta:"車程約40分鐘，門票50銖，309階或纜車(+50銖)",cost:"50～100"},
-    {time:"10:30",title:"參觀雙龍寺、俯瞰清邁全景",meta:"早上去人較少、光線好",cost:"—"},
-    {time:"11:30",title:"蒲屏皇宮 Bhubing Palace",meta:"門票50銖，11月花園很美",cost:"50"},
-    {time:"12:30",title:"★ 午餐：Ginger Farm Kitchen（米其林推薦）",meta:"寧曼路 One Nimman 附近，農場直送食材",cost:"200～400",type:"michelin"},
-    {time:"14:00",title:"寧曼路咖啡廳巡禮＋One Nimman",meta:"推薦 Ristr8to 拉花冠軍咖啡",cost:"100～200"},
-    {time:"16:00",title:"MAYA 百貨",meta:"逛百貨、吹冷氣，樓上有景觀餐廳",cost:"—"},
-    {time:"18:00",title:"晚餐：寧曼路或古城週邊",meta:"",cost:"200～400"},
-    {time:"20:00",title:"回民宿 / 夜市閒逛",meta:"",cost:"—"},
-    {time:"21:00",title:"💆 泰式按摩 / 腳底按摩",meta:"每天按摩！",cost:"250～350",type:"massage"},
-  ]},
-  {date:"11/13",day:"五",theme:"包車前往清萊＋白廟＋清萊市區",stay:"⚠️ 清萊（待訂）",stayWarn:true,items:[
-    {time:"07:30",title:"早餐＋退房寄放大件行李",meta:"只帶過夜包，大件寄放清邁民宿",cost:"50～150"},
-    {time:"08:30",title:"包車出發前往清萊",meta:"⚠️須提前預約！Klook：https://www.klook.com/en-HK/activity/1598-private-car-charter-thailand-chiang-mai/ ；車程約3～3.5小時",cost:"—",type:"urgent"},
-    {time:"10:00",title:"中途休息：聖泉溫泉",meta:"可煮蛋、泡腳，免費～20銖",cost:"20"},
-    {time:"11:30",title:"抵達清萊，午餐",meta:"清萊市區小吃或餐廳",cost:"100～200"},
-    {time:"13:00",title:"白廟 Wat Rong Khun",meta:"門票100銖，全白色藝術寺廟，地獄之手橋必拍",cost:"100"},
-    {time:"15:00",title:"清萊玉佛寺 Wat Phra Kaew",meta:"門票免費～50銖，玉佛發現地",cost:"50"},
-    {time:"16:00",title:"Check in 清萊住宿 ⚠️尚未預訂",meta:"推薦 The Riverie / Ibis Styles / Baan Rim Khong，6人訂3間雙人房",cost:"—",type:"urgent"},
-    {time:"17:30",title:"清萊鐘樓燈光秀",meta:"每晚19:00/20:00/21:00燈光音樂秀",cost:"免費"},
-    {time:"18:30",title:"晚餐：清萊夜市 / 河畔餐廳",meta:"清萊夜市小吃便宜",cost:"150～300"},
-    {time:"20:00",title:"休息 / 河畔散步",meta:"",cost:"—"},
-    {time:"20:30",title:"💆 清萊當地按摩",meta:"每天按摩！清萊比清邁便宜，約200～300/小時",cost:"200～300",type:"massage"},
-  ]},
-  {date:"11/14",day:"六",theme:"清萊藍廟＋黑屋＋返回清邁",stay:"清邁（已訂）",stayWarn:false,items:[
-    {time:"08:00",title:"早餐＋退房",meta:"清萊鐘樓週邊有早餐店",cost:"50～150"},
-    {time:"09:00",title:"藍廟 Wat Rong Suea Ten",meta:"門票50銖，深藍色寺廟＋白色佛像",cost:"50"},
-    {time:"10:30",title:"黑屋博物館 Baan Dam",meta:"門票80銖，40棟黑色建築群，死亡主題藝術",cost:"80"},
-    {time:"12:00",title:"午餐：清萊市區",meta:"",cost:"100～200"},
-    {time:"13:30",title:"包車返回清邁",meta:"車程約3～3.5小時",cost:"—"},
-    {time:"17:00",title:"抵達清邁民宿，Check-in",meta:"",cost:"—"},
-    {time:"18:30",title:"晚餐：長康路夜市或河畔餐廳",meta:"The Riverside Bar & Restaurant 有現場樂團",cost:"200～400"},
-    {time:"20:30",title:"💆 夜市採買 / 按摩放鬆",meta:"每天按摩！",cost:"250～350",type:"massage"},
-  ]},
-  {date:"11/15",day:"日",theme:"泰式料理課＋瓦洛洛市場＋週日步行街（重點）",stay:"清邁（已訂）",stayWarn:false,items:[
-    {time:"08:00",title:"早餐：民宿附近",meta:"料理課前別吃太飽",cost:"50～100"},
-    {time:"08:30",title:"★ 泰式料理課程（早上場）",meta:"⚠️須提前預訂！Klook：https://www.klook.com/zh-TW/destination/c5-chiang-mai/1042-cooking-classes/ ；含市場採購＋4～5道菜，約08:30-13:00",cost:"1,200～1,800",type:"michelin"},
-    {time:"13:30",title:"瓦洛洛市場 Warorot Market",meta:"當地傳統市場，便宜水果、乾貨、伴手禮",cost:"—"},
-    {time:"15:30",title:"回民宿休息",meta:"",cost:"—"},
-    {time:"16:30",title:"準備前往週日夜市",meta:"先佔停車位，從塔佩門綿延1公里",cost:"—"},
-    {time:"17:00",title:"★ 週日步行街 Sunday Walking Street",meta:"只有週日！手工藝品、街頭小吃、現場音樂，留3～4小時",cost:"200～400",type:"michelin"},
-    {time:"21:00",title:"晚餐就在夜市解決",meta:"推薦：香腸、烤雞、芒果糯米、椰子冰、炸豬皮",cost:"—"},
-    {time:"21:30",title:"💆 週日夜市附近按摩",meta:"每天按摩！塔佩門週邊多家按摩店",cost:"250～350",type:"massage"},
-    {time:"22:30",title:"回民宿",meta:"",cost:"—"},
-  ]},
-  {date:"11/16",day:"一",theme:"大象保護營＋SPA＋夜間動物園",stay:"清邁（已訂）",stayWarn:false,items:[
-    {time:"07:00",title:"早餐：簡單解決",meta:"7-11/路邊粥品，大象營有茶點",cost:"50～100"},
-    {time:"08:00",title:"包車前往大象保護營",meta:"⚠️須提前2～4週預約！Klook：https://www.klook.cn/zh-CN/activity/3631-elephant-jungle-sanctuary-chiang-mai/",cost:"—",type:"urgent"},
-    {time:"08:30～12:30",title:"大象保護營體驗（餵食、洗澡）",meta:"半日約4小時，含接送，Ethical 無騎乘",cost:"1,700～2,500"},
-    {time:"13:00",title:"返回市區午餐",meta:"",cost:"150～250"},
-    {time:"14:30",title:"💆 泰式 SPA / 按摩（2小時）",meta:"⚠️6人建議提前預約！Fah Lanna Spa / Oasis Spa",cost:"1,500～2,500",type:"massage"},
-    {time:"17:00",title:"包車前往夜間動物園",meta:"建議Klook先買票：https://www.klook.com/zh-TW/destination/c5-chiang-mai/?city_ids=5&frontend_id_list=28",cost:"—"},
-    {time:"17:30～21:00",title:"夜間動物園遊覽",meta:"門票含tram約1,200～1,600銖/人",cost:"1,200～1,600"},
-    {time:"21:30",title:"返回民宿",meta:"",cost:"—"},
-  ]},
-  {date:"11/17",day:"二",theme:"茵他儂國家公園（全天）＋米其林告別晚宴",stay:"清邁（已訂）",stayWarn:false,items:[
-    {time:"07:30",title:"早餐：民宿附近",meta:"茵他儂山路遠，建議吃飽",cost:"50～150"},
-    {time:"08:30",title:"包車前往茵他儂國家公園",meta:"⚠️須提前預約包車！Klook：https://www.klook.com/en-US/activity/75837-chiangmai-private-car-charter-custom-tour-night-safari-doi-inthanon-mae-khampong-by-ak-travel/ ；車程1.5～2小時",cost:"—",type:"urgent"},
-    {time:"10:00",title:"國王皇后雙塔 Phra Mahathat",meta:"園區門票300銖/人，雙塔外加100銖，花園超美",cost:"400"},
-    {time:"11:30",title:"Wachirathan 瀑布",meta:"園區內，免費",cost:"免費"},
-    {time:"12:30",title:"山上簡餐 / 自帶午餐",meta:"",cost:"100～200"},
-    {time:"13:30",title:"Kew Mae Pan 自然步道",meta:"約2～3小時環狀步道，需嚮導（視體力）",cost:"200"},
-    {time:"15:30",title:"下山返回清邁",meta:"",cost:"—"},
-    {time:"18:00",title:"★ 告別晚宴：Baan Landai（米其林推薦）",meta:"⚠️須提前預約！https://www.baan-landai.com/ ；精緻泰北蘭納料理",cost:"400～800",type:"michelin"},
-    {time:"20:00",title:"最後一晚夜市閒逛 / 採買伴手禮",meta:"",cost:"—"},
-    {time:"21:00",title:"💆 最後一次泰式按摩",meta:"每天按摩！旅程最後一次",cost:"250～350",type:"massage"},
-  ]},
-  {date:"11/18",day:"三",theme:"採買伴手禮＋12:50 飛機返程",stay:"—",stayWarn:false,items:[
-    {time:"07:30",title:"早餐＋收拾行李",meta:"簡單吃或到機場再吃",cost:"50～100"},
-    {time:"08:30",title:"退房前按摩（如時間允許）",meta:"每天按摩！最後一次，輕鬆上路",cost:"250～350",type:"massage"},
-    {time:"09:00",title:"Check-out，行李上車",meta:"",cost:"—"},
-    {time:"09:30",title:"Central Airport Plaza 最後採買",meta:"機場旁百貨，買伴手禮、零食、乾貨",cost:"—"},
-    {time:"10:30",title:"前往清邁機場",meta:"車程約10～15分鐘",cost:"—"},
-    {time:"11:00",title:"抵達機場辦理登機",meta:"國際線建議提前2小時",cost:"—"},
-    {time:"12:50",title:"飛機起飛返回桃園",meta:"",cost:"—"},
-  ]},
-];
+const uid = (()=>{let n=0;return ()=>'id'+(n++)+'_'+Math.random().toString(36).slice(2,7);})();
 
-const foods=[
-  {name:"★ Akha Ama Coffee (The New Original)",type:"咖啡/輕食",michelin:"—",dish:"單品手沖咖啡、甜點",price:"60～150"},
-  {name:"Ginger Farm Kitchen",type:"泰式/農場料理",michelin:"米其林推薦",dish:"農場直送沙拉、泰北咖哩",price:"200～400"},
-  {name:"Guay Jub Chang Moi Tat Mai",type:"泰式麵食",michelin:"Bib Gourmand",dish:"粿汁、脆皮豬肉飯、鮮春卷",price:"80～150"},
-  {name:"Khao Soi Maesai",type:"泰北咖哩麵",michelin:"Bib Gourmand",dish:"牛肉咖哩麵、木棉花米線",price:"60～100"},
-  {name:"Baan Landai Fine Thai Cuisine",type:"精緻泰北料理",michelin:"米其林推薦",dish:"蘭納皇家料理、擺盤精緻",price:"400～800"},
-  {name:"Huen Muan Jai",type:"泰北料理",michelin:"Bib Gourmand",dish:"泰北前菜拼盤、蒸雞、豬肉咖哩",price:"150～300"},
-  {name:"Euang Kam Sai",type:"泰北料理/百年老店",michelin:"Bib Gourmand",dish:"泰式米飯卷、泰北牛肉咖哩",price:"150～300"},
-  {name:"Rasik Local Kitchen",type:"新派泰菜",michelin:"Bib Gourmand",dish:"烤牛骨髓配南薑醬、杭萊牛肉咖哩",price:"300～500"},
-  {name:"Chawee",type:"私房泰菜",michelin:"Bib Gourmand",dish:"季節菜單、主廚親自解說",price:"300～500"},
-  {name:"SANAE • Sanae Thai Cuisine",type:"清真/牛肉料理",michelin:"Bib Gourmand",dish:"牛油炒飯配醃蛋黃、酸辣牛小排湯",price:"200～400"},
-  {name:"Meena Rice Based Cuisine",type:"米飯料理/網美",michelin:"Bib Gourmand",dish:"五色飯糰、泰北魚蓉沙律",price:"200～400"},
-  {name:"Lemongrass Thai Cuisine",type:"泰式餐廳",michelin:"—",dish:"Khao Soi、香蕉捲",price:"150～250"},
-  {name:"SP Chicken",type:"烤雞小吃",michelin:"—",dish:"泰式烤雞配辣醬",price:"80～150"},
-  {name:"The Riverside Bar & Restaurant",type:"河畔餐廳+現場樂團",michelin:"—",dish:"泰式料理、調酒",price:"250～500"},
-  {name:"Ristr8to",type:"拉花冠軍咖啡",michelin:"—",dish:"拉花拿鐵、單品咖啡",price:"80～180"},
-];
-
-const bookings=[
-  {name:"⚠️ 大象保護營",date:"11/16",need:"是（提前2～4週）",link:"https://www.klook.cn/zh-CN/activity/3631-elephant-jungle-sanctuary-chiang-mai/",note:"Elephant Jungle Sanctuary；無騎乘道德保護營"},
-  {name:"⚠️ 泰式料理課",date:"11/15",need:"是（6人建議提前）",link:"https://www.klook.com/zh-TW/destination/c5-chiang-mai/1042-cooking-classes/",note:"推薦 Thai Akha Kitchen / Asia Scenic；早上場08:30-13:00"},
-  {name:"⚠️ 每日包車（市區）",date:"11/11-12、11/14-18",need:"是（建議提前）",link:"https://www.klook.com/en-HK/activity/1598-private-car-charter-thailand-chiang-mai/",note:"TTD Global 9人座含司機油錢"},
-  {name:"⚠️ 清萊包車（兩天一夜）",date:"11/13-14",need:"是（建議提前）",link:"https://www.klook.com/en-HK/activity/1598-private-car-charter-thailand-chiang-mai/",note:"同一台車跟全程最方便"},
-  {name:"⚠️ 茵他儂國家公園包車",date:"11/17",need:"是（建議提前）",link:"https://www.klook.com/en-US/activity/75837-chiangmai-private-car-charter-custom-tour-night-safari-doi-inthanon-mae-khampong-by-ak-travel/",note:"AK Travel 客製化包車"},
-  {name:"夜間動物園門票",date:"11/16",need:"建議先買較便宜",link:"https://www.klook.com/zh-TW/destination/c5-chiang-mai/?city_ids=5&frontend_id_list=28",note:"Klook先買票比現場便宜"},
-  {name:"⚠️ SPA（6人）",date:"11/16",need:"是（6人建議預約）",link:"Fah Lanna Spa / Oasis Spa 官網",note:"2小時套餐約1,500～2,500銖/人"},
-  {name:"⚠️ Baan Landai 晚餐",date:"11/17",need:"是（建議預約）",link:"https://www.baan-landai.com/",note:"米其林推薦；6人建議先訂位"},
-  {name:"⚠️ 清萊住宿",date:"11/13",need:"是（旺季盡早訂）",link:"Booking.com / Agoda",note:"推薦 The Riverie / Ibis Styles / Baan Rim Khong"},
-  {name:"Akha Ama Coffee",date:"11/11",need:"否",link:"http://www.akhaamacoffee.com/",note:"Moonmueang Soi 9；08:00-17:00"},
-  {name:"素帖山雙龍寺",date:"11/12",need:"否",link:"—",note:"包車直接去，門票現場買50銖"},
-  {name:"週日步行街夜市",date:"11/15",need:"否",link:"—",note:"只有週日17:00開始；免費入場"},
-];
-
-const budget=[
-  {item:"包車（7天分攤）",cost:"3,500～5,000",note:"含清萊兩日、機場接送、每日市區包車"},
-  {item:"住宿（7晚，雙人房分攤）",cost:"7,000～14,000",note:"清邁6晚＋清萊1晚，視等級"},
-  {item:"餐費（含早餐）",cost:"5,000～7,500",note:"早餐50～150/餐×7天，午晚餐500～800/天，含米其林"},
-  {item:"景點門票＋體驗",cost:"2,700～4,300",note:"含夜間動物園、大象營、泰式料理課、寺廟、雙塔"},
-  {item:"按摩/SPA（每天按摩）",cost:"3,300～5,600",note:"每日按摩250～350×7天＋Day7 SPA 1,500～2,500"},
-  {item:"伴手禮/購物",cost:"2,000～5,000",note:"自由"},
-  {item:"合計（不含機票）",cost:"22,000～42,000",note:"約台幣20,000～38,000元（1台幣≈1.1銖）"},
-];
-
-const tips=[
-  {title:"天氣",text:"11月清邁進入涼季，非常舒適，氣溫約18～30°C，早晚偏涼建議帶薄外套，幾乎不下雨"},
-  {title:"水燈節/天燈節",text:"2026年清邁水燈節(Loy Krathong)＋天燈節(Yi Peng)主活動為11/24～25，你們11/18離開不會遇到主要活動，但11月中開始有部分佈置。市區內禁止私自放天燈（罰則很重）"},
-  {title:"包車注意",text:"務必確認車型可容納6人＋行李（建議9人座）；確認報價是否含司機餐費、過路費、停車費；清萊過夜需確認司機住宿補助"},
-  {title:"寺廟禮儀",text:"進寺廟需脫鞋，服裝需過肩過膝；不可穿無袖、短褲；女性不可觸碰僧侶；寺廟內勿大聲喧嘩"},
-  {title:"每天按摩",text:"Loi Kroh Road 及長康路一帶按摩店密集，泰式250～350銖/小時，腳底200～300/小時；選門口有價目表、燈光明亮、有營業執照的店"},
-  {title:"預訂提醒",text:"大象保護營須提前2～4週預約；泰式料理課、SPA、Baan Landai晚餐、每日包車、清萊包車、茵他儂包車皆建議提前預訂；詳見預訂資訊"},
-  {title:"住宿狀態",text:"清邁6晚（11/11-12、11/14-17）已訂好，地點 Loi Kroh Road；⚠️ 只剩清萊11/13一晚尚未預訂，請盡早訂房"},
-  {title:"實用資訊",text:"時差：泰國比台灣慢1小時；電壓220V；網路：機場買TrueMove/AIS觀光SIM卡約300～500銖；小費：按摩、搬行李可給20～50銖；現金：路邊攤夜市需現金"},
-  {title:"保險",text:"建議投保旅遊平安險"},
-];
-
-const tabsEl=document.getElementById('dayTabs');
-const contentsEl=document.getElementById('dayContents');
-days.forEach((d,i)=>{
-  const tab=document.createElement('button');
-  tab.className='day-tab'+(i===0?' active':'');
-  tab.textContent=`Day ${i+1} · ${d.date}`;
-  tab.onclick=()=>switchDay(i);
-  tabsEl.appendChild(tab);
-  const content=document.createElement('div');
-  content.className='day-content'+(i===0?' active':'');
-  const stayClass=d.stayWarn?'day-stay warn':'day-stay';
-  let html=`<div class="day-header"><div><div class="day-title">Day ${i+1} · ${d.date}（${d.day}）</div><div class="day-theme">${d.theme}</div></div><div class="${stayClass}">${d.stay}</div></div><div class="timeline">`;
-  d.items.forEach(item=>{
-    const itemClass=item.type?`timeline-item ${item.type}`:'timeline-item';
-    const costHtml=item.cost!=='—'?`<span class="cost">${item.cost} 銖</span>`:'';
-    const metaHtml=item.meta?`<div class="meta">${item.meta}</div>`:'';
-    html+=`<div class="${itemClass}"><div class="time">${item.time}</div><div class="title">${item.title}</div>${metaHtml}${costHtml}</div>`;
-  });
-  html+='</div>';
-  content.innerHTML=html;
-  contentsEl.appendChild(content);
-});
-function switchDay(idx){
-  document.querySelectorAll('.day-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
-  document.querySelectorAll('.day-content').forEach((c,i)=>c.classList.toggle('active',i===idx));
+function defaultData(){
+  const mk = (time,title,location,note,cost,pinned,map,booking)=>({id:uid(),time,title,location,note:note||"",cost:cost||"",pinned:!!pinned,map:map||"",booking:booking||""});
+  return {
+    meta:{ title:"清邁 8 天 7 夜行程規劃", range:"2026/11/11（三）→ 11/18（三）", people:"6 人全程包車" },
+    days:[
+      {date:"11/11",weekday:"三",theme:"抵達清邁＋古城寺廟巡禮＋Akha Ama Coffee＋長康路夜市",stay:"清邁 Loi Kroh Road（已訂）",items:[
+        mk("07:20","桃園機場起飛","桃園機場","飛行約3.5～4小時，泰國比台灣慢1小時","—"),
+        mk("~10:30","抵達清邁機場(CNX)，包車接機","清邁機場","車程約15～20分鐘到民宿","—"),
+        mk("11:00","民宿 Check-in / 寄放行李","Loi Kroh Road","近長康路夜市","—"),
+        mk("12:00","午餐：Lemongrass Thai Cuisine","Loi Kroh Rd","推薦 Khao Soi 泰北咖哩麵、香蕉捲","150～250"),
+        mk("13:30","契迪龍寺 Wat Chedi Luang","古城內","門票50銖，清邁最具歷史感寺廟","50"),
+        mk("14:30","帕辛寺 Wat Phra Singh","古城內","門票40銖，古城內最美蘭納寺廟","40"),
+        mk("15:30","★ Akha Ama Coffee (The New Original)","Moonmueang Soi 9, 古城北區","必去！阿卡族咖啡，單品咖啡60～150銖，營業08:00-17:00","80～150",true,"https://www.google.com/maps/search/?api=1&query=Akha+Ama+Coffee+The+New+Original+Chiang+Mai"),
+        mk("16:30","塔佩門 Tha Phae Gate 拍照散步","古城東門","免費，鴿子廣場","免費"),
+        mk("17:00","回民宿休息","Loi Kroh Road","",""),
+        mk("18:00","晚餐＋長康路夜市 Night Bazaar","Chang Klan Rd","走路就到！Anusarn美食廣場、Kalare夜市","200～400"),
+        mk("21:00","💆 Health Land Spa & Massage 清邁（指定必去）","288/55 Chang Klan Rd（近長康路夜市）","CNN評選全球15大最幸福按摩店之一，環境高級乾淨，營業09:00-23:00，強烈建議提前電話/官網預約（+66 53 278 855），2小時套餐","700～900",true,"https://www.google.com/maps/search/?api=1&query=Health+Land+Spa+%26+Massage+Chiang+Mai+288%2F55+Chang+Klan+Road","https://www.klook.com/zh-TW/activity/31359-health-land-spa-treatments-chiang-mai/"),
+      ]},
+      {date:"11/12",weekday:"四",theme:"素帖山雙龍寺＋寧曼路悠閒一日（Ginger Farm Kitchen 米其林午餐）",stay:"清邁（已訂）",items:[
+        mk("08:00","早餐：民宿附近（泰式粥品/咖啡廳/7-11）","民宿附近","民宿無早餐，自理，見美食清單","50～150"),
+        mk("09:00","包車上素帖山雙龍寺","Doi Suthep","車程約40分鐘，門票50銖，309階或纜車(+50銖)","50～100"),
+        mk("10:30","參觀雙龍寺、俯瞰清邁全景","Doi Suthep","建議早上去人較少、光線好","—"),
+        mk("11:30","蒲屏皇宮 Bhubing Palace（季節開放）","Doi Suthep","門票50銖，11月花園很美","50"),
+        mk("12:30","★ 午餐：Ginger Farm Kitchen（米其林推薦）","寧曼路 One Nimman 附近","農場直送食材，綠植包圍，CP值高","200～400"),
+        mk("14:00","寧曼路咖啡廳巡禮＋One Nimman 逛街","Nimman Rd","推薦 Ristr8to 拉花冠軍咖啡，悠閒逛","100～200"),
+        mk("16:00","MAYA 百貨","寧曼路","逛百貨、吹冷氣，樓上有景觀餐廳","—"),
+        mk("18:00","晚餐：寧曼路或古城週邊","寧曼/古城","",""),
+        mk("19:30","💇 泰式洗頭（洗頭＋頭皮肩頸按摩）","寧曼路美髮店","泰國必體驗！洗頭＋頭皮按摩＋肩頸按摩","150～300"),
+        mk("20:30","回民宿 / 夜市閒逛","民宿附近","",""),
+        mk("21:30","💆 泰式按摩 / 腳底按摩","Loi Kroh Road 按摩店","每天按摩！","250～350"),
+      ]},
+      {date:"11/13",weekday:"五",theme:"包車前往清萊＋白廟＋清萊市區＋鐘樓燈光秀",stay:"⚠️ 清萊（待訂）",items:[
+        mk("07:30","早餐＋退房寄放大件行李（只帶過夜包）","民宿附近","大件行李寄放清邁民宿","50～150"),
+        mk("08:30","包車出發前往清萊","公路","車程約3～3.5小時，約190公里","—"),
+        mk("10:00","中途休息：聖泉溫泉 Tha Pai Hot Spring","途中","溫泉可煮蛋、泡腳，免費～20銖","20"),
+        mk("11:30","抵達清萊，午餐","清萊市區","清萊市區小吃或餐廳","100～200"),
+        mk("13:00","白廟 Wat Rong Khun（龍坤寺）","清萊郊區","門票100銖，全白色藝術寺廟，地獄之手橋必拍","100"),
+        mk("15:00","清萊玉佛寺 Wat Phra Kaew＋博物館","清萊市區","門票免費～50銖，玉佛發現地","50"),
+        mk("16:00","Check in 清萊住宿 ⚠️尚未預訂","清萊市區/河畔","推薦 The Riverie by Katathani（高級）/ Ibis Styles（平價）/ Baan Rim Khong（中階），6人訂3間雙人房，請盡早訂！","—"),
+        mk("17:30","清萊鐘樓 Chiang Rai Clock Tower 燈光秀","清萊鐘樓","每晚19:00/20:00/21:00燈光音樂秀","免費"),
+        mk("18:30","晚餐：清萊夜市 / 河畔餐廳","清萊鐘樓旁","清萊夜市小吃便宜","150～300"),
+        mk("20:00","休息 / 河畔散步","清萊","",""),
+        mk("20:30","💆 清萊當地按摩","清萊市區按摩店","每天按摩！清萊比清邁便宜，泰式約200～300/小時","200～300"),
+      ]},
+      {date:"11/14",weekday:"六",theme:"清萊藍廟＋黑屋博物館＋包車返回清邁",stay:"清邁（已訂）",items:[
+        mk("08:00","早餐＋退房","清萊住宿附近","清萊鐘樓週邊有早餐店","50～150"),
+        mk("09:00","藍廟 Wat Rong Suea Ten（龍蘇町寺）","清萊郊區","門票50銖，深藍色寺廟＋白色佛像","50"),
+        mk("10:30","黑屋博物館 Baan Dam（黑廟）","清萊郊區","門票80銖，40棟黑色建築群，死亡主題藝術","80"),
+        mk("12:00","午餐：清萊市區","清萊市區","","100～200"),
+        mk("13:30","包車返回清邁","公路","車程約3～3.5小時","—"),
+        mk("17:00","抵達清邁民宿，Check-in","Loi Kroh Road","","—"),
+        mk("18:30","晚餐：長康路夜市或 River Side 河畔餐廳","濱江區","The Riverside Bar & Restaurant 有現場樂團","200～400"),
+        mk("20:30","💆 夜市採買 / 按摩放鬆","民宿附近","每天按摩！","250～350"),
+      ]},
+      {date:"11/15",weekday:"日",theme:"泰式料理課（早上）＋瓦洛洛市場＋週日步行街夜市（重點）",stay:"清邁（已訂）",items:[
+        mk("08:00","早餐：民宿附近","民宿附近","料理課前別吃太飽","50～100"),
+        mk("08:30","★ 泰式料理課程 Thai Cooking Class（早上場）","古城/寧曼料理學校","推薦 Asia Scenic、Thai Akha；含市場採購＋4～5道菜，最後品嘗自己做的午餐，約08:30-13:00","1,200～1,800"),
+        mk("13:30","瓦洛洛市場 Warorot Market","古城東邊","當地傳統市場，便宜水果、乾貨、伴手禮，下午人較少","—"),
+        mk("15:30","💇 回民宿休息 / 泰式洗頭","民宿附近美髮店","逛完市場後放鬆一下","150～300"),
+        mk("16:30","準備前往週日夜市（先佔停車位）","塔佩門","從塔佩門沿Ratchadamnoen路綿延1公里","—"),
+        mk("17:00","★ 週日步行街 Sunday Walking Street（重點）","古城 Ratchadamnoen Rd","只有週日！手工藝品、街頭小吃、現場音樂，留3～4小時","200～400"),
+        mk("21:00","晚餐就在夜市解決","週日夜市","推薦：香腸、烤雞、芒果糯米、椰子冰、炸豬皮","—"),
+        mk("21:30","💆 週日夜市附近按摩","塔佩門附近按摩店","每天按摩！逛夜市逛累了順便按","250～350"),
+        mk("22:30","回民宿","民宿","",""),
+      ]},
+      {date:"11/16",weekday:"一",theme:"大象保護營（半日）＋SPA＋清邁夜間動物園",stay:"清邁（已訂）",items:[
+        mk("07:00","早餐：簡單解決（7-11/路邊粥品）","民宿附近","大象營通常提供茶點水果，不用吃太飽","50～100"),
+        mk("08:00","包車前往大象保護營","清邁郊區","推薦 Ethical 無騎乘保護營，需提前2～4週預約","—"),
+        mk("08:30～12:30","大象保護營體驗（餵食、洗澡）","Elephant Sanctuary","半日約4小時，含接送","1,700～2,500"),
+        mk("13:00","返回市區午餐","清邁市區","","150～250"),
+        mk("14:30","💆 泰式 SPA / 按摩（2小時）","市區 SPA","推薦 Fah Lanna Spa、Oasis Spa；大象營回來好好放鬆再去夜間動物園","1,500～2,500"),
+        mk("17:00","包車前往清邁夜間動物園","Night Safari","車程約20分鐘","—"),
+        mk("17:30～21:00","夜間動物園遊覽","Night Safari","門票含tram約1,200～1,600銖/人，步行區＋猛獸區","1,200～1,600"),
+        mk("21:30","返回民宿","民宿","",""),
+      ]},
+      {date:"11/17",weekday:"二",theme:"茵他儂國家公園（全天）＋Baan Landai 米其林告別晚宴",stay:"清邁（已訂）",items:[
+        mk("07:30","早餐：民宿附近","民宿附近","茵他儂山路遠，建議吃飽一點","50～150"),
+        mk("08:30","包車前往茵他儂國家公園 Doi Inthanon","泰國最高峰","車程約1.5～2小時","—"),
+        mk("10:00","國王皇后雙塔 Phra Mahathat","Doi Inthanon","園區門票300銖/人，雙塔外加100銖，花園超美","400"),
+        mk("11:30","Wachirathan 瀑布","Doi Inthanon","園區內，免費","免費"),
+        mk("12:30","山上簡餐 / 自帶午餐","Doi Inthanon","","100～200"),
+        mk("13:30","Kew Mae Pan 自然步道（視體力）","Doi Inthanon","約2～3小時環狀步道，需嚮導","200"),
+        mk("15:30","下山返回清邁","公路","",""),
+        mk("18:00","★ 告別晚宴：Baan Landai Fine Thai Cuisine（米其林推薦）","古城旗艦店","精緻泰北蘭納料理，百年蘭納建築，需預約","400～800"),
+        mk("20:00","最後一晚夜市閒逛 / 採買伴手禮","長康路夜市","",""),
+        mk("21:00","💆 最後一次泰式按摩","Loi Kroh Road 按摩店","每天按摩！旅程最後一次，好好放鬆","250～350"),
+      ]},
+      {date:"11/18",weekday:"三",theme:"採買伴手禮＋12:50 飛機返程",stay:"—",items:[
+        mk("07:30","早餐＋收拾行李","民宿附近","簡單吃或到機場再吃","50～100"),
+        mk("08:30","💆 退房前按摩（如時間允許）","民宿附近按摩店","每天按摩！最後一次，輕鬆上路；若時間太趕可省略","250～350"),
+        mk("09:00","Check-out，行李上車","民宿","",""),
+        mk("09:30","Central Airport Plaza 或 Warorot 最後採買","機場旁","買伴手禮、零食、乾貨","—"),
+        mk("10:30","前往清邁機場","機場","車程約10～15分鐘","—"),
+        mk("11:00","抵達機場辦理登機","清邁機場","國際線建議提前2小時","—"),
+        mk("12:50","飛機起飛返回桃園","清邁機場","",""),
+      ]},
+    ],
+    food:{
+      headers:["餐廳名稱","類型","米其林認證","推薦料理","地址/位置","營業時間","價位(銖/人)","適合安排"],
+      rows:[
+        ["★ Akha Ama Coffee (The New Original)","咖啡/輕食","—","單品手沖咖啡、甜點","Moonmueang Soi 9, Si Phum, 古城北區","每日08:00-17:00","60～150","Day1 下午 / Day5 上午"],
+        ["Ginger Farm Kitchen","泰式/農場料理","米其林推薦","農場直送沙拉、泰北咖哩","寧曼路 One Nimman 附近","約10:00-22:00","200～400","Day2 午餐"],
+        ["Guay Jub Chang Moi Tat Mai","泰式麵食","Bib Gourmand","粿汁、脆皮豬肉飯、鮮春卷","Chang Moi Rd, 近瓦洛洛市場","10:00-15:00","80～150","Day5 午餐"],
+        ["Khao Soi Maesai","泰北咖哩麵","Bib Gourmand","牛肉咖哩麵、木棉花米線","古城區","08:00-16:00（日休）","60～100","Day1/Day5 午餐替代"],
+        ["Baan Landai Fine Thai Cuisine","精緻泰北料理","米其林推薦","蘭納皇家料理、擺盤精緻","古城旗艦店（Old Town）","約11:00-22:00","400～800","Day7 告別晚宴"],
+        ["Huen Muan Jai","泰北料理","Bib Gourmand","泰北前菜拼盤、蒸雞、豬肉咖哩","古城附近（蘭納小屋）","11:00-21:00（三休）","150～300","Day2/Day5 晚餐替代"],
+        ["Euang Kam Sai","泰北料理/百年老店","Bib Gourmand","泰式米飯卷、泰北牛肉咖哩","老清邁文化中心旁","11:00-21:00（一休）","150～300","Day1/Day5 晚餐"],
+        ["Saiyut & Doctor Sai Kitchen","泰式/皇家菜","Bib Gourmand","皇家前菜拼盤、精緻擺盤","古城以北民宅區","10:00-21:00（三休）","200～400","Day2/Day7 午餐"],
+        ["Rasik Local Kitchen","新派泰菜","Bib Gourmand","烤牛骨髓配南薑醬、杭萊牛肉咖哩","清邁市區","17:00-21:00（二休）需預約","300～500","Day2/Day7 晚餐"],
+        ["Chawee","私房泰菜","Bib Gourmand","季節菜單、主廚親自解說","清邁市區","11:00-15:00/17:00-21:00（二休）需預約","300～500","Day2/Day7 午餐/晚餐"],
+        ["SANAE • Sanae Thai Cuisine","清真/牛肉料理","Bib Gourmand","牛油炒飯配醃蛋黃、酸辣牛小排湯","Baan Kang Wat 文青村旁","11:30-21:00（一休）","200～400","Day2 午餐替代"],
+        ["Meena Rice Based Cuisine","米飯料理/網美","Bib Gourmand","五色飯糰、泰北魚蓉沙律","San Kamphaeng 區（市區以東）","10:00-20:30","200～400","需包車前往，適合Day7"],
+        ["Gongkham Maerim","泰北料理","Bib Gourmand","青辣椒醬配炸豬肝、泰北香腸","湄林區（市區30分鐘）","09:00-21:00","150～300","需包車，適合Day7"],
+        ["Magnolia Cafe","新派泰菜","Bib Gourmand","風乾魷魚配花生醬、烤豬頸肉","清邁市區","17:00-22:00（日休）","250～450","Day2/Day7 晚餐"],
+        ["Huan Soontaree","河畔泰北菜+現場演唱","Bib Gourmand","泰北前菜拼盤、炸無骨魚釀豬肉","平河畔（可容350人）","16:30-23:00（日休）","200～400","Day1/Day4 晚餐"],
+        ["Lim Lao Ngow 林老五","魚丸麵/小吃","米其林推薦","魚丸麵、海鮮麵","古城北邊 Si Phum 區","約07:00-14:00","50～100","Day1/Day5 午餐"],
+        ["Lemongrass Thai Cuisine","泰式餐廳","—","Khao Soi、香蕉捲","Loi Kroh Rd（民宿附近）","約10:00-22:00","150～250","Day1 午餐"],
+        ["SP Chicken","烤雞小吃","—","泰式烤雞配辣醬","古城帕辛寺旁","約10:00-20:00","80～150","Day5 午餐替代"],
+        ["The Riverside Bar & Restaurant","河畔餐廳+現場樂團","—","泰式料理、調酒","濱江區","約11:00-24:00","250～500","Day4 晚餐"],
+        ["Ristr8to","拉花冠軍咖啡","—","拉花拿鐵、單品咖啡","寧曼路","約07:00-19:00","80～180","Day2 下午"],
+      ]
+    },
+    breakfast:{
+      headers:["類型","推薦","價格(銖)","說明","適合日"],
+      rows:[
+        ["泰式粥品/飯湯","路邊攤 โจ๊ก（Jok粥）、ข้าวต้ม（Khao Tom飯湯）","40～60","Chang Klan路及巷弄清晨就有攤販，加蛋加肉，暖胃實惠","每日"],
+        ["Roti 泰式煎餅","路邊 Roti 攤","30～50","加蛋、香蕉、煉乳，類似印度煎餅，清晨常見","每日"],
+        ["7-Eleven / FamilyMart","三明治、飯糰、包子、牛奶","30～80","最保險，24小時營業，民宿附近就有","每日（尤其早起日）"],
+        ["咖啡廳早餐","The House Cafe、當地咖啡廳","150～250","西式早餐套餐含咖啡，適合悠閒早晨","Day2/Day7"],
+        ["包車請司機帶路","在地人早餐店","50～100","每天有包車，可請司機推薦路邊當地早餐，最道地","每日"],
+        ["瓦洛洛市場","市場內小吃攤","40～80","Day5直接在市場解決，種類最多","Day5"],
+        ["Akha Ama Coffee","咖啡＋輕食","80～150","古城北區，可搭配早餐","Day1/Day5"],
+      ],
+      tip:"💡 小提醒：Loi Kroh Road 是夜市區，早上店家開得晚，建議第一天抵達時先在附近7-11採買麵包、牛奶、水果當備用。"
+    },
+    car:{
+      headers:["項目","費用(銖)","備註"],
+      rows:[
+        ["清邁市區包車（8小時/日）","1,800～2,500","含司機、油錢、保險，超時另計"],
+        ["清邁機場接送（單程）","300～500","9人座，車程15～20分鐘"],
+        ["清邁→清萊 單程接送","3,000～4,000","含司機、油錢，約3小時"],
+        ["清萊→清邁 單程接送","3,000～4,000","同上"],
+        ["清萊兩天一夜包車（含過夜）","5,000～7,000/2日","司機過夜補助另計300～500銖"],
+      ],
+      plans:{
+        headers:["方案","做法","優點","估計總費用(銖)"],
+        rows:[
+          ["A. 兩段單程接送","13號包車送清萊，14號另叫車接回","司機不用過夜，較便宜；但清萊當地移動要另外叫車","6,000～8,000"],
+          ["B. 兩天一夜包車（推薦）","同一台車＋司機跟全程，13號去14號回","清萊景點移動方便，不用再找車；6人有行李最方便","8,000～12,000"],
+          ["C. 清萊當地包車","13號包車到清萊後，當地租車半日，14號叫車回","彈性；但要喬三段車","7,000～9,000"],
+        ]
+      }
+    },
+    budget:{
+      headers:["項目","費用(銖/人)","備註"],
+      rows:[
+        ["包車（7天分攤）","3,500～5,000","含清萊兩日、機場接送、每日市區包車"],
+        ["住宿（7晚，雙人房分攤）","7,000～14,000","清邁6晚＋清萊1晚，視等級"],
+        ["餐費（含早餐）","5,000～7,500","早餐50～150/餐×7天，午晚餐500～800/天，含米其林餐廳"],
+        ["景點門票＋體驗","2,700～4,300","含夜間動物園、大象營、泰式料理課、寺廟、雙塔等"],
+        ["按摩/SPA/洗頭（每天按摩）","3,300～5,600","每日按摩250～350×7天＋Day7 SPA 1,500～2,500＋泰式洗頭150～300×2次"],
+        ["伴手禮/購物","2,000～5,000","自由"],
+        ["合計（不含機票）","22,000～42,000","約台幣20,000～38,000元（1台幣≈1.1銖）"],
+      ]
+    },
+    notes:{
+      headers:["類別","內容"],
+      rows:[
+        ["天氣","11月清邁進入涼季，非常舒適，氣溫約18～30°C，早晚偏涼建議帶薄外套，幾乎不下雨"],
+        ["水燈節/天燈節","2026年清邁水燈節(Loy Krathong)＋天燈節(Yi Peng)主活動為11/24～25，你們11/18離開不會遇到主要活動，但11月中開始有部分佈置。市區內禁止私自放天燈（罰則很重）"],
+        ["包車注意","務必確認車型可容納6人＋行李（建議9人座）；確認報價是否含司機餐費、過路費、停車費；清萊過夜需確認司機住宿補助"],
+        ["寺廟禮儀","進寺廟需脫鞋，服裝需過肩過膝；不可穿無袖、短褲；女性不可觸碰僧侶；寺廟內勿大聲喧嘩"],
+        ["時差","泰國比台灣慢1小時"],
+        ["電壓","220V，台灣3孔插頭需轉接（大部分手機充電器支援）"],
+        ["網路","機場可買 TrueMove / AIS 觀光SIM卡，7天無限上網約300～500銖"],
+        ["小費","按摩、搬行李可給20～50銖小費"],
+        ["現金","路邊攤、夜市需現金，7-11可刷信用卡；建議帶足現金或當地ATM提款"],
+        ["預約提醒","大象保護營需提前2～4週預約；Rasik、Chawee等米其林小餐廳需提前預約；Baan Landai告別晚宴建議預約"],
+        ["Akha Ama Coffee","The New Original 本店在古城北區 Moonmueang Soi 9，營業08:00-17:00，另有Phrasingh分店在帕辛寺前（營業至18:00）"],
+        ["每天按摩","Loi Kroh Road 及長康路一帶按摩店密集，泰式按摩250～350銖/小時，腳底按摩200～300銖/小時，油壓400～600銖/小時；選門口有價目表、燈光明亮、有營業執照的店；清萊按摩更便宜約200～300/小時"],
+        ["泰式洗頭","泰國必體驗！洗頭＋頭皮按摩＋肩頸按摩，有的加臉部按摩，150～300銖/30～60分鐘，大街小巷都有美髮店/理髮廳提供，男女都適合，超級放鬆又便宜"],
+        ["住宿狀態","清邁 6 晚（11/11-12、11/14-17）已訂好，地點 Loi Kroh Road；⚠️ 只剩清萊 11/13 一晚尚未預訂，請盡早訂房（推薦 The Riverie by Katathani 河畔高級 / Ibis Styles 平價 / Baan Rim Khong 中階），6人建議訂3間雙人房"],
+        ["保險","建議投保旅遊平安險"],
+        ["Health Land 按摩","6人建議至少提前1天用官網 healthlandspa.com 或電話+66 53 278 855 預約2小時套餐，人多容易滿；地址288/55 Chang Klan Rd，就在長康路夜市旁邊。"],
+      ]
+    }
+  };
 }
-const foodTable=document.getElementById('foodTable');
-foods.forEach(f=>{
-  const rowClass=f.michelin!=='—'?'michelin-row':'';
-  foodTable.innerHTML+=`<tr class="${rowClass}"><td>${f.name}</td><td>${f.type}</td><td>${f.michelin}</td><td>${f.dish}</td><td>${f.price}</td></tr>`;
+
+let state = JSON.parse(JSON.stringify(defaultData()));
+let activeMainTab = 'days';
+let activeDay = 0;
+
+const TABS = [
+  {key:'days', label:'每日行程'},
+  {key:'food', label:'米其林＆美食清單'},
+  {key:'breakfast', label:'早餐清單'},
+  {key:'car', label:'包車資訊'},
+  {key:'budget', label:'預估花費'},
+  {key:'notes', label:'注意事項'},
+];
+
+function esc(s){ return (s===undefined||s===null)?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function parseCostMid(cost){
+  if(!cost) return 0;
+  const nums = String(cost).replace(/,/g,'').match(/\d+(\.\d+)?/g);
+  if(!nums) return 0;
+  const vals = nums.map(Number);
+  return vals.reduce((a,b)=>a+b,0)/vals.length;
+}
+
+function renderMeta(){
+  document.getElementById('metaTitle').value = state.meta.title;
+  document.getElementById('metaRange').value = state.meta.range;
+  document.getElementById('metaPeople').value = state.meta.people;
+  document.getElementById('tripTitleDisplay').textContent = state.meta.title;
+  document.getElementById('tripSubDisplay').textContent = state.meta.range + '｜' + state.meta.people;
+}
+['metaTitle','metaRange','metaPeople'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',e=>{
+    const map={metaTitle:'title',metaRange:'range',metaPeople:'people'};
+    state.meta[map[id]] = e.target.value;
+    document.getElementById('tripTitleDisplay').textContent = state.meta.title;
+    document.getElementById('tripSubDisplay').textContent = state.meta.range + '｜' + state.meta.people;
+  });
 });
-const bookingTable=document.getElementById('bookingTable');
-bookings.forEach(b=>{
-  const rowClass=b.name.startsWith('⚠️')?'urgent-row':'';
-  const linkHtml=b.link!=='—'?`<a href="${b.link}" target="_blank">預訂連結</a>`:'—';
-  bookingTable.innerHTML+=`<tr class="${rowClass}"><td>${b.name}</td><td>${b.date}</td><td>${b.need}</td><td>${linkHtml}</td><td>${b.note}</td></tr>`;
+
+function renderTabs(){
+  const nav = document.getElementById('mainTabs');
+  nav.innerHTML = TABS.map(t=>`<button data-tab="${t.key}" class="${t.key===activeMainTab?'active':''}">${t.label}</button>`).join('');
+  nav.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ activeMainTab=b.dataset.tab; renderAll(); }));
+}
+
+function renderPanels(){
+  const root = document.getElementById('panels');
+  root.innerHTML = '';
+  const panel = document.createElement('div');
+  panel.className = 'panel active';
+  if(activeMainTab==='days') panel.appendChild(renderDaysPanel());
+  else panel.appendChild(renderSimplePanel(activeMainTab));
+  root.appendChild(panel);
+  root.querySelectorAll('table.simple textarea').forEach(autosize);
+}
+
+function renderDaysPanel(){
+  const wrap = document.createElement('div');
+
+  const totalTrip = state.days.reduce((sum,d)=>sum+d.items.reduce((s,it)=>s+parseCostMid(it.cost),0),0);
+  const totalItems = state.days.reduce((s,d)=>s+d.items.length,0);
+  const summary = document.createElement('div');
+  summary.className = 'summary-card';
+  summary.innerHTML = `
+    <div><b>${state.days.length}</b><span>天行程</span></div>
+    <div><b>${totalItems}</b><span>個安排項目</span></div>
+    <div><b>~${Math.round(totalTrip).toLocaleString()}</b><span>銖／人・全程估計（粗估，不含住宿包車）</span></div>`;
+  wrap.appendChild(summary);
+
+  const dtabs = document.createElement('div');
+  dtabs.className = 'daytabs';
+  dtabs.innerHTML = state.days.map((d,i)=>`<button data-i="${i}" class="${i===activeDay?'active':''}">Day${i+1} ${d.date}(${d.weekday})</button>`).join('');
+  dtabs.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ activeDay=+b.dataset.i; renderAll(); }));
+  wrap.appendChild(dtabs);
+
+  const day = state.days[activeDay];
+  const themeBar = document.createElement('div');
+  themeBar.className = 'day-theme';
+  themeBar.innerHTML = `<input data-f="theme" value="${esc(day.theme)}" placeholder="這天的主題" /><input data-f="stay" value="${esc(day.stay)}" placeholder="住宿地" style="max-width:220px;" />`;
+  themeBar.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input',e=>{ day[e.target.dataset.f]=e.target.value; });
+  });
+  wrap.appendChild(themeBar);
+
+  const timeline = document.createElement('div');
+  timeline.className = 'timeline';
+  day.items.forEach((it,idx)=>{
+    timeline.appendChild(renderItem(day, it, idx));
+  });
+  wrap.appendChild(timeline);
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-item';
+  addBtn.textContent = '+ 新增這天的行程項目';
+  addBtn.addEventListener('click',()=>{
+    day.items.push({id:uid(),time:'00:00',title:'新行程',location:'',note:'',cost:'',pinned:false});
+    renderAll();
+  });
+  wrap.appendChild(addBtn);
+
+  const dayTotal = day.items.reduce((s,it)=>s+parseCostMid(it.cost),0);
+  const totalLine = document.createElement('div');
+  totalLine.className = 'day-total';
+  totalLine.textContent = `本日估計花費：~${Math.round(dayTotal).toLocaleString()} 銖／人（粗估）`;
+  wrap.appendChild(totalLine);
+
+  return wrap;
+}
+
+function cleanForQuery(s){
+  return String(s||'').replace(/[★☆💆💇🏮⚠️~]/g,'').replace(/（[^）]*）/g,'').replace(/\([^)]*\)/g,'').replace(/\s+/g,' ').trim();
+}
+function autoMapUrl(it){
+  const q = [cleanForQuery(it.title), cleanForQuery(it.location)].filter(Boolean).join(' ');
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q + ' Thailand');
+}
+
+function renderItem(day, it, idx){
+  const el = document.createElement('div');
+  el.className = 'item' + (it.pinned ? ' pinned' : '');
+  const mapUrl = it.map ? it.map : autoMapUrl(it);
+  el.innerHTML = `
+    <div class="item-row1">
+      <input class="time-input" value="${esc(it.time)}" data-f="time" />
+      <input class="title-input" value="${esc(it.title)}" data-f="title" />
+      <a class="map-btn" href="${esc(mapUrl)}" target="_blank" rel="noopener" title="在 Google Map 開啟">📍</a>
+      ${it.booking ? `<a class="map-btn book-btn" href="${esc(it.booking)}" target="_blank" rel="noopener" title="預約／購票連結">🎫</a>` : ''}
+      <button class="pin-badge ${it.pinned?'':'off'}" data-act="pin">${it.pinned?'★ 必去':'☆ 標為必去'}</button>
+      <button class="del-btn" data-act="del" ${it.pinned?'disabled title="必去項目請先取消釘選才能刪除"':''}>✕</button>
+    </div>
+    <div class="item-grid">
+      <div><label>地點</label><input value="${esc(it.location)}" data-f="location" /></div>
+      <div><label>預估花費(銖/人)</label><input value="${esc(it.cost)}" data-f="cost" /></div>
+      <div style="grid-column:1/-1;"><label>自訂 Google Map 連結（選填，留空會自動用「行程名稱＋地點」搜尋）</label><input value="${esc(it.map||'')}" data-f="map" placeholder="https://maps.google.com/..." /></div>
+      <div style="grid-column:1/-1;"><label>預約／購票連結（選填，例如 Klook、官網）</label><input value="${esc(it.booking||'')}" data-f="booking" placeholder="https://www.klook.com/..." /></div>
+      <textarea data-f="note" placeholder="備註">${esc(it.note)}</textarea>
+    </div>`;
+  el.querySelectorAll('[data-f]').forEach(inp=>{
+    inp.addEventListener('input',e=>{
+      const f = e.target.dataset.f;
+      it[f]=e.target.value;
+      if(f==='title' || f==='location' || f==='map'){
+        el.querySelector('.map-btn').href = it.map ? it.map : autoMapUrl(it);
+      }
+      if(f==='booking'){
+        let bBtn = el.querySelector('.book-btn');
+        if(it.booking){
+          if(!bBtn){
+            bBtn = document.createElement('a');
+            bBtn.className = 'map-btn book-btn';
+            bBtn.target = '_blank';
+            bBtn.rel = 'noopener';
+            bBtn.title = '預約／購票連結';
+            bBtn.textContent = '🎫';
+            el.querySelector('.map-btn').after(bBtn);
+          }
+          bBtn.href = it.booking;
+        } else if(bBtn){
+          bBtn.remove();
+        }
+      }
+    });
+  });
+  el.querySelector('[data-act="pin"]').addEventListener('click',()=>{ it.pinned=!it.pinned; renderAll(); });
+  el.querySelector('[data-act="del"]').addEventListener('click',()=>{
+    if(it.pinned) return;
+    day.items = day.items.filter(x=>x.id!==it.id);
+    renderAll();
+  });
+  return el;
+}
+
+function autosize(ta){
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
+}
+
+function buildSimpleTable(headers, rows, onEdit, onDelete){
+  const table = document.createElement('table');
+  table.className = 'simple';
+  const thead = document.createElement('thead');
+  thead.innerHTML = '<tr>' + headers.map(h=>`<th>${esc(h)}</th>`).join('') + '<th style="width:36px;"></th></tr>';
+  table.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  rows.forEach((row,ri)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = row.map((cell,ci)=>`<td data-label="${esc(headers[ci])}"><textarea rows="1" data-r="${ri}" data-c="${ci}">${esc(cell)}</textarea></td>`).join('') +
+      `<td data-label=""><button class="del-btn" data-del="${ri}">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  table.querySelectorAll('textarea').forEach(ta=>{
+    autosize(ta);
+    ta.addEventListener('input',e=>{
+      onEdit(+e.target.dataset.r, +e.target.dataset.c, e.target.value);
+      autosize(e.target);
+    });
+  });
+  table.querySelectorAll('[data-del]').forEach(b=>{
+    b.addEventListener('click',()=>onDelete(+b.dataset.del));
+  });
+  return table;
+}
+
+function renderSimplePanel(key){
+  const wrap = document.createElement('div');
+  const data = state[key];
+  const headers = data.headers;
+  const rows = data.rows;
+
+  const table = buildSimpleTable(headers, rows,
+    (ri,ci,val)=>{ rows[ri][ci] = val; },
+    (ri)=>{ data.rows.splice(ri,1); renderAll(); }
+  );
+  wrap.appendChild(table);
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-item';
+  addBtn.textContent = '+ 新增一列';
+  addBtn.addEventListener('click',()=>{
+    data.rows.push(headers.map(()=>''));
+    renderAll();
+  });
+  wrap.appendChild(addBtn);
+
+  if(key==='breakfast' && data.tip){
+    const tip = document.createElement('p');
+    tip.className = 'hint';
+    tip.style.marginTop='12px';
+    tip.textContent = data.tip;
+    wrap.appendChild(tip);
+  }
+
+  if(key==='car' && data.plans){
+    const h3 = document.createElement('h3');
+    h3.className='serif';
+    h3.style.fontSize='15px';
+    h3.style.margin='24px 0 10px';
+    h3.textContent = '清萊交通方案比較';
+    wrap.appendChild(h3);
+    const t2 = buildSimpleTable(data.plans.headers, data.plans.rows,
+      (ri,ci,val)=>{ data.plans.rows[ri][ci] = val; },
+      (ri)=>{ data.plans.rows.splice(ri,1); renderAll(); }
+    );
+    wrap.appendChild(t2);
+    const addBtn2=document.createElement('button');
+    addBtn2.className='add-item';
+    addBtn2.textContent='+ 新增比較方案';
+    addBtn2.addEventListener('click',()=>{ data.plans.rows.push(data.plans.headers.map(()=>'')); renderAll(); });
+    wrap.appendChild(addBtn2);
+  }
+
+  return wrap;
+}
+
+function renderAll(){
+  renderMeta();
+  renderTabs();
+  renderPanels();
+}
+
+document.getElementById('btnExport').addEventListener('click',()=>{
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '清邁行程_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
 });
-const budgetTable=document.getElementById('budgetTable');
-budget.forEach(b=>{
-  const isTotal=b.item.startsWith('合計');
-  budgetTable.innerHTML+=`<tr style="${isTotal?'font-weight:700;background:var(--primary-light);color:var(--primary)':''}"><td>${b.item}</td><td>${b.cost}</td><td>${b.note}</td></tr>`;
+
+document.getElementById('fileImport').addEventListener('change',e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(!data.days || !data.meta) throw new Error('格式不符');
+      state = data;
+      activeDay = 0;
+      renderAll();
+    }catch(err){
+      alert('匯入失敗，請確認這是本頁面匯出的 JSON 檔案。');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
 });
-const tipsList=document.getElementById('tipsList');
-tips.forEach(t=>{tipsList.innerHTML+=`<li><strong>${t.title}：</strong>${t.text}</li>`;});
+
+document.getElementById('btnPrint').addEventListener('click',()=>window.print());
+
+document.getElementById('btnReset').addEventListener('click',()=>{
+  if(!confirm('確定要還原成最初版本嗎？目前的修改會消失（建議先匯出 JSON 備份）。')) return;
+  state = JSON.parse(JSON.stringify(defaultData()));
+  activeDay = 0;
+  activeMainTab = 'days';
+  renderAll();
+});
+
+renderAll();
 </script>
 </body>
 </html>
