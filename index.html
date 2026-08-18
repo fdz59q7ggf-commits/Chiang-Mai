@@ -45,6 +45,8 @@ nav.tabs button:hover:not(.active){border-color:var(--gold);color:var(--ink);}
 .time-input{width:76px;font-weight:700;color:var(--navy);border:none;background:var(--paper-2);border-radius:6px;padding:5px 6px;font-family:'Noto Sans TC',sans-serif;font-size:13px;text-align:center;}
 .title-input{flex:1;min-width:140px;border:none;border-bottom:1px solid transparent;background:transparent;font-family:'Noto Serif TC',serif;font-weight:700;font-size:15px;color:var(--ink);padding:4px 2px;}
 .title-input:focus,.time-input:focus{outline:none;border-bottom:1px solid var(--coral);}
+.map-btn{flex:none;text-decoration:none;font-size:15px;background:var(--paper-2);border-radius:999px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);transition:.15s;}
+.map-btn:hover{background:var(--coral-dim);border-color:var(--coral);}
 .pin-badge{display:flex;align-items:center;gap:4px;font-size:11px;color:#8A6D06;background:var(--gold-dim);border-radius:999px;padding:3px 9px;flex:none;cursor:pointer;border:none;font-weight:700;}
 .pin-badge.off{background:var(--paper-2);color:var(--muted);}
 .del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;flex:none;padding:2px 6px;border-radius:6px;}
@@ -115,7 +117,7 @@ footer{text-align:center;font-size:11px;color:var(--muted);margin-top:30px;}
 const uid = (()=>{let n=0;return ()=>'id'+(n++)+'_'+Math.random().toString(36).slice(2,7);})();
 
 function defaultData(){
-  const mk = (time,title,location,note,cost,pinned)=>({id:uid(),time,title,location,note:note||"",cost:cost||"",pinned:!!pinned});
+  const mk = (time,title,location,note,cost,pinned,map)=>({id:uid(),time,title,location,note:note||"",cost:cost||"",pinned:!!pinned,map:map||""});
   return {
     meta:{ title:"清邁 8 天 7 夜行程規劃", range:"2026/11/11（三）→ 11/18（三）", people:"6 人全程包車" },
     days:[
@@ -126,11 +128,11 @@ function defaultData(){
         mk("12:00","午餐：Lemongrass Thai Cuisine","Loi Kroh Rd","推薦 Khao Soi 泰北咖哩麵、香蕉捲","150～250"),
         mk("13:30","契迪龍寺 Wat Chedi Luang","古城內","門票50銖，清邁最具歷史感寺廟","50"),
         mk("14:30","帕辛寺 Wat Phra Singh","古城內","門票40銖，古城內最美蘭納寺廟","40"),
-        mk("15:30","★ Akha Ama Coffee (The New Original)","Moonmueang Soi 9, 古城北區","必去！阿卡族咖啡，單品咖啡60～150銖，營業08:00-17:00","80～150",true),
+        mk("15:30","★ Akha Ama Coffee (The New Original)","Moonmueang Soi 9, 古城北區","必去！阿卡族咖啡，單品咖啡60～150銖，營業08:00-17:00","80～150",true,"https://www.google.com/maps/search/?api=1&query=Akha+Ama+Coffee+The+New+Original+Chiang+Mai"),
         mk("16:30","塔佩門 Tha Phae Gate 拍照散步","古城東門","免費，鴿子廣場","免費"),
         mk("17:00","回民宿休息","Loi Kroh Road","",""),
         mk("18:00","晚餐＋長康路夜市 Night Bazaar","Chang Klan Rd","走路就到！Anusarn美食廣場、Kalare夜市","200～400"),
-        mk("21:00","💆 Health Land Spa & Massage 清邁（指定必去）","288/55 Chang Klan Rd（近長康路夜市）","CNN評選全球15大最幸福按摩店之一，環境高級乾淨，營業09:00-23:00，強烈建議提前電話/官網預約（+66 53 278 855），2小時套餐","700～900",true),
+        mk("21:00","💆 Health Land Spa & Massage 清邁（指定必去）","288/55 Chang Klan Rd（近長康路夜市）","CNN評選全球15大最幸福按摩店之一，環境高級乾淨，營業09:00-23:00，強烈建議提前電話/官網預約（+66 53 278 855），2小時套餐","700～900",true,"https://www.google.com/maps/search/?api=1&query=Health+Land+Spa+%26+Massage+Chiang+Mai+288%2F55+Chang+Klan+Road"),
       ]},
       {date:"11/12",weekday:"四",theme:"素帖山雙龍寺＋寧曼路悠閒一日（Ginger Farm Kitchen 米其林午餐）",stay:"清邁（已訂）",items:[
         mk("08:00","早餐：民宿附近（泰式粥品/咖啡廳/7-11）","民宿附近","民宿無早餐，自理，見美食清單","50～150"),
@@ -411,23 +413,39 @@ function renderDaysPanel(){
   return wrap;
 }
 
+function cleanForQuery(s){
+  return String(s||'').replace(/[★☆💆💇🏮⚠️~]/g,'').replace(/（[^）]*）/g,'').replace(/\([^)]*\)/g,'').replace(/\s+/g,' ').trim();
+}
+function autoMapUrl(it){
+  const q = [cleanForQuery(it.title), cleanForQuery(it.location)].filter(Boolean).join(' ');
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q + ' Thailand');
+}
+
 function renderItem(day, it, idx){
   const el = document.createElement('div');
   el.className = 'item' + (it.pinned ? ' pinned' : '');
+  const mapUrl = it.map ? it.map : autoMapUrl(it);
   el.innerHTML = `
     <div class="item-row1">
       <input class="time-input" value="${esc(it.time)}" data-f="time" />
       <input class="title-input" value="${esc(it.title)}" data-f="title" />
+      <a class="map-btn" href="${esc(mapUrl)}" target="_blank" rel="noopener" title="在 Google Map 開啟">📍</a>
       <button class="pin-badge ${it.pinned?'':'off'}" data-act="pin">${it.pinned?'★ 必去':'☆ 標為必去'}</button>
       <button class="del-btn" data-act="del" ${it.pinned?'disabled title="必去項目請先取消釘選才能刪除"':''}>✕</button>
     </div>
     <div class="item-grid">
       <div><label>地點</label><input value="${esc(it.location)}" data-f="location" /></div>
       <div><label>預估花費(銖/人)</label><input value="${esc(it.cost)}" data-f="cost" /></div>
+      <div style="grid-column:1/-1;"><label>自訂 Google Map 連結（選填，留空會自動用「行程名稱＋地點」搜尋）</label><input value="${esc(it.map||'')}" data-f="map" placeholder="https://maps.google.com/..." /></div>
       <textarea data-f="note" placeholder="備註">${esc(it.note)}</textarea>
     </div>`;
   el.querySelectorAll('[data-f]').forEach(inp=>{
-    inp.addEventListener('input',e=>{ it[e.target.dataset.f]=e.target.value; if(e.target.dataset.f!=='note'){} });
+    inp.addEventListener('input',e=>{
+      it[e.target.dataset.f]=e.target.value;
+      if(e.target.dataset.f==='title' || e.target.dataset.f==='location' || e.target.dataset.f==='map'){
+        el.querySelector('.map-btn').href = it.map ? it.map : autoMapUrl(it);
+      }
+    });
   });
   el.querySelector('[data-act="pin"]').addEventListener('click',()=>{ it.pinned=!it.pinned; renderAll(); });
   el.querySelector('[data-act="del"]').addEventListener('click',()=>{
