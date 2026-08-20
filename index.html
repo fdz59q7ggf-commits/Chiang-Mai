@@ -506,7 +506,7 @@ function renderDaysPanel(){
 }
 
 function cleanForQuery(s){
-  return String(s||'').replace(/[★☆💆💇🏮⚠️~]/g,'').replace(/（[^）]*）/g,'').replace(/\([^)]*\)/g,'').replace(/\s+/g,' ').trim();
+  return String(s||'').replace(/[★☆💆💇🏮⚠️~🔫]/gu,'').replace(/（[^）]*）/g,'').replace(/\([^)]*\)/g,'').replace(/\s+/g,' ').trim();
 }
 function autoMapUrl(it){
   const q = [cleanForQuery(it.title), cleanForQuery(it.location)].filter(Boolean).join(' ');
