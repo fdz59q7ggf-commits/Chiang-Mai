@@ -534,6 +534,14 @@ function renderDaysPanel(){
   }).join('');
   dtabs.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ activeDay=+b.dataset.i; renderAll(); }));
   wrap.appendChild(dtabs);
+  // 點擊後將作用中分頁捲動到可見範圍中央，避免備用天被擠到右邊看不到
+  requestAnimationFrame(()=>{
+    const activeBtn = dtabs.querySelector('button.active');
+    if(activeBtn){
+      const target = activeBtn.offsetLeft + activeBtn.offsetWidth/2 - dtabs.offsetWidth/2;
+      dtabs.scrollLeft = Math.max(0, target);
+    }
+  });
 
   const day = state.days[activeDay];
   const themeBar = document.createElement('div');
