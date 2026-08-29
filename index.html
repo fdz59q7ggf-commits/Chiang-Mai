@@ -267,6 +267,17 @@ function defaultData(){
       ],
       tip:"💡 小提醒：Loi Kroh Road 是夜市區，早上店家開得晚，建議第一天抵達時先在附近7-11採買麵包、牛奶、水果當備用。"
     },
+    seafood:{
+      headers:["店名","價格(銖/人)","特色與海鮮種類","地址/分店","營業時間","預約方式","評分/人氣","6人適合度與注意事項"],
+      rows:[
+        ["🔥 Big Big Shabu","220～399（220基本/399海鮮升級）","清邁最紅平價海鮮自助！活蝦自己抓（泰國蝦/白蝦）、凍蟹、生蠔、魷魚、蜆、蛤蜊＋烤肉＋火鍋(Shabu)吃到飽，含飲料，CP值極高，吃一斤蝦就回本","多家分店：①Khum Phaeng古城分店（近古城南邊）②Kad Farang分店（Mae Rim區）③市區其他分店","約16:00～深夜（23:00-00:00）","現場排隊為主，熱門時段建議提早到；Google搜尋「Big Big Shabu Chiang Mai」","⭐4.1+，現場爆滿，當地人+遊客都愛","⭐⭐⭐⭐⭐ 6人熱鬧聚餐首選！建議直上399海鮮方案；有剩餘食物會加收費用；戶外用餐區為主；適合Day1/Day2/Day4/Day6晚餐"],
+        ["🦐 Kung Yim","約399～599（依方案/分店）","主打大隻新鮮烤河蝦（現場開背烤，butterflied grilled river prawns），另有魷魚、鳳螺(spotted babylon snail)、多種海鮮+熟食區，2025年新開人氣店，有冷氣+停車場","多家分店：①古城分店（近塔佩門/古城區）②Kad Farang分店（Mae Rim區，The Kad Farang購物中心內）","約17:00～23:00","建議電話或Facebook預約，6人同行先訂位；Google搜尋「Kung Yim Chiang Mai」","⭐4.5+，2025新開人氣竄升","⭐⭐⭐⭐⭐ 海鮮愛好者首選！有冷氣可慢慢吃；烤大蝦是招牌，每人限量或無限依方案；Kad Farang分店離市區約20分鐘車程；適合Day1/Day4/Day6晚餐"],
+        ["🍲 Faham Moo Krata","239","泰式烤鍋(Moo Krata)，無限海鮮+肉類+蔬菜+冰淇淋+飲料，平價CP值高，當地人愛去，自己動手烤+煮，中間烤肉周圍煮火鍋","清邁市區（Faham為人氣分店，市區多處有類似Moo Krata店）","17:00～01:00","現場為主，熱門時段可能要等","⭐4.1（597則評價）","⭐⭐⭐⭐ 預算有限首選！海鮮種類比Big Big少但價格更便宜；泰式烤鍋體驗有趣；適合Day2/Day4晚餐"],
+        ["🏨 Novotel 週五海鮮自助","約899～1,200（成人，時常促銷）","飯店級Fresh Seafood Buffet，每週五晚上限定，新鮮海鮮（蝦、蟹、生蠔、淡菜等）+國際料理+泰式料理+甜點，環境舒適有冷氣，服務佳","Novotel Chiang Mai Nimman Journeyhub（寧曼路）","每週五18:00～22:00","官網或電話預約：https://www.novotelchiangmai.com/hotel-in-chiang-mai/seafood-buffet-in-chiang-mai/","飯店級品質保證","⭐⭐⭐⭐ 想吃好一點、有冷氣、服務佳；⚠️僅週五開放，你11/13（五）在清萊、11/20才回來，行程期間可能吃不到；若延後行程可考慮"],
+        ["👑 香格里拉 龍蝦螃蟹之夜","約1,500～2,000（成人）","每週五晚上限定，無限加拿大龍蝦、阿拉斯加帝王蟹、法國芬大奇生蠔、淡菜、紅蝦、現切生魚片和壽司、安格斯牛排、龍蝦湯、新加坡炸蟹、泰國特色菜、起司和自製糕點，高級享受","清邁香格里拉大酒店 Kad Café（花園景觀，蘭納風格裝潢）","每週五18:00～22:00","官網或電話預約，需提前訂位；Google搜尋「Shangri-La Chiang Mai seafood buffet」","高級飯店盛宴","⭐⭐⭐ 預算充足可體驗！⚠️同樣僅週五開放，你11/13在清萊可能錯過；價格含稅及服務費需確認；適合特殊慶祝場合"],
+      ],
+      tip:"💡 6人團建議：首選 Big Big Shabu（399銖方案），活蝦+烤肉+火鍋，6人熱鬧聚餐CP值最高；想吃有冷氣、烤大蝦為主選 Kung Yim；預算有限選 Faham Moo Krata（239銖）。飯店級海鮮自助僅週五開放，你11/13在清萊可能錯過。所有海鮮自助大多17:00後才營業，建議安排在晚餐時段；6人同行建議先電話/Facebook預約，避免現場客滿。"
+    },
     car:{
       headers:["項目","費用(銖)","備註"],
       rows:[
@@ -391,6 +402,7 @@ const TABS = [
   {key:'days', label:'每日行程'},
   {key:'food', label:'米其林＆美食清單'},
   {key:'breakfast', label:'早餐清單'},
+  {key:'seafood', label:'海鮮自助'},
   {key:'car', label:'包車資訊'},
   {key:'booking', label:'預約資訊'},
   {key:'budget', label:'預估花費'},
@@ -648,7 +660,7 @@ function renderSimplePanel(key){
   });
   wrap.appendChild(addBtn);
 
-  if(key==='breakfast' && data.tip){
+  if(data.tip){
     const tip = document.createElement('p');
     tip.className = 'hint';
     tip.style.marginTop='12px';
