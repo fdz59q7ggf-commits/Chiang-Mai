@@ -58,6 +58,19 @@ nav.tabs button:hover:not(.active){border-color:var(--gold);color:var(--ink);}
 .item-grid textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-family:inherit;font-size:12.5px;background:var(--paper);resize:vertical;min-height:32px;grid-column:1/-1;}
 .add-item{width:100%;border:1.5px dashed var(--line);background:none;border-radius:12px;padding:12px;color:var(--muted);font-family:inherit;font-size:13px;cursor:pointer;margin-top:4px;}
 .add-item:hover{border-color:var(--coral);color:var(--coral);}
+.note-preview{grid-column:1/-1;border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--paper);font-size:12.5px;line-height:1.6;cursor:pointer;white-space:pre-wrap;word-break:break-word;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;}
+.note-preview.empty{color:var(--muted);}
+.note-more{grid-column:1/-1;font-size:11.5px;color:var(--coral);cursor:pointer;margin-top:-4px;background:none;border:none;text-align:left;padding:0;font-family:inherit;}
+.modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(27,42,68,.55);padding:16px;}
+.modal.open{display:flex;}
+.modal-card{background:#fff;border-radius:16px;width:100%;max-width:640px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.3);}
+.modal-head{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--paper-2);}
+.modal-head h3{margin:0;font-size:15px;flex:1;line-height:1.4;}
+.modal-close{border:none;background:var(--navy);color:var(--paper);border-radius:999px;padding:6px 14px;font-family:inherit;font-size:13px;cursor:pointer;flex:none;}
+.modal-body{padding:14px 16px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.modal-body textarea{width:100%;min-height:45vh;border:1px solid var(--line);border-radius:8px;padding:10px;font-family:inherit;font-size:14px;line-height:1.7;background:var(--paper);resize:vertical;}
+.modal-body .link-chips{margin-top:10px;}
+@media (max-width:680px){.modal{padding:0;align-items:flex-end;}.modal-card{max-width:none;max-height:92vh;border-radius:16px 16px 0 0;}.modal-body textarea{min-height:40vh;}}
 .link-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
 .link-chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--coral);background:var(--coral-dim);border:1px solid var(--coral);border-radius:999px;padding:3px 12px;text-decoration:none;transition:.15s;}
 .link-chip:hover{background:var(--coral);color:#fff;}
@@ -127,6 +140,12 @@ footer{text-align:center;font-size:11px;color:var(--muted);margin-top:30px;}
   <footer>清邁行程規劃 · 純前端本機編輯，資料不會上傳到任何伺服器</footer>
 </div>
 
+<div class="modal" id="noteModal" onclick="if(event.target===this)closeNoteModal()">
+  <div class="modal-card">
+    <div class="modal-head"><h3></h3><button class="modal-close" onclick="closeNoteModal()">關閉 ✕</button></div>
+    <div class="modal-body"><textarea placeholder="備註"></textarea><div class="modal-links"></div></div>
+  </div>
+</div>
 <script>
 const uid = (()=>{let n=0;return ()=>'id'+(n++)+'_'+Math.random().toString(36).slice(2,7);})();
 
@@ -601,7 +620,8 @@ function renderItem(day, it, idx){
       <div><label>預估花費(銖/人)</label><input value="${esc(it.cost)}" data-f="cost" /></div>
       <div style="grid-column:1/-1;"><label>自訂 Google Map 連結（選填，留空會自動用「行程名稱＋地點」搜尋）</label><input value="${esc(it.map||'')}" data-f="map" placeholder="https://maps.google.com/..." /></div>
       <div style="grid-column:1/-1;"><label>預約／購票連結（選填，例如 Klook、官網）</label><input value="${esc(it.booking||'')}" data-f="booking" placeholder="https://www.klook.com/..." /></div>
-      <textarea data-f="note" placeholder="備註">${esc(it.note)}</textarea>
+      <div class="note-preview ${it.note?'':'empty'}" data-act="note">${it.note?esc(it.note):'點此新增備註'}</div>
+      <button class="note-more" data-act="note">${it.note?'🔍 點開看完整備註／編輯':'✏️ 新增備註'}</button>
       <div class="note-links" style="grid-column:1/-1;">${renderLinkChips(extractUrls(it.note))}</div>
     </div>`;
   el.querySelectorAll('[data-f]').forEach(inp=>{
@@ -628,12 +648,18 @@ function renderItem(day, it, idx){
           bBtn.remove();
         }
       }
-      if(f==='note'){
-        const linksDiv = el.querySelector('.note-links');
-        if(linksDiv) linksDiv.innerHTML = renderLinkChips(extractUrls(it.note));
-      }
     });
   });
+  el.querySelectorAll('[data-act="note"]').forEach(b=>b.addEventListener('click',()=>{
+    openNoteModal(it, ()=>{
+      const pv = el.querySelector('.note-preview');
+      pv.textContent = it.note || '點此新增備註';
+      pv.classList.toggle('empty', !it.note);
+      el.querySelector('.note-more').textContent = it.note ? '🔍 點開看完整備註／編輯' : '✏️ 新增備註';
+      const linksDiv = el.querySelector('.note-links');
+      if(linksDiv) linksDiv.innerHTML = renderLinkChips(extractUrls(it.note));
+    });
+  }));
   el.querySelector('[data-act="pin"]').addEventListener('click',()=>{ it.pinned=!it.pinned; renderAll(); });
   el.querySelector('[data-act="del"]').addEventListener('click',()=>{
     if(it.pinned) return;
@@ -642,6 +668,24 @@ function renderItem(day, it, idx){
   });
   return el;
 }
+
+function openNoteModal(it, onChange){
+  const m = document.getElementById('noteModal');
+  const ta = m.querySelector('textarea');
+  m.querySelector('h3').textContent = (it.time ? it.time+'　' : '') + (it.title || '備註');
+  ta.value = it.note || '';
+  const chips = m.querySelector('.modal-links');
+  chips.innerHTML = renderLinkChips(extractUrls(it.note));
+  ta.oninput = ()=>{ it.note = ta.value; chips.innerHTML = renderLinkChips(extractUrls(it.note)); onChange(); };
+  m.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeNoteModal(){
+  document.getElementById('noteModal').classList.remove('open');
+  document.body.style.overflow = '';
+  renderAll();
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && document.getElementById('noteModal').classList.contains('open')) closeNoteModal(); });
 
 function autosize(ta){
   ta.style.height = 'auto';
