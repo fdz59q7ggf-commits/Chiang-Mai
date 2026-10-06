@@ -692,7 +692,13 @@ function autosize(ta){
   ta.style.height = ta.scrollHeight + 'px';
 }
 
-function buildSimpleTable(headers, rows, onEdit, onDelete){
+// 餐廳/店家表格：名稱欄、地址欄（地圖連結用）
+const MAP_COLS = {food:[0,4], breakfast:[1,null], seafood:[0,3], massage:[0,4]};
+function placeMapUrl(name, addr){
+  const q = [cleanForQuery(name), cleanForQuery(addr)].filter(Boolean).join(' ');
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q + ' Chiang Mai Thailand');
+}
+function buildSimpleTable(headers, rows, onEdit, onDelete, mapCols){
   const table = document.createElement('table');
   table.className = 'simple';
   const thead = document.createElement('thead');
@@ -706,6 +712,22 @@ function buildSimpleTable(headers, rows, onEdit, onDelete){
     tbody.appendChild(tr);
   });
   table.appendChild(tbody);
+  if(mapCols){
+    const [nc, ac] = mapCols;
+    tbody.querySelectorAll('tr').forEach((tr,ri)=>{
+      const cell = tr.children[nc];
+      const a = document.createElement('a');
+      a.className = 'link-chip';
+      a.target = '_blank'; a.rel = 'noopener';
+      a.title = '在 Google Map 開啟';
+      a.textContent = '📍 地圖';
+      const upd = ()=>{ a.href = placeMapUrl(rows[ri][nc], ac!=null ? rows[ri][ac] : ''); };
+      upd();
+      cell.appendChild(a);
+      cell.querySelector('textarea').addEventListener('input', upd);
+      if(ac!=null) tr.children[ac].querySelector('textarea').addEventListener('input', upd);
+    });
+  }
   table.querySelectorAll('textarea').forEach(ta=>{
     autosize(ta);
     // 若 cell 含 URL，加入可點擊連結按鈕
@@ -748,7 +770,8 @@ function renderSimplePanel(key){
 
   const table = buildSimpleTable(headers, rows,
     (ri,ci,val)=>{ rows[ri][ci] = val; },
-    (ri)=>{ data.rows.splice(ri,1); renderAll(); }
+    (ri)=>{ data.rows.splice(ri,1); renderAll(); },
+    MAP_COLS[key]
   );
   wrap.appendChild(table);
 
