@@ -791,6 +791,13 @@ function renderSimplePanel(key){
   });
   wrap.appendChild(addBtn);
 
+  if(key==='massage'){
+    const mapLink = document.createElement('p');
+    mapLink.innerHTML = '<a class="link-chip" href="massage/index.html" target="_blank" rel="noopener">🗺️ 所有按摩店總地圖＋詳細介紹</a>';
+    mapLink.style.marginTop = '12px';
+    wrap.appendChild(mapLink);
+  }
+
   if(data.tip){
     const tip = document.createElement('p');
     tip.className = 'hint';
