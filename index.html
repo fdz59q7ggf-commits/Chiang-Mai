@@ -63,6 +63,17 @@ nav.tabs button:hover:not(.active){border-color:var(--gold);color:var(--ink);}
 .note-more{grid-column:1/-1;font-size:11.5px;color:var(--coral);cursor:pointer;margin-top:-4px;background:none;border:none;text-align:left;padding:0;font-family:inherit;}
 .modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(27,42,68,.55);padding:16px;}
 .modal.open{display:flex;}
+#driver{position:fixed;inset:0;z-index:200;background:#fffaf3;display:none;flex-direction:column;overflow:auto;}
+#driver.open{display:flex;}
+#driver .dhead{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);}
+#driver .dhead button{font-size:16px;padding:8px 16px;border-radius:999px;border:none;background:var(--navy);color:var(--paper);font-family:inherit;cursor:pointer;}
+#driver .dbody{padding:16px;max-width:900px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:10px;color:#1b2a44;}
+#driver .please{font-size:22px;color:#6b7280;}
+#driver .thname{font-size:clamp(30px,7vw,52px);font-weight:800;line-height:1.25;}
+#driver .thnear{font-size:clamp(22px,5vw,32px);color:var(--coral);font-weight:700;}
+#driver .zh{font-size:14px;color:#6b7280;}
+#driver iframe{width:100%;height:48vh;min-height:280px;border:1px solid var(--line);border-radius:12px;}
+#driver .big{display:block;text-align:center;font-size:20px;font-weight:700;text-decoration:none;color:#fff;background:var(--coral);border-radius:12px;padding:14px;}
 .modal-card{background:#fff;border-radius:16px;width:100%;max-width:640px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.3);}
 .modal-head{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--paper-2);}
 .modal-head h3{margin:0;font-size:15px;flex:1;line-height:1.4;}
@@ -140,6 +151,18 @@ footer{text-align:center;font-size:11px;color:var(--muted);margin-top:30px;}
   <footer>清邁行程規劃 · 純前端本機編輯，資料不會上傳到任何伺服器</footer>
 </div>
 
+<div id="driver" role="dialog" aria-modal="true">
+  <div class="dhead"><b>🛺 給司機看</b><button onclick="closeDriver()">關閉 ✕</button></div>
+  <div class="dbody">
+    <div class="please">กรุณาไปส่งที่นี่ครับ/ค่ะ 🙏</div>
+    <div class="thname" id="dName"></div>
+    <div class="thnear" id="dNear"></div>
+    <div class="zh" id="dZh"></div>
+    <iframe id="dMap" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="แผนที่"></iframe>
+    <a class="big" id="dOpen" target="_blank" rel="noopener">เปิดใน Google Maps（泰文導航）</a>
+  </div>
+</div>
+
 <div class="modal" id="noteModal" onclick="if(event.target===this)closeNoteModal()">
   <div class="modal-card">
     <div class="modal-head"><h3></h3><button class="modal-close" onclick="closeNoteModal()">關閉 ✕</button></div>
@@ -154,37 +177,39 @@ function defaultData(){
   return {
     meta:{ title:"清邁 8 天 7 夜行程規劃", range:"2026/11/11（三）→ 11/18（三）", people:"6 人全程包車" },
     days:[
-      {date:"11/11",weekday:"三",theme:"抵達清邁＋古城寺廟巡禮＋Akha Ama Coffee＋長康路夜市",stay:"清邁 Loi Kroh Road（已訂）",items:[
-        mk("07:20","桃園機場起飛","桃園機場","飛行約3.5～4小時，泰國比台灣慢1小時","—",false,"https://www.google.com/maps/search/?api=1&query=Taoyuan+International+Airport"),
-        mk("~10:30","抵達清邁機場(CNX)，包車接機","清邁機場","車程約15～20分鐘到民宿","—",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+International+Airport"),
-        mk("11:00","民宿 Check-in / 寄放行李","Loi Kroh Road","近長康路夜市","—",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
-        mk("12:00","午餐：Lemongrass Thai Cuisine","Loi Kroh Rd","推薦 Khao Soi 泰北咖哩麵、香蕉捲","150～250",false,"https://www.google.com/maps/search/?api=1&query=Lemongrass+Thai+Cuisine+Loi+Kroh+Road+Chiang+Mai"),
-        mk("13:30","契迪龍寺 Wat Chedi Luang","古城內","門票50銖，清邁最具歷史感寺廟","50",false,"https://www.google.com/maps/search/?api=1&query=Wat+Chedi+Luang+Chiang+Mai"),
-        mk("14:30","帕辛寺 Wat Phra Singh","古城內","門票40銖，古城內最美蘭納寺廟","40",false,"https://www.google.com/maps/search/?api=1&query=Wat+Phra+Singh+Chiang+Mai"),
-        mk("15:30","★ Akha Ama Coffee (The New Original)","Moonmueang Soi 9, 古城北區","必去！阿卡族咖啡，單品咖啡60～150銖，營業08:00-17:00","80～150",true,"https://www.google.com/maps/search/?api=1&query=Akha+Ama+Coffee+The+New+Original+Chiang+Mai"),
-        mk("16:30","塔佩門 Tha Phae Gate 拍照散步","古城東門","免費，鴿子廣場","免費",false,"https://www.google.com/maps/search/?api=1&query=Tha+Phae+Gate+Chiang+Mai"),
-        mk("17:00","💆 Health Land Spa & Massage 清邁（指定必去，吃飯前先按）","288/55 Chang Klan Rd（近長康路夜市）","CNN評選全球15大最幸福按摩店之一，環境高級乾淨，營業09:00-23:00，強烈建議提前電話/官網預約（+66 53 278 855），2小時套餐","700～900",true,"https://www.google.com/maps/search/?api=1&query=Health+Land+Spa+%26+Massage+Chiang+Mai+288%2F55+Chang+Klan+Road","https://www.klook.com/zh-TW/activity/31359-health-land-spa-treatments-chiang-mai/"),
-        mk("19:00","晚餐＋長康路夜市 Night Bazaar","Chang Klan Rd","按完餓了剛好去吃！Anusarn美食廣場、Kalare夜市","200～400",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+Night+Bazaar+Chang+Klan+Road"),
+      {date:"11/11",weekday:"三",theme:"抵達清邁＋從塔佩門出發慢慢逛古城（Akha Ama Coffee→契迪龍寺→帕辛寺）＋Health Land 按摩＋長康路夜市",stay:"清邁 Loi Kroh Road（已訂）",items:[
+        mk("07:20","桃園機場起飛","桃園機場","飛行約3.5～4小時，泰國比台灣慢1小時","—",false,"https://www.google.com/maps/search/?api=1&query=Taoyuan+International+Airport&hl=en"),
+        mk("~10:30","抵達清邁機場(CNX)，包車接機","清邁機場","車程約15～20分鐘到民宿","—",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+International+Airport&hl=en"),
+        mk("11:00","民宿 Check-in / 寄放行李","Loi Kroh Road","近長康路夜市","—",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en"),
+        mk("12:00","午餐：Lemongrass Thai Cuisine","Loi Kroh Rd","推薦 Khao Soi 泰北咖哩麵、香蕉捲","150～250",false,"https://www.google.com/maps/search/?api=1&query=Lemongrass+Thai+Cuisine+Loi+Kroh+Road+Chiang+Mai&hl=en"),
+        mk("13:15","🚶 古城慢慢逛起點：塔佩門 Tha Phae Gate","古城東門（從 Loi Kroh 路民宿步行約10分鐘）","下午用走的慢慢逛，不用趕：先在塔佩門城牆、鴿子廣場拍照，看看護城河，約30～40分鐘","免費",false,"https://www.google.com/maps/search/?api=1&query=Tha+Phae+Gate+Chiang+Mai&hl=en"),
+        mk("14:10","★ Akha Ama Coffee (The New Original)","Moonmueang Soi 9, 古城北區（塔佩門往北沿護城河內側走約10分鐘）","必去！阿卡族咖啡，單品咖啡60～150銖，營業08:00-17:00；坐下來慢慢喝、休息約40分鐘","80～150",true,"https://www.google.com/maps/search/?api=1&query=Akha+Ama+Coffee+The+New+Original+Chiang+Mai&hl=en"),
+        mk("14:50","🚶 古城巷弄散步 → 契迪龍寺 Wat Chedi Luang","古城中心 Prapokklao Rd","從 Akha Ama 穿過古城巷弄往西南走約15分鐘，沿路老木屋、小店、壁畫；契迪龍寺外國人約40銖（左側外國人入口），清邁最具歷史感的大佛塔，停留約50分鐘","40",false,"https://www.google.com/maps/search/?api=1&query=Wat+Chedi+Luang+Chiang+Mai&hl=en"),
+        mk("15:55","🚶 Ratchadamnoen 路 → 帕辛寺 Wat Phra Singh","古城西側 Ratchadamnoen Rd 底","沿著週日步行街那條 Ratchadamnoen 路往西走約10分鐘；帕辛寺主殿約40銖，古城最美蘭納寺廟，主殿約17:00關，停留約40分鐘","40",false,"https://www.google.com/maps/search/?api=1&query=Wat+Phra+Singh+Chiang+Mai&hl=en"),
+        mk("16:40","叫車／包車前往 Health Land","帕辛寺 → 長康路","古城西側到長康路約3公里，車程約15分鐘（走路太遠，請包車司機來接或叫 Grab）","—",false,"https://www.google.com/maps/search/?api=1&query=Health+Land+Spa+%26+Massage+Chiang+Mai+288%2F55+Chang+Klan+Road&hl=en"),
+        mk("17:00","💆 Health Land Spa & Massage 清邁（指定必去，吃飯前先按）","288/55 Chang Klan Rd（近長康路夜市）","CNN評選全球15大最幸福按摩店之一，環境高級乾淨，營業09:00-23:00，強烈建議提前電話/官網預約（+66 53 278 855），2小時套餐","700～900",true,"https://www.google.com/maps/search/?api=1&query=Health+Land+Spa+%26+Massage+Chiang+Mai+288%2F55+Chang+Klan+Road&hl=en","https://www.klook.com/zh-TW/activity/31359-health-land-spa-treatments-chiang-mai/"),
+        mk("19:00","晚餐＋長康路夜市 Night Bazaar","Chang Klan Rd","按完餓了剛好去吃！Anusarn美食廣場、Kalare夜市","200～400",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+Night+Bazaar+Chang+Klan+Road&hl=en"),
       ]},
       {date:"11/12",weekday:"四",theme:"素帖山雙龍寺＋Ginger Farm Kitchen 午餐＋寧曼路咖啡逛街＋按摩＋清邁夜間動物園",stay:"清邁（已訂）",items:[
-        mk("07:30","早餐：民宿附近","民宿附近","昨天剛抵達，今天晚點出發；民宿無早餐，自理","50～150",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
-        mk("09:00","包車上素帖山雙龍寺","Doi Suthep","車程約40分鐘，門票50銖，309階或纜車(+50銖)；建議早上去人較少、光線好","50～100",false,"https://www.google.com/maps/search/?api=1&query=Wat+Phra+That+Doi+Suthep+Chiang+Mai"),
-        mk("10:30","參觀雙龍寺、俯瞰清邁全景","Doi Suthep","可順路看蒲屏皇宮(約50銖)，但皇室行宮開放時間不固定，出發前先確認是否開放；服裝需過肩過膝","",false,"https://www.google.com/maps/search/?api=1&query=Wat+Phra+That+Doi+Suthep+Chiang+Mai"),
-        mk("12:30","★ 午餐：Ginger Farm Kitchen（米其林推薦）","寧曼路 One Nimman 附近","農場直送食材，綠植包圍，CP值高","200～400",false,"https://www.google.com/maps/search/?api=1&query=Ginger+Farm+Kitchen+Nimman+Chiang+Mai"),
-        mk("14:00","寧曼路咖啡廳巡禮＋One Nimman 逛街","Nimman Rd","推薦 Ristr8to 拉花冠軍咖啡","100～200",false,"https://www.google.com/maps/search/?api=1&query=One+Nimman+Chiang+Mai"),
-        mk("15:30","💆 寧曼路按摩（吃飯前先按）","寧曼路 Nimman","推薦 Nimman House（泰式約370銖起）或 Fah Lanna Spa 寧曼分店，Klook可預約","350～1,600",false,"https://www.google.com/maps/search/?api=1&query=Nimman+House+Massage+Spa+Chiang+Mai","https://www.klook.com/zh-TW/destination/c5-chiang-mai/1011-spa/"),
-        mk("16:45","晚餐：寧曼路簡餐（動物園前先吃）","寧曼路","夜間動物園內也有餐飲，但價格較高，建議先吃飽","150～300",false,"https://www.google.com/maps/search/?api=1&query=Nimman+Road+Chiang+Mai"),
-        mk("17:15","包車前往清邁夜間動物園","Night Safari","車程約20～30分鐘","—",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+Night+Safari"),
-        mk("18:00～21:30","夜間動物園遊覽","Night Safari","門票含tram約1,200～1,600銖/人，步行區＋猛獸區；約18:00開始營業（出發前確認）；Klook先買票比現場便宜","1,200～1,600",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+Night+Safari","https://www.klook.com/zh-TW/destination/c5-chiang-mai/?city_ids=5&frontend_id_list=28"),
-        mk("21:45","返回民宿","民宿","","",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
+        mk("07:30","早餐：民宿附近","民宿附近","昨天剛抵達，今天晚點出發；民宿無早餐，自理","50～150",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en"),
+        mk("09:00","包車上素帖山雙龍寺","Doi Suthep","車程約40分鐘，外國人門票約30銖，309階或纜車（約20銖/單程）；走主要道路上山不收國家公園門票；建議早上去人較少、光線好","30～70",false,"https://www.google.com/maps/search/?api=1&query=Wat+Phra+That+Doi+Suthep+Chiang+Mai&hl=en"),
+        mk("10:30","參觀雙龍寺、俯瞰清邁全景","Doi Suthep","可順路看蒲屏皇宮(約50銖)，但皇室行宮開放時間不固定，出發前先確認是否開放；服裝需過肩過膝","",false,"https://www.google.com/maps/search/?api=1&query=Wat+Phra+That+Doi+Suthep+Chiang+Mai&hl=en"),
+        mk("12:30","★ 午餐：Ginger Farm Kitchen（米其林推薦）","寧曼路 One Nimman 附近","農場直送食材，綠植包圍，CP值高","200～400",false,"https://www.google.com/maps/search/?api=1&query=Ginger+Farm+Kitchen+Nimman+Chiang+Mai&hl=en"),
+        mk("14:00","寧曼路咖啡廳巡禮＋One Nimman 逛街","Nimman Rd","推薦 Ristr8to 拉花冠軍咖啡","100～200",false,"https://www.google.com/maps/search/?api=1&query=One+Nimman+Chiang+Mai&hl=en"),
+        mk("15:30","💆 寧曼路按摩（吃飯前先按）","寧曼路 Nimman","推薦 Nimman House（泰式約370銖起）或 Fah Lanna Spa 寧曼分店，Klook可預約","350～1,600",false,"https://www.google.com/maps/search/?api=1&query=Nimman+House+Massage+Spa+Chiang+Mai&hl=en","https://www.klook.com/zh-TW/destination/c5-chiang-mai/1011-spa/"),
+        mk("16:45","晚餐：寧曼路簡餐（動物園前先吃）","寧曼路","夜間動物園內也有餐飲，但價格較高，建議先吃飽","150～300",false,"https://www.google.com/maps/search/?api=1&query=Nimman+Road+Chiang+Mai&hl=en"),
+        mk("17:15","包車前往清邁夜間動物園","Night Safari","車程約20～30分鐘","—",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+Night+Safari&hl=en"),
+        mk("18:00～21:30","夜間動物園遊覽","Night Safari","官網：營業11:00-22:00（售票至21:00）；夜間tram約17:30後陸續發車，英文tram約18:50起；外國人含tram全票約1,200銖，官網 ticket.chiangmainightsafari.com 線上買約8折（約960銖）；步行區 Jaguar Trail＋Savanna/Predator 兩條tram","960～1,200",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+Night+Safari&hl=en","https://www.klook.com/zh-TW/destination/c5-chiang-mai/?city_ids=5&frontend_id_list=28"),
+        mk("21:45","返回民宿","民宿","","",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en"),
       ]},
       {date:"11/13",weekday:"五",theme:"包車前往清萊＋白廟＋清萊市區＋鐘樓燈光秀",stay:"清萊 Wilacha Chiang Rai（維拉茶清萊酒店）（已訂）",items:[
-        mk("07:30","早餐＋退房寄放大件行李（只帶過夜包）","民宿附近","大件行李寄放清邁民宿","50～150",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
-        mk("08:30","包車出發前往清萊","公路","車程約3～3.5小時，約190公里","—",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Rai+city"),
-        mk("10:00","中途休息：媽卡江溫泉 Mae Kachan Hot Spring","118號公路 Wiang Pa Pao（清邁往清萊途中）","清萊路線順路景點，約在118號公路64～65公里處左側，每日07:00-19:00；可買蛋煮溫泉蛋、泡腳，對面有私人礦泉浴室與咖啡/紀念品店","20",false,"https://www.google.com/maps/search/?api=1&query=Mae+Kachan+Hot+Spring+Wiang+Pa+Pao+Chiang+Rai"),
-        mk("11:30","抵達清萊，午餐推薦","清萊市區","推薦① Khao Soi Restaurant（⭐4.7，夜市南邊，清萊最有名Khao Soi，便宜，每日5-6道泰式料理，必吃！）；② Leelawadee Chiang Rai Restaurant（河畔Kok River，泰式料理，有現場演奏區和安靜河畔區，適合6人）；③ Chivit Thamma Da Coffee House Bistro（河畔人氣餐酒館，泰式+西式）；④ RIBSandCO（⭐4.6，美式豬肋排，不想吃泰式可選）。清萊物價比清邁低","100～300",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Rai+Clock+Tower"),
-        mk("13:00","白廟 Wat Rong Khun（龍坤寺）","清萊郊區","門票100銖，全白色藝術寺廟，地獄之手橋必拍","100",false,"https://www.google.com/maps/search/?api=1&query=Wat+Rong+Khun+White+Temple+Chiang+Rai"),
-        mk("15:00","清萊玉佛寺 Wat Phra Kaew＋博物館","清萊市區","門票免費～50銖，玉佛發現地","50",false,"https://www.google.com/maps/search/?api=1&query=Wat+Phra+Kaew+Chiang+Rai"),
+        mk("07:30","早餐＋退房寄放大件行李（只帶過夜包）","民宿附近","大件行李寄放清邁民宿","50～150",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en"),
+        mk("08:30","包車出發前往清萊","公路","車程約3～3.5小時，約190公里","—",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Rai+city&hl=en"),
+        mk("10:00","中途休息：媽卡江溫泉 Mae Kachan Hot Spring","118號公路 Wiang Pa Pao（清邁往清萊途中）","清萊路線順路景點，約在118號公路64～65公里處左側，每日07:00-19:00；可買蛋煮溫泉蛋、泡腳，停留約30分鐘即可，對面有私人礦泉浴室與咖啡/紀念品店","20",false,"https://www.google.com/maps/search/?api=1&query=Mae+Kachan+Hot+Spring+Wiang+Pa+Pao+Chiang+Rai&hl=en"),
+        mk("11:45","白廟 Wat Rong Khun（龍坤寺）","清萊市區南方約13公里（清邁來的路上，先去不繞路）","2026/1/1起外國人門票調漲為200銖；營業約08:00-17:00；全白色藝術寺廟，地獄之手橋必拍，停留約1小時","200",false,"https://www.google.com/maps/search/?api=1&query=Wat+Rong+Khun+White+Temple+Chiang+Rai&hl=en"),
+        mk("13:00","進清萊市區午餐","清萊市區","推薦① Khao Soi Restaurant（⭐4.7，夜市南邊，清萊最有名Khao Soi，便宜，每日5-6道泰式料理，必吃！）；② Leelawadee Chiang Rai Restaurant（河畔Kok River，泰式料理，有現場演奏區和安靜河畔區，適合6人）；③ Chivit Thamma Da Coffee House Bistro（河畔人氣餐酒館，泰式+西式）；④ RIBSandCO（⭐4.6，美式豬肋排，不想吃泰式可選）。清萊物價比清邁低","100～300",false,"https://www.google.com/maps/search/?api=1&query=Khao+Soi+Restaurant+Chiang+Rai&hl=en"),
+        mk("14:30","清萊玉佛寺 Wat Phra Kaew＋博物館","清萊市區","免費～50銖，玉佛發現地，約45分鐘","50",false,"https://www.google.com/maps/search/?api=1&query=Wat+Phra+Kaew+Chiang+Rai&hl=en"),
+        mk("15:30","（可選）清萊鐘樓／市區散步，再前往住宿","清萊市區","入住時間14:00後皆可","—",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Rai+Clock+Tower&hl=en"),
         mk("16:00","Check in 清萊住宿：Wilacha Chiang Rai（維拉茶清萊酒店）（已訂）","399/1 Moo 4, T. Rimkok, A. Muang, Chiang Rai 57000","Booking.com 已付款，11/13 14:00起入住、11/14 12:00前退房；6位成人4間房（標準特大雙人床房）；位於Rimkok，離鐘樓有段距離，晚上去鐘樓/夜市請搭包車","—",false,"https://maps.app.goo.gl/Sb3ux8SnXoJ63J3Y9?g_st=ic"),
         mk("17:00","💆 清萊按摩推薦（吃飯前先按）","清萊市區","推薦① The Thai Massage ChiangRai（⭐4.8，鐘樓附近，11:00-22:00，專業乾淨，泰式/腳底約250～350/小時）；② Siamese Spa（⭐4.9，Sanambin Rd，傳統泰式SPA）；③ Monmueng Lanna Massage（⭐4.4，Phahonyothin Rd，蘭納風格，300/小時）。清萊比清邁便宜，6人可現場或先電話預約","250～500",false,"https://www.google.com/maps/search/?api=1&query=The+Thai+Massage+Chiang+Rai"),
         mk("18:30","晚餐：清萊夜市 / 河畔餐廳","清萊鐘樓旁","按完剛好去吃！清萊夜市小吃便宜","150～300",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Rai+Night+Bazaar"),
@@ -193,53 +218,57 @@ function defaultData(){
       ]},
       {date:"11/14",weekday:"六",theme:"清萊藍廟＋黑屋博物館＋包車返回清邁",stay:"清邁（已訂）",items:[
         mk("08:00","早餐＋退房","清萊住宿附近","清萊鐘樓週邊有早餐店","50～150",false,"https://maps.app.goo.gl/Sb3ux8SnXoJ63J3Y9?g_st=ic"),
-        mk("09:00","藍廟 Wat Rong Suea Ten（龍蘇町寺）","清萊郊區","門票50銖，深藍色寺廟＋白色佛像","50",false,"https://www.google.com/maps/search/?api=1&query=Wat+Rong+Suea+Ten+Blue+Temple+Chiang+Rai"),
-        mk("10:30","黑屋博物館 Baan Dam（黑廟）","清萊郊區","門票80銖，40棟黑色建築群，死亡主題藝術","80",false,"https://www.google.com/maps/search/?api=1&query=Baan+Dam+Museum+Black+House+Chiang+Rai"),
-        mk("12:00","午餐：清萊市區","清萊市區","","100～200",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Rai+Clock+Tower"),
-        mk("13:30","包車返回清邁","公路","車程約3～3.5小時","—",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
-        mk("17:00","抵達清邁民宿，Check-in","Loi Kroh Road","","—",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
-        mk("17:30","💆 按摩放鬆（吃飯前先按）","民宿附近按摩店","每天按摩！從清萊回來按一下放鬆","250～350",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+massage+Chiang+Mai"),
-        mk("19:00","★ 週六步行街 Wualai Walking Street（晚餐＋逛街）","Wualai Rd，古城南邊","只有週六，約17:00-22:00，以銀飾與手工藝聞名，小吃也多；按完直接去","200～400",false,"https://www.google.com/maps/search/?api=1&query=Wualai+Walking+Street+Chiang+Mai"),
-        mk("21:30","回民宿休息","民宿","","",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
+        mk("09:00","藍廟 Wat Rong Suea Ten（龍蘇町寺）","清萊郊區","免費參觀（可隨喜捐獻），每日07:00-20:00；就在住宿 Rimkok 附近，退房後先去最順","0",false,"https://www.google.com/maps/search/?api=1&query=Wat+Rong+Suea+Ten+Blue+Temple+Chiang+Rai&hl=en"),
+        mk("10:30","黑屋博物館 Baan Dam（黑廟）","清萊郊區","門票80銖，09:00-17:00（部分資料寫12:00-13:00午休，建議上午到），約40棟黑色建築群，死亡主題藝術","80",false,"https://www.google.com/maps/search/?api=1&query=Baan+Dam+Museum+Black+House+Chiang+Rai&hl=en"),
+        mk("12:00","午餐：清萊市區","清萊市區","","100～200",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Rai+Clock+Tower&hl=en"),
+        mk("13:30","包車返回清邁","公路","車程約3～3.5小時","—",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en"),
+        mk("17:00","抵達清邁民宿，Check-in","Loi Kroh Road","","—",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en"),
+        mk("17:30","💆 按摩放鬆（吃飯前先按）","民宿附近按摩店","每天按摩！從清萊回來按一下放鬆","250～350",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+massage+Chiang+Mai&hl=en"),
+        mk("19:00","★ 週六步行街 Wualai Walking Street（晚餐＋逛街）","Wualai Rd，古城南邊","只有週六，約17:00-22:00，以銀飾與手工藝聞名，小吃也多；按完直接去","200～400",false,"https://www.google.com/maps/search/?api=1&query=Wualai+Walking+Street+Chiang+Mai&hl=en"),
+        mk("21:30","回民宿休息","民宿","","",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en"),
       ]},
       {date:"11/15",weekday:"日",theme:"湄康蓬村 Mae Kampong 半日遊＋瓦洛洛市場＋女子監獄按摩＋週日步行街夜市（重點）",stay:"清邁（已訂）",items:[
-        mk("07:00","早餐：簡單解決（7-11/路邊粥品）","民宿附近","上山前記得吃飽，帶件薄外套，山上比市區涼","50～100",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
-        mk("08:00","包車前往湄康蓬村 Mae Kampong","清邁郊區山區","車程約1小時，山路彎多，容易暈車的人可先吃暈車藥","—",false,"https://www.google.com/maps/search/?api=1&query=Mae+Kampong+Chiang+Mai"),
-        mk("09:00～12:00","湄康蓬村漫步：咖啡廳＋瀑布步道＋蜂蜜手工品","Mae Kampong","山中小村，空氣好，咖啡廳密集（推薦 The Giant 樹上咖啡、Baan Hom Mon）；瀑布步道輕鬆約30分鐘；可買當地蜂蜜、手工皂、果醬、咖啡豆","—",false,"https://www.google.com/maps/search/?api=1&query=Mae+Kampong+Village+Chiang+Mai"),
-        mk("12:30","返回市區午餐：Guay Jub Chang Moi Tat Mai（Bib Gourmand）","Chang Moi Rd, 近瓦洛洛市場","粿汁、脆皮豬肉飯，營業10:00-15:00，記得在15:00前到","80～150",false,"https://www.google.com/maps/search/?api=1&query=Guay+Jub+Chang+Moi+Tat+Mai+Chiang+Mai"),
-        mk("13:30","瓦洛洛市場 Warorot Market","古城東邊","當地傳統市場，便宜水果、乾貨、伴手禮，下午人較少","—",false,"https://www.google.com/maps/search/?api=1&query=Warorot+Market+Chiang+Mai"),
-        mk("15:00","💆 清邁女子監獄按摩（公益按摩，只此一家）","Ratwitti Road, 帕辛寺附近（古城內）","真正的清邁女子監獄職業訓練中心，技師是即將出獄的受刑人，受過180小時泰式按摩專業培訓；純公益、無法預約，需現場排隊，週日營業09:00-16:30（16:30打烊，務必提前抵達）；館內禁止拍攝按摩師","200～250",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+Women%27s+Correctional+Institution+Massage"),
-        mk("16:30","準備前往週日夜市","塔佩門","從塔佩門沿Ratchadamnoen路綿延1公里","—",false,"https://www.google.com/maps/search/?api=1&query=Tha+Phae+Gate+Chiang+Mai"),
-        mk("17:00","★ 週日步行街 Sunday Walking Street（重點）","古城 Ratchadamnoen Rd","只有週日，約16:00-23:00！手工藝品、街頭小吃、現場音樂，留3～4小時","200～400",false,"https://www.google.com/maps/search/?api=1&query=Sunday+Walking+Street+Ratchadamnoen+Road+Chiang+Mai"),
-        mk("21:00","晚餐就在夜市解決","週日夜市","推薦：香腸、烤雞、芒果糯米、椰子冰、炸豬皮","—",false,"https://www.google.com/maps/search/?api=1&query=Sunday+Walking+Street+Ratchadamnoen+Road+Chiang+Mai"),
-        mk("22:00","回民宿","民宿","今天已有15:00女子監獄按摩，滿足每天按摩","",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
+        mk("07:00","早餐：簡單解決（7-11/路邊粥品）","民宿附近","上山前記得吃飽，帶件薄外套，山上比市區涼","50～100",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en"),
+        mk("08:00","包車前往湄康蓬村 Mae Kampong","清邁郊區山區","車程約1小時，山路彎多，容易暈車的人可先吃暈車藥","—",false,"https://www.google.com/maps/search/?api=1&query=Mae+Kampong+Chiang+Mai&hl=en"),
+        mk("09:00～12:00","湄康蓬村漫步：咖啡廳＋瀑布步道＋蜂蜜手工品","Mae Kampong","山中小村，空氣好，咖啡廳密集（推薦 The Giant 樹上咖啡、Baan Hom Mon）；瀑布步道輕鬆約30分鐘；可買當地蜂蜜、手工皂、果醬、咖啡豆","—",false,"https://www.google.com/maps/search/?api=1&query=Mae+Kampong+Village+Chiang+Mai&hl=en"),
+        mk("12:30","返回市區午餐：Guay Jub Chang Moi Tat Mai（Bib Gourmand）","Chang Moi Rd, 近瓦洛洛市場","粿汁、脆皮豬肉飯，營業10:00-15:00，記得在15:00前到","80～150",false,"https://www.google.com/maps/search/?api=1&query=Guay+Jub+Chang+Moi+Tat+Mai+Chiang+Mai&hl=en"),
+        mk("13:45","💆 清邁女子監獄按摩（公益按摩，只此一家）","Ratwitti Road, 帕辛寺附近（古城內）","真正的清邁女子監獄職業訓練中心，技師是即將出獄的受刑人，受過180小時泰式按摩專業培訓；純公益、無法預約，需現場排隊，週日營業09:00-16:30（16:30打烊；6人無法預約，越晚越可能額滿，所以午餐後先來排隊）；館內禁止拍攝按摩師","200～250",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+Women%27s+Correctional+Institution+Massage&hl=en"),
+        mk("15:45","瓦洛洛市場 Warorot Market","古城東邊（離塔佩門步行約10分鐘）","當地傳統市場，便宜水果、乾貨、伴手禮；逛完直接走去塔佩門接週日夜市","—",false,"https://www.google.com/maps/search/?api=1&query=Warorot+Market+Chiang+Mai&hl=en"),
+        mk("16:30","準備前往週日夜市","塔佩門","從塔佩門沿Ratchadamnoen路綿延1公里","—",false,"https://www.google.com/maps/search/?api=1&query=Tha+Phae+Gate+Chiang+Mai&hl=en"),
+        mk("17:00","★ 週日步行街 Sunday Walking Street（重點）","古城 Ratchadamnoen Rd","只有週日，約16:00-23:00！手工藝品、街頭小吃、現場音樂，留3～4小時","200～400",false,"https://www.google.com/maps/search/?api=1&query=Sunday+Walking+Street+Ratchadamnoen+Road+Chiang+Mai&hl=en"),
+        mk("21:00","晚餐就在夜市解決","週日夜市","推薦：香腸、烤雞、芒果糯米、椰子冰、炸豬皮","—",false,"https://www.google.com/maps/search/?api=1&query=Sunday+Walking+Street+Ratchadamnoen+Road+Chiang+Mai&hl=en"),
+        mk("22:00","回民宿","民宿","今天已有下午女子監獄按摩，滿足每天按摩","",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en"),
       ]},
       {date:"11/16",weekday:"一",theme:"茵他儂國家公園＋Kew Mae Pan 徒步2.5小時一日遊（週一，需另訂私人團或包車）",stay:"清邁（已訂）",items:[
-        mk("06:30","早餐：民宿附近（早一點吃，7:00出發）","民宿附近","民宿無早餐，自理；徒步前記得吃飽","50～150",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
-        mk("07:00","民宿大廳出發","民宿大廳","⚠️ 原本的 hanchiangmai 徒步團只開週四、日，週一需改訂私人團，或包車自己去並在園區現場請Kew Mae Pan嚮導","—",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai","https://tripsora.musement.com/uk/chiang-mai/doi-inthanon-park-and-kew-mae-pan-trail-private-tour-from-chiang-mai-489338"),
-        mk("07:30","車程前往茵他儂國家公園","公路","車程約2～2.5小時，泰國最高峰海拔2565公尺","—",false,"https://www.google.com/maps/search/?api=1&query=Doi+Inthanon+National+Park"),
-        mk("10:00","國家公園森林步道散步（不爬山）","Doi Inthanon","輕鬆散步30分鐘享受芬多精，門票視方案另計","—",false,"https://www.google.com/maps/search/?api=1&query=Doi+Inthanon+National+Park"),
-        mk("10:30","國王皇后雙塔 Phra Mahathat","Doi Inthanon","空軍為慶祝泰王太后60大壽建造，花園超美，約40分鐘","—",false,"https://www.google.com/maps/search/?api=1&query=King+and+Queen+Pagodas+Doi+Inthanon"),
-        mk("11:15","Kew Mae Pan 自然步道徒步約2.5小時","Doi Inthanon","泰國最美步道，必須由當地嚮導帶領（約200銖/組，最多10人）；11/1～5/31開放；務必穿長褲運動鞋、帶薄外套、防蚊防曬","—",false,"https://www.google.com/maps/search/?api=1&query=Kew+Mae+Pan+Nature+Trail+Doi+Inthanon"),
-        mk("13:30","泰式風味午餐","Doi Inthanon","私人團通常含午餐；包車自行前往則在園區附近用餐","150～250",false,"https://www.google.com/maps/search/?api=1&query=Doi+Inthanon+National+Park"),
-        mk("14:00","茵他儂山何孟市場 Hmong Market","Doi Inthanon","少數民族市場，時令水果、果酒、野蜂蜜、當地服飾、小吃，約20分鐘","—",false,"https://www.google.com/maps/search/?api=1&query=Hmong+Market+Doi+Inthanon"),
-        mk("14:30","Wachirathan 瀑布","Doi Inthanon","泰國五大瀑布之一，高懸崖大水簾，約30分鐘","—",false,"https://www.google.com/maps/search/?api=1&query=Wachirathan+Waterfall+Doi+Inthanon"),
-        mk("15:00","返程回清邁","公路","約2.5～3小時車程","—",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
-        mk("18:00","回到民宿，休息一下","Loi Kroh Road","徒步一天腳酸，稍作休息","—",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
-        mk("19:00","💆 泰式按摩 / 腳底按摩（吃飯前先按，徒步後按超棒！）","Loi Kroh Road或長康路按摩店","每天按摩！徒步後按腳最舒服，推薦 Health Land（長康路，CNN評選）或路邊平價店","250～900",false,"https://www.google.com/maps/search/?api=1&query=Health+Land+Spa+Massage+Chiang+Mai"),
-        mk("20:30","晚餐：長康路夜市或 River Side 河畔餐廳","濱江區/長康路","按完剛好去吃！The Riverside Bar & Restaurant 有現場樂團","200～400",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+Night+Bazaar"),
-        mk("22:00","回民宿休息","民宿","","",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
+        mk("06:30","早餐：民宿附近（早一點吃，7:00出發）","民宿附近","民宿無早餐，自理；徒步前記得吃飽","50～150",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en"),
+        mk("07:00","民宿大廳出發","民宿大廳","建議直接用包車自己去（9人座山區包車約THB 3,000～3,500/車，6人分攤每人約550銖）＋現場請Kew Mae Pan嚮導200銖/組；比私人團（約2,600銖/人）省很多。原 hanchiangmai 徒步團只開週四、日","550",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en","https://tripsora.musement.com/uk/chiang-mai/doi-inthanon-park-and-kew-mae-pan-trail-private-tour-from-chiang-mai-489338"),
+        mk("07:30","車程前往茵他儂國家公園","公路","車程約2～2.5小時，泰國最高峰海拔2565公尺","—",false,"https://www.google.com/maps/search/?api=1&query=Doi+Inthanon+National+Park&hl=en"),
+        mk("10:00","國家公園森林步道散步（不爬山）","Doi Inthanon","國家公園外國人門票約300銖/人（現金，另收車輛費），當日園內各點通用；輕鬆散步30分鐘","300",false,"https://www.google.com/maps/search/?api=1&query=Doi+Inthanon+National+Park&hl=en"),
+        mk("10:30","國王皇后雙塔 Phra Mahathat","Doi Inthanon","空軍為慶祝泰王太后60大壽建造，花園超美，約40分鐘","—",false,"https://www.google.com/maps/search/?api=1&query=King+and+Queen+Pagodas+Doi+Inthanon&hl=en"),
+        mk("11:15","Kew Mae Pan 自然步道徒步約2.5小時","Doi Inthanon","泰國最美步道，全長約3.2公里、2～3小時，必須由當地嚮導帶領（200銖/組，最多10人，6人約35銖/人）；每年約11/1重新開放（6～10月封閉），出發前電話確認：公園辦公室 053 286 729；穿長褲運動鞋、帶薄外套","35",false,"https://www.google.com/maps/search/?api=1&query=Kew+Mae+Pan+Nature+Trail+Doi+Inthanon&hl=en"),
+        mk("13:30","泰式風味午餐","Doi Inthanon","私人團通常含午餐；包車自行前往則在園區附近用餐","150～250",false,"https://www.google.com/maps/search/?api=1&query=Doi+Inthanon+National+Park&hl=en"),
+        mk("14:00","茵他儂山何孟市場 Hmong Market","Doi Inthanon","少數民族市場，時令水果、果酒、野蜂蜜、當地服飾、小吃，約20分鐘","—",false,"https://www.google.com/maps/search/?api=1&query=Hmong+Market+Doi+Inthanon&hl=en"),
+        mk("14:30","Wachirathan 瀑布","Doi Inthanon","泰國五大瀑布之一，高懸崖大水簾，約30分鐘","—",false,"https://www.google.com/maps/search/?api=1&query=Wachirathan+Waterfall+Doi+Inthanon&hl=en"),
+        mk("15:00","返程回清邁","公路","約2.5～3小時車程","—",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en"),
+        mk("18:00","回到民宿，休息一下","Loi Kroh Road","徒步一天腳酸，稍作休息","—",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en"),
+        mk("19:00","💆 泰式按摩 / 腳底按摩（吃飯前先按，徒步後按超棒！）","Loi Kroh Road或長康路按摩店","每天按摩！徒步後按腳最舒服，推薦 Health Land（長康路，CNN評選）或路邊平價店","250～900",false,"https://www.google.com/maps/search/?api=1&query=Health+Land+Spa+Massage+Chiang+Mai&hl=en"),
+        mk("20:30","晚餐：長康路夜市或 River Side 河畔餐廳","濱江區/長康路","按完剛好去吃！The Riverside Bar & Restaurant 有現場樂團","200～400",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+Night+Bazaar&hl=en"),
+        mk("22:00","回民宿休息","民宿","","",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en"),
       ]},
-      {date:"11/17",weekday:"二",theme:"古城悠閒＋Wat Umong 森林寺＋博桑紙傘村／山甘烹伴手禮＋Makkha SPA＋Baan Landai 告別晚宴",stay:"清邁（已訂）",items:[
-        mk("08:30","早餐：民宿附近（昨天爬山，今天睡晚一點）","民宿附近","民宿無早餐，自理，見美食清單","50～150",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
-        mk("09:30","Wat Umong 森林寺（隧道寺）","古城西邊，近素帖山路","林間隧道佛寺，環境安靜、有池塘與流浪貓，約1小時，適合悠閒逛","—",false,"https://www.google.com/maps/search/?api=1&query=Wat+Umong+Chiang+Mai"),
-        mk("11:00","包車前往博桑紙傘村 Bo Sang","San Kamphaeng 路","車程約30分鐘；手繪紙傘100～300銖，上午去讓傘有時間乾","100～300",false,"https://www.google.com/maps/search/?api=1&query=Bo+Sang+Umbrella+Village+Chiang+Mai"),
-        mk("12:30","午餐：Meena Rice Based Cuisine（Bib Gourmand）","San Kamphaeng 區","五色飯糰、泰北魚蓉沙律，營業10:00-20:30，順路","200～400",false,"https://www.google.com/maps/search/?api=1&query=Meena+Rice+Based+Cuisine+San+Kamphaeng+Chiang+Mai"),
-        mk("14:00","山甘烹手工藝街：陶瓷、木雕、銀器、泰絲伴手禮","San Kamphaeng","價格比市區便宜，最後一次採買伴手禮的好時機；部分工廠需購物才開放參觀","—",false,"https://www.google.com/maps/search/?api=1&query=San+Kamphaeng+handicraft+Chiang+Mai"),
-        mk("15:45","回市區，稍作休息準備按摩","Loi Kroh Road","","—",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
-        mk("16:30","💆 Makkha Health & Spa（Rachadamnoen 本店，吃飯前先按）","145/4 Rachadamnoen Rd, 古城區","Klook預約：泰式按摩60/90/120分、印度頭部按摩、泰式面部護理、芳香精油、草藥球、熱石等；營業10:00-24:00；⭐4.7(173評)，環境優雅隱私，古城區地點便利","600～1,500",false,"https://www.google.com/maps/search/?api=1&query=Makkha+Health+%26+Spa+Rachadamnoen+Chiang+Mai","https://www.klook.com/zh-TW/activity/108447-makkha-health-spa-rachadamnoen-chiang-mai-thailand/"),
-        mk("18:30","★ 告別晚宴：Baan Landai Fine Thai Cuisine（米其林推薦）","古城旗艦店","精緻泰北蘭納料理，百年蘭納建築，需預約","400～800",false,"https://www.google.com/maps/search/?api=1&query=Baan+Landai+Chiang+Mai"),
-        mk("20:30","最後一晚夜市閒逛 / 採買伴手禮","長康路夜市","","",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+Night+Bazaar"),
+      {date:"11/17",weekday:"二",theme:"古城慢遊半天（巷弄寺廟＋咖啡）＋Meena 午餐＋博桑紙傘村／山甘烹伴手禮＋Makkha SPA＋Baan Landai 告別晚宴",stay:"清邁（已訂）",items:[
+        mk("08:30","早餐：民宿附近（昨天爬山，今天睡晚一點）","民宿附近","民宿無早餐，自理，見美食清單","50～150",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en"),
+        mk("09:00","🚶 古城慢遊①：帕陶寺 Wat Phan Tao（柚木寺）","古城內，契迪龍寺旁","包車放大家在古城後就不用車，用走的慢慢逛；全柚木建造的蘭納寺廟，免費（可隨喜捐獻），庭院安靜好拍；服裝過肩過膝","0",false,"https://www.google.com/maps/search/?api=1&query=Wat+Phan+Tao+Chiang+Mai&hl=en"),
+        mk("09:45","🚶 古城慢遊②：三王紀念碑＋古城巷弄散步","古城中心 Prapokklao Rd","三王紀念碑是清邁建城的象徵；周邊巷弄有老木屋、小店、壁畫，隨意走走。旁邊的蘭納民俗博物館（90銖）近期資料寫週三～日開放，週二可能沒開，只在外面拍照","0",false,"https://www.google.com/maps/search/?api=1&query=Three+Kings+Monument+Chiang+Mai&hl=en"),
+        mk("10:30","🚶 古城慢遊③：清曼寺 Wat Chiang Man（清邁最古老寺廟）","古城東北，Ratchaphakhinai Rd","1296年建城時所建，有大象環繞的佛塔，免費參觀，遊客比契迪龍寺少很多，適合慢慢看","0",false,"https://www.google.com/maps/search/?api=1&query=Wat+Chiang+Man+Chiang+Mai&hl=en"),
+        mk("11:15","☕ 古城咖啡廳休息／逛小店","古城北區巷弄","古城巷弄咖啡廳很多，挑一間坐下來休息，或逛手工藝小店、選明信片","80～150",false,"https://www.google.com/maps/search/?api=1&query=cafe+Old+City+Chiang+Mai&hl=en"),
+        mk("12:00","包車前往 Meena（山甘烹方向）","San Kamphaeng 路","車程約30～40分鐘；司機12:00到古城接","—",false,"https://www.google.com/maps/search/?api=1&query=Meena+Rice+Based+Cuisine+San+Kamphaeng&hl=en"),
+        mk("12:45","午餐：Meena Rice Based Cuisine（Bib Gourmand）","San Kamphaeng 區","五色飯糰、泰北魚蓉沙律；Michelin 寫營業10:00-20:00（舊資料寫到17:00），中午去都沒問題","200～400",false,"https://www.google.com/maps/search/?api=1&query=Meena+Rice+Based+Cuisine+San+Kamphaeng+Chiang+Mai&hl=en"),
+        mk("14:00","博桑紙傘村 Bo Sang","San Kamphaeng 路","手繪紙傘100～300銖；現場畫的傘需要時間乾，可請店家吹乾或直接買畫好的","100～300",false,"https://www.google.com/maps/search/?api=1&query=Bo+Sang+Umbrella+Village+Chiang+Mai&hl=en"),
+        mk("14:45","山甘烹手工藝街：陶瓷、木雕、銀器、泰絲伴手禮","San Kamphaeng","價格比市區便宜，最後一次採買伴手禮的好時機；部分工廠需購物才開放參觀","—",false,"https://www.google.com/maps/search/?api=1&query=San+Kamphaeng+handicraft+Chiang+Mai&hl=en"),
+        mk("15:45","回市區，稍作休息準備按摩","Loi Kroh Road","","—",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai&hl=en"),
+        mk("16:30","💆 Makkha Health & Spa（Rachadamnoen 本店，吃飯前先按）","145/4 Rachadamnoen Rd, 古城區","Klook預約：泰式按摩60/90/120分、印度頭部按摩、泰式面部護理、芳香精油、草藥球、熱石等；營業10:00-24:00；⭐4.7(173評)，環境優雅隱私，古城區地點便利","600～1,500",false,"https://www.google.com/maps/search/?api=1&query=Makkha+Health+%26+Spa+Rachadamnoen+Chiang+Mai&hl=en","https://www.klook.com/zh-TW/activity/108447-makkha-health-spa-rachadamnoen-chiang-mai-thailand/"),
+        mk("18:30","★ 告別晚宴：Baan Landai Fine Thai Cuisine（米其林推薦）","古城旗艦店","精緻泰北蘭納料理，百年蘭納建築，需預約","400～800",false,"https://www.google.com/maps/search/?api=1&query=Baan+Landai+Chiang+Mai&hl=en"),
+        mk("20:30","最後一晚夜市閒逛 / 採買伴手禮","長康路夜市","","",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+Night+Bazaar&hl=en"),
       ]},
       {date:"11/18",weekday:"三",theme:"最後採買＋11:50 飛機返程（泰國時間，抵台約16:20）",stay:"—",items:[
         mk("07:00","早餐＋收拾行李","民宿附近","簡單吃或7-11解決，今天飛機較早要提早出發","50～100",false,"https://www.google.com/maps/search/?api=1&query=Loi+Kroh+Road+Chiang+Mai"),
@@ -329,6 +358,7 @@ function defaultData(){
         ["備8","Art in Paradise 3D 幻覺美術館","約2h","清邁最大3D幻覺藝術館！超過100幅3D畫作，可站在畫中拍照互動性超強，分為動物區、海洋區、古文明區、科幻區等；室內冷氣，雨天或太熱的最佳備案；6人一起拍創意照超有趣","400～600","GetYourGuide：https://www.getyourguide.com/zh-tw/chiang-mai-l271/?q=Art%20in%20Paradise ；Klook：https://www.klook.com/zh-TW/search/result/?query=Art%20in%20Paradise%20%E6%B8%85%E9%82%81","位於昌康路Chang Klan近長康路夜市；穿好走的鞋(要站著拍照)；相機充滿電；可搭配旁邊的夜市一起逛；Klook先買票比現場便宜","可加入任何下午空檔或雨天備案"],
         ["備9","清邁大峽谷 Chiang Mai Grand Canyon 玩水半日遊","半日/約3-4h","廢棄採石場改建的玩水景點！超高懸崖跳水(3-10公尺)、獨木舟、滑水道、網美紅色牆拍照；水質清澈，11月涼季中午仍可玩水；年輕人超愛，膽大的可以挑戰跳水，不想跳水的可以獨木舟或拍照","門票100-200+包車分攤300-500","GetYourGuide：https://www.getyourguide.com/zh-tw/chiang-mai-l271/?q=Grand%20Canyon ；Klook：https://www.klook.com/zh-TW/search/result/?query=%E6%B8%85%E9%82%81%E5%A4%A7%E5%B3%A1%E8%B0%B7","車程約30-40分鐘；不會游泳的人要穿救生衣；跳水有風險評估自身能力；帶換洗衣物、毛巾、防曬；11月早晚涼建議中午去；現場有救生員","可替換任何下午空檔"],
         ["備10","古城單車遊＋美食導覽 / 夜市美食團","半日/約3-4h","跟當地導遊騎單車逛清邁古城，發掘巷弄內的寺廟、咖啡廳、街頭美食；或晚上的夜市美食團，跟導遊吃長康路夜市/週日夜市的隱藏版美食，導遊解說每道菜的由來；6人一起吃可以點多樣分享不怕踩雷","500～1,200(含單車導遊美食試吃)","GetYourGuide：https://www.getyourguide.com/zh-tw/chiang-mai-l271/?q=food%20tour%20cycling ；Klook：https://www.klook.com/zh-TW/search/result/?query=%E6%B8%85%E9%82%81%20%E7%BE%8E%E9%A3%9F%E5%B0%8E%E8%A6%BD%20%E5%96%AE%E8%BB%8A","美食團通常晚上出發；單車遊需會騎腳踏車；穿輕便衣物；可要求素食/不吃辣等特殊需求；費用含單車、導遊、美食試吃；⚠️需提前1-3天預約","可替換Day1下午/Day5下午/任何晚上"],
+        ["備11","Wat Umong 森林寺（隧道寺）","1～1.5h","林間隧道佛寺，環境安靜、有池塘與流浪貓，適合悠閒散步（原Day7上午行程，改為古城慢遊後移到備用）","免費～20","—","在古城西邊近素帖山路，需包車或叫車約15分鐘；服裝過肩過膝","可接在Day2雙龍寺下山後，或Day7上午替換古城慢遊"],
       ],
       tip:"💡 10個備用行程可隨時替換主行程中的任何半天。室內備案：備8 Art in Paradise（雨天/太熱）；戶外冒險：備5飛索、備6 ATV、備9大峽谷；文化體驗：備1雙龍寺、備4紙傘村、備7泰拳；自然休閒：備2黏瀑布、備3湄康蓬村；美食導覽：備10美食團。所有備用行程都可在GetYourGuide或Klook預約。"
     },
@@ -343,6 +373,8 @@ function defaultData(){
         ["清萊兩天一夜包車（含過夜，9人座）","5,000～7,000/2日","司機過夜補助另計300～500銖/夜；6人有行李最推薦此方案"],
         ["中文司機加價（vs 英文司機）","+300～500/天","中文司機在11月旺季很搶手，建議提前1-2個月預訂"],
         ["有證照中文導遊（加購）","2,000～2,500/天","不含司機，純導遊費用；一位導遊最多服務9人"],
+        ["司機小費（參考）","每人每天50～100","旅行社（Settour 清萊包車）建議值，非強制；6人可每天合給司機300～500銖"],
+        ["超時費","200～300/小時","漢清邁 200～300、Colatour 300；清邁市區包車多限12小時、23:00前結束"],
       ],
       plans:{
         headers:["方案","做法","優點","估計總費用(銖)"],
@@ -355,13 +387,13 @@ function defaultData(){
       schedule:{
         headers:["日期","包車時段/類型","備註"],
         rows:[
-          ["11/11","機場接送＋市區半日（約4小時）","接機後直接到民宿，下午可視情況加購市區半日包車"],
+          ["11/11","機場接送＋傍晚一趟（帕辛寺→Health Land）","下午古城用走的，16:40 從帕辛寺接去 Health Land；不包半日也可改叫 Grab"],
           ["11/12","市區全天（約8小時）","素帖山雙龍寺＋寧曼路＋夜間動物園（約18:00-21:30）"],
           ["11/13","清邁→清萊 單程／兩天一夜包車起點","建議直接談兩天一夜方案（B），司機全程跟車比較省事"],
-          ["11/14","清萊→清邁 單程／兩天一夜包車終點","若選方案B，同一台車直接送回清邁市區"],
+          ["11/14","清萊→清邁 單程／兩天一夜包車終點","若選方案B，同一台車直接送回清邁市區；公開報價參考：Akgotour 清萊2日小巴約NT$11,088/車（含司機住宿餐費）"],
           ["11/15","半日（約5小時）","早上包車去湄康蓬村；下午市場、古城步行可達，晚上步行街用走的"],
-          ["11/16","茵他儂全天（約11～12小時）","往返約5小時車程；若改訂私人團含接送則不需另包車"],
-          ["11/17","半日（約6小時）","Wat Umong＋博桑紙傘村＋山甘烹，下午回古城按摩與晚宴"],
+          ["11/16","茵他儂全天（約11～12小時）","往返約5小時車程；建議直接用包車（約THB 3,000～3,500/車）＋現場請嚮導，比私人團（約2,600銖/人×6）省約1萬銖"],
+          ["11/17","半日（約4～5小時，12:00起）","上午古城用走的不用車；12:00古城接 → Meena午餐 → 博桑紙傘村 → 山甘烹 → 15:45送回古城按摩與晚宴"],
           ["11/18","機場接送（單程）","退房後直接送機場"],
         ]
       },
@@ -374,6 +406,8 @@ function defaultData(){
           ["CNX Private Driver","❌ 英文","✅ 可指定9人座","約THB2,000～2,500","約THB2,500～3,000","可談","⭐4.9（司機Mon知識豐富）","官網 cnxprivatedriver.com / Facebook","司機受好評、對清邁地區瞭若指掌、可推薦私房景點；缺點：無中文、需私訊確認車型和價格"],
           ["Mr J 清邁包車","✅ 基本中文","✅ 可指定","約THB1,800～2,200","約THB2,200～2,800","可談","華人圈推薦、24小時可用","Facebook 搜尋 / 電話 +66 83 039 7489","直接跟司機談、彈性最大、可客製清萊行程、價格通常比平台便宜；缺點：無平台保障、需自行確認車況保險、旺季可能被訂滿"],
           ["Trip.com 包車","✅ 中/泰司機","✅ 9人座","約NT$2,500～3,000","約NT$2,800～3,500","—","⭐5.0（7則評價）","Trip.com 線上預訂","中文司機溝通零障礙、平台保障、電子憑證；缺點：評價數較少、清萊路線需確認是否支援"],
+          ["Akgotour 清萊1-3日客製包車","✅ 中文客服","✅ 小巴","—","1日 NT$5,544／2日 NT$11,088／3日 NT$16,335（每車）","✅ 已含司機住宿＋餐費","台灣業者，清邁出發","官網 akgotour.com（清萊1-3日專屬客製包車）","價格含司機、油資、停車費、司機住宿與餐費、行程意外險；每日12小時；⚠️水燈節11/23-25每天加1,500銖（我們11/18離開不受影響）；頁面另有一處寫「/人」單位不一致，下單前確認是「每車」"],
+          ["Klook 清邁及周邊包車（含中文服務選項）","✅ 可選","✅ 9人座 Commuter","約NT$4,195起","依路線","依方案","大型平台","Klook 活動 1598","超時、假日附加費需現金付司機；可分天各別下單"],
           ["Smart En Plus（Klook）","❌ 英文","✅ 9人座","—","清邁-清萊固定路線","✅ 清萊專門","⭐4.5+","Klook 線上預訂","清萊路線專門營運商、白廟黑屋金三角等固定路線成熟；缺點：路線較固定不夠彈性、無中文司機"],
         ]
       },
@@ -404,7 +438,7 @@ function defaultData(){
       rows:[
         ["⚠️ 每日包車（9人座含司機）","11/11-12、11/14-18","提前1～2個月","https://www.klook.com/en-HK/activity/1598-private-car-charter-thailand-chiang-mai/","11月旺季中文司機很搶手；11/16茵他儂若改訂私人團含接送，當天可不用另包車；確認含油錢、司機餐、過路費"],
         ["⚠️ 清萊兩天一夜包車","11/13-14","提前1～2個月","https://www.klook.com/en-HK/activity/1598-private-car-charter-thailand-chiang-mai/","同一台車跟全程最方便；司機過夜補助另計300～500銖"],
-        ["⚠️ 茵他儂國家公園＋Kew Mae Pan 徒步一日遊（週一）","11/16","提前1～2週","https://tripsora.musement.com/uk/chiang-mai/doi-inthanon-park-and-kew-mae-pan-trail-private-tour-from-chiang-mai-489338","hanchiangmai 團只開週四、日，週一需改訂私人團（參考價約2,600銖/人起，5人以上）或包車自行前往；Kew Mae Pan步道強制請當地嚮導（約200銖/組）；步道11/1～5/31開放；多家比價；穿長褲運動鞋、帶薄外套"],
+        ["⚠️ 茵他儂國家公園＋Kew Mae Pan 徒步一日遊（週一）","11/16","提前1～2週","https://tripsora.musement.com/uk/chiang-mai/doi-inthanon-park-and-kew-mae-pan-trail-private-tour-from-chiang-mai-489338","💡 推薦：包車自行前往（當天包車已含在每日包車內），現場付國家公園門票約300銖/人＋Kew Mae Pan嚮導200銖/組，6人合計約2,000銖；若改訂私人團約2,600銖/人起×6人。步道每年約11/1重開，出發前打 053 286 729 確認；穿長褲運動鞋、帶薄外套"],
         ["⚠️ Baan Landai 告別晚宴","11/17","提前3～7天","https://www.baan-landai.com/","米其林推薦精緻泰北料理；6人建議先訂位"],
         ["✅ 清萊住宿（已訂）","11/13-14","已完成","Booking.com","Wilacha Chiang Rai（維拉茶清萊酒店），399/1 Moo 4, T. Rimkok, A. Muang, Chiang Rai 57000；14:00起入住、12:00前退房；6人4間房，已用Booking.com付款"],
         ["夜間動物園門票","11/12","可當天但Klook較便宜","https://www.klook.com/zh-TW/destination/c5-chiang-mai/?city_ids=5&frontend_id_list=28","Klook先買票比現場便宜；含tram約1,200～1,600銖/人"],
@@ -437,6 +471,8 @@ function defaultData(){
         ["清萊午餐/美食推薦（11/13）","① Khao Soi Restaurant（⭐4.7，清萊夜市南邊，清萊最有名Khao Soi專賣店，便宜，每日僅5-6道泰式料理，椰奶咖哩湯底＋酥脆麵條，必吃！）；② Leelawadee Chiang Rai Restaurant（⭐4.2，河畔Kok River，泰式料理，有現場演奏區和安靜河畔景觀區，適合6人聚餐，價格合理）；③ Chivit Thamma Da Coffee House Bistro Bar（河畔人氣餐酒館，泰式+西式，咖啡甜點也強，環境舒適）；④ RIBSandCO（⭐4.6，美式餐廳，招牌豬肋排入口即化、軟殼蟹沙拉，不想吃泰式可選，平價）；⑤ De Lanna Riverfront Cafe Restaurant（河畔，義式+泰式，離鐘樓近tuk-tuk可到）；⑥ 清萊夜市小吃（鐘樓旁，傍晚後有各式街頭小吃，便宜）。清萊物價比清邁低，市區餐廳人均100～300銖"],
         ["住宿狀態","清邁 6 晚（11/11-12、11/14-17）已訂好，地點 Loi Kroh Road；清萊 11/13 一晚已訂好（Wilacha Chiang Rai（維拉茶清萊酒店），4間房，Booking.com已付款，11/13 14:00起入住、11/14 12:00前退房）"],
         ["保險","建議投保旅遊平安險"],
+        ["2026 門票異動（已查證）","白廟：2026/1/1起外國人200銖（原100）；藍廟：免費；黑屋：80銖；契迪龍寺：約40銖；帕辛寺主殿：約40銖；雙龍寺：約30銖＋纜車約20銖/單程；茵他儂國家公園：約300銖/人＋車輛費；Kew Mae Pan 嚮導：200銖/組；夜間動物園：外國人含tram約1,200銖，官網線上約8折。皆以現場公告為準"],
+        ["公開行程參考（包車）","① Akgotour 清萊1-3日客製包車（清邁出發，白廟→黑廟→長頸村，每日12小時，小巴每車計價）：https://www.akgotour.com/font/route_item.php?route_id=196 ；② 漢清邁 泰北專屬包車多日遊（4-10人座，中文/英文司機）：https://hanchiangmai.rezio.shop/en-US/product/PRIVATEVAN ；③ Klook 清邁包車（9人座）：https://www.klook.com/zh-TW/activity/1598-private-car-charter-thailand-chiang-mai/ ；④ 東南旅遊 清萊包車1-3日：https://ticket.settour.com.tw/product/TKN0000015858 ；⑤ 可樂旅遊 清邁私人包車一日遊：https://www.colatour.com.tw/C10T_Ticket/C10T02_Feature.aspx?ItemNo=3384 。共同做法：清萊多為『白廟順路先去→市區→隔天藍廟/黑屋→回清邁』，與本行程一致"],
         ["更多行程參考","可上 Klook 搜尋清邁/清萊各種一日遊、門票、體驗課程比價：https://www.klook.com/zh-TW/search/result/?query=%E6%B8%85%E9%82%81%20%E8%A7%80%E5%85%89%E8%A1%8C%E7%A8%8B&search_scope=main_search"],
         ["女子監獄按摩","古城內 Ratwitti Road，週日09:00-16:30，無法預約、需現場排隊；館內明文禁止拍攝按摩師，請務必尊重；建議提早到，太晚去可能已經打烊或客滿"],
       ]
@@ -598,9 +634,100 @@ function cleanForQuery(s){
 }
 function autoMapUrl(it){
   const q = [cleanForQuery(it.title), cleanForQuery(it.location)].filter(Boolean).join(' ');
-  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q + ' Thailand');
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q + ' Thailand') + '&hl=en';
 }
 
+// 給司機看：常用地點的泰文名稱與司機認得的地標（依名稱關鍵字比對）
+const THAI_PLACES = [
+  [/清邁機場|CNX|前往清邁機場|抵達機場|機場免稅|飛機起飛/, 'ท่าอากาศยานนานาชาติเชียงใหม่', 'สนามบินเชียงใหม่'],
+  [/民宿|Loi Kroh|Check-out|退房/, 'ที่พัก ถนนลอยเคราะห์', 'ถนนลอยเคราะห์ ใกล้ไนท์บาซาร์'],
+  [/Lemongrass/i, 'ร้านอาหารเลมอนกราส', 'ถนนลอยเคราะห์ ใกล้ไนท์บาซาร์'],
+  [/Chedi Luang|契迪龍/i, 'วัดเจดีย์หลวง', 'ถนนพระปกเกล้า เมืองเก่า'],
+  [/Phra Singh|帕辛寺/i, 'วัดพระสิงห์', 'ปลายถนนราชดำเนิน เมืองเก่า'],
+  [/Akha Ama/i, 'อาข่า อ่ามา คอฟฟี่', 'ซอยมูลเมือง 9 เมืองเก่า'],
+  [/Tha Phae|塔佩門/i, 'ประตูท่าแพ', 'ประตูท่าแพ เมืองเก่า'],
+  [/Health Land/i, 'เฮลท์แลนด์ สปา แอนด์ มาสสาจ', 'ถนนช้างคลาน ใกล้ไนท์บาซาร์'],
+  [/長康路夜市|Night Bazaar/i, 'ไนท์บาซาร์ เชียงใหม่', 'ถนนช้างคลาน'],
+  [/雙龍寺|素帖山|Doi Suthep/i, 'วัดพระธาตุดอยสุเทพ', 'ดอยสุเทพ'],
+  [/Ginger Farm/i, 'จิงเจอร์ ฟาร์ม คิทเช่น', 'วันนิมมาน ถนนนิมมานเหมินท์'],
+  [/Ristr8to/i, 'ริสเตรตโต้ คอฟฟี่', 'ถนนนิมมานเหมินท์'],
+  [/夜間動物園|Night Safari/i, 'เชียงใหม่ไนท์ซาฟารี', 'อ.หางดง'],
+  [/媽卡江|Mae Kachan/i, 'บ่อน้ำพุร้อนแม่ขะจาน', 'อ.เวียงป่าเป้า ทางหลวง 118'],
+  [/白廟|Rong Khun/i, 'วัดร่องขุ่น', 'อ.เมืองเชียงราย'],
+  [/清萊玉佛寺/, 'วัดพระแก้ว เชียงราย', 'อ.เมืองเชียงราย'],
+  [/Wilacha|維拉茶/i, 'วิลาชา เชียงราย', 'ต.ริมกก อ.เมืองเชียงราย'],
+  [/清萊鐘樓|Clock Tower/i, 'หอนาฬิกาเชียงราย', 'ใจกลางเมืองเชียงราย'],
+  [/清萊夜市/, 'ไนท์บาซาร์เชียงราย', 'ใกล้หอนาฬิกาเชียงราย'],
+  [/藍廟|Rong Suea Ten/i, 'วัดร่องเสือเต้น', 'ต.ริมกก อ.เมืองเชียงราย'],
+  [/黑屋|Baan Dam/i, 'พิพิธภัณฑ์บ้านดำ', 'ต.นางแล อ.เมืองเชียงราย'],
+  [/Wualai|週六步行街/i, 'ถนนคนเดินวัวลาย (วันเสาร์)', 'ถนนวัวลาย ใกล้ประตูเชียงใหม่'],
+  [/湄康蓬|Mae Kampong/i, 'หมู่บ้านแม่กำปอง', 'อ.แม่ออน'],
+  [/Guay Jub Chang Moi/i, 'ก๋วยจั๊บช้างม่อยตัดใหม่', 'ถนนช้างม่อย ใกล้ตลาดวโรรส'],
+  [/女子監獄|Correctional/i, 'ศูนย์ฝึกวิชาชีพ ทัณฑสถานหญิงเชียงใหม่ (นวดแผนไทย)', 'ถนนราชวิถี เมืองเก่า'],
+  [/瓦洛洛|Warorot/i, 'ตลาดวโรรส (กาดหลวง)', 'ถนนช้างม่อย ริมแม่น้ำปิง'],
+  [/週日步行街|Sunday Walking|週日夜市/i, 'ถนนคนเดินวันอาทิตย์', 'ถนนราชดำเนิน ประตูท่าแพ'],
+  [/雙塔|Mahathat/i, 'พระมหาธาตุนภเมทนีดล-นภพลภูมิสิริ', 'ดอยอินทนนท์'],
+  [/Kew Mae Pan/i, 'เส้นทางศึกษาธรรมชาติกิ่วแม่ปาน', 'ดอยอินทนนท์'],
+  [/何孟|Hmong Market/i, 'ตลาดม้ง ดอยอินทนนท์', 'ดอยอินทนนท์'],
+  [/Wachirathan/i, 'น้ำตกวชิรธาร', 'ดอยอินทนนท์'],
+  [/茵他儂|Inthanon/i, 'อุทยานแห่งชาติดอยอินทนนท์', 'อ.จอมทอง'],
+  [/Riverside|River Side/i, 'เดอะ ริเวอร์ไซด์ บาร์ แอนด์ เรสเตอรองท์', 'ถนนเจริญราษฎร์ ริมแม่น้ำปิง'],
+  [/帕陶寺|Phan Tao/i, 'วัดพันเตา', 'ข้างวัดเจดีย์หลวง ถนนพระปกเกล้า'],
+  [/清曼寺|Chiang Man/i, 'วัดเชียงมั่น', 'ถนนราชภาคินัย เมืองเก่า'],
+  [/三王紀念碑/, 'อนุสาวรีย์สามกษัตริย์', 'ใจกลางเมืองเก่า'],
+  [/森林寺|Umong/i, 'วัดอุโมงค์ (สวนพุทธธรรม)', 'ใกล้ถนนสุเทพ'],
+  [/博桑|Bo Sang/i, 'หมู่บ้านทำร่มบ่อสร้าง', 'อ.สันกำแพง'],
+  [/Meena/i, 'มีนา ไรซ์ เบส คูซีน', 'อ.สันกำแพง'],
+  [/山甘烹|San Kamphaeng/i, 'ถนนสายหัตถกรรม สันกำแพง', 'อ.สันกำแพง'],
+  [/Makkha/i, 'มรรคา เฮลท์ แอนด์ สปา', 'เมืองเก่า เชียงใหม่'],
+  [/Baan Landai/i, 'บ้านลานดาย ไฟน์ ไทย คูซีน', 'เมืองเก่า เชียงใหม่'],
+  [/Khao Soi Maesai/i, 'ข้าวซอยแม่สาย', 'ใกล้นิมมาน'],
+  [/Huen Muan Jai/i, 'เฮือนม่วนใจ', ''],
+  [/SP Chicken/i, 'เอสพี ไก่ย่าง', 'ใกล้วัดพระสิงห์'],
+  [/Lim Lao Ngow|林老五/i, 'หลิมเหล่าโหงว', ''],
+  [/Huan Soontaree/i, 'เฮือนสุนทรี', 'ริมแม่น้ำปิง'],
+  [/Big Big Shabu/i, 'บิ๊กบิ๊ก ชาบู', ''],
+  [/Kung Yim/i, 'กุ้งยิ้ม', ''],
+  [/Faham Moo Krata/i, 'หมูกระทะ ฟ้าฮ่าม', ''],
+  [/Let's Relax/i, 'เล็ทส์ รีแลกซ์ สปา', ''],
+  [/Fah Lanna/i, 'ฟ้าล้านนา สปา', ''],
+  [/Zira/i, 'ซีร่า สปา', 'ถนนราชวิถี เมืองเก่า'],
+  [/Cheeva/i, 'ชีวา สปา', ''],
+  [/Lila/i, 'ลีลา นวดไทย', 'เมืองเก่า'],
+  [/Relax Express/i, 'รีแลกซ์ เอ็กซ์เพรส', 'ใกล้ประตูเชียงใหม่'],
+  [/Nimman House/i, 'นิมมานเฮ้าส์ นวดไทย', 'ถนนนิมมานเหมินท์'],
+  [/安納塔拉|Anantara/i, 'อนันตรา เชียงใหม่ รีสอร์ท', 'ถนนเจริญประเทศ ริมแม่น้ำปิง'],
+  [/寧曼|Nimman/i, 'ถนนนิมมานเหมินท์', 'นิมมาน'],
+  [/清萊/, 'ตัวเมืองเชียงราย', 'ใกล้หอนาฬิกาเชียงราย'],
+];
+function findThai(text){
+  for (const [re, th, near] of THAI_PLACES) if (re.test(text)) return {th, near};
+  return null;
+}
+function openDriver(title, location, url){
+  const m = findThai(title) || findThai(location || '');
+  document.getElementById('dName').textContent = m ? m.th : title;
+  document.getElementById('dNear').textContent = m && m.near ? '📍 ' + m.near : (location ? '📍 ' + location : '');
+  document.getElementById('dZh').textContent = title + (location ? '｜' + location : '');
+  const q = (url.match(/[?&]query=([^&]*)/) || [])[1];
+  document.getElementById('dMap').src = q ? 'https://maps.google.com/maps?q=' + q + '&hl=th&z=16&output=embed' : 'about:blank';
+  document.getElementById('dMap').style.display = q ? '' : 'none';
+  document.getElementById('dOpen').href = url;
+  document.getElementById('driver').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDriver(){
+  document.getElementById('driver').classList.remove('open');
+  document.getElementById('dMap').src = 'about:blank';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape' && document.getElementById('driver').classList.contains('open')) closeDriver(); });
+
+// 給司機看：同一個地圖連結改成泰文介面（hl=th）
+function thaiMapUrl(u){
+  if(!/google\.[a-z.]+\/maps/.test(u)) return u;
+  return /[?&]hl=/.test(u) ? u.replace(/([?&])hl=[^&]*/, '$1hl=th') : u + (u.includes('?') ? '&' : '?') + 'hl=th';
+}
 function renderItem(day, it, idx){
   const el = document.createElement('div');
   el.className = 'item' + (it.pinned ? ' pinned' : '');
@@ -609,7 +736,8 @@ function renderItem(day, it, idx){
     <div class="item-row1">
       <input class="time-input" value="${esc(it.time)}" data-f="time" />
       <input class="title-input" value="${esc(it.title)}" data-f="title" />
-      <a class="map-btn" href="${esc(mapUrl)}" target="_blank" rel="noopener" title="在 Google Map 開啟">📍</a>
+      <a class="map-btn" href="${esc(mapUrl)}" target="_blank" rel="noopener" title="在 Google Map 開啟（英文）">📍</a>
+      <a class="map-btn th-btn" href="${esc(thaiMapUrl(mapUrl))}" target="_blank" rel="noopener" title="給司機看：泰文 Google 地圖">🛺</a>
       ${it.booking ? `<a class="map-btn book-btn" href="${esc(it.booking)}" target="_blank" rel="noopener" title="預約／購票連結">🎫</a>` : ''}
       <button class="pin-badge ${it.pinned?'':'off'}" data-act="pin">${it.pinned?'★ 必去':'☆ 標為必去'}</button>
       ${(it.note && /⚠️|須提前|須預約|建議先訂|Klook|預約/.test(it.note)) ? '<span class="book-badge" title="此項目須提前預約">⚠️ 須預約</span>' : ''}
@@ -624,12 +752,18 @@ function renderItem(day, it, idx){
       <button class="note-more" data-act="note">${it.note?'🔍 點開看完整備註／編輯':'✏️ 新增備註'}</button>
       <div class="note-links" style="grid-column:1/-1;">${renderLinkChips(extractUrls(it.note))}</div>
     </div>`;
+  el.querySelector('.th-btn').addEventListener('click', e=>{
+    e.preventDefault();
+    openDriver(cleanForQuery(it.title) || it.title, it.location, el.querySelector('.th-btn').href);
+  });
   el.querySelectorAll('[data-f]').forEach(inp=>{
     inp.addEventListener('input',e=>{
       const f = e.target.dataset.f;
       it[f]=e.target.value;
       if(f==='title' || f==='location' || f==='map'){
-        el.querySelector('.map-btn').href = it.map ? it.map : autoMapUrl(it);
+        const u = it.map ? it.map : autoMapUrl(it);
+        el.querySelector('.map-btn').href = u;
+        el.querySelector('.th-btn').href = thaiMapUrl(u);
       }
       if(f==='booking'){
         let bBtn = el.querySelector('.book-btn');
@@ -641,7 +775,7 @@ function renderItem(day, it, idx){
             bBtn.rel = 'noopener';
             bBtn.title = '預約／購票連結';
             bBtn.textContent = '🎫';
-            el.querySelector('.map-btn').after(bBtn);
+            el.querySelector('.th-btn').after(bBtn);
           }
           bBtn.href = it.booking;
         } else if(bBtn){
@@ -692,7 +826,13 @@ function autosize(ta){
   ta.style.height = ta.scrollHeight + 'px';
 }
 
-function buildSimpleTable(headers, rows, onEdit, onDelete){
+// 餐廳/店家表格：名稱欄、地址欄（地圖連結用）
+const MAP_COLS = {food:[0,4], breakfast:[1,null], seafood:[0,3], massage:[0,4]};
+function placeMapUrl(name, addr){
+  const q = [cleanForQuery(name), cleanForQuery(addr)].filter(Boolean).join(' ');
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q + ' Chiang Mai Thailand') + '&hl=en';
+}
+function buildSimpleTable(headers, rows, onEdit, onDelete, mapCols){
   const table = document.createElement('table');
   table.className = 'simple';
   const thead = document.createElement('thead');
@@ -706,6 +846,30 @@ function buildSimpleTable(headers, rows, onEdit, onDelete){
     tbody.appendChild(tr);
   });
   table.appendChild(tbody);
+  if(mapCols){
+    const [nc, ac] = mapCols;
+    tbody.querySelectorAll('tr').forEach((tr,ri)=>{
+      const cell = tr.children[nc];
+      const a = document.createElement('a');
+      a.className = 'link-chip';
+      a.target = '_blank'; a.rel = 'noopener';
+      a.title = '在 Google Map 開啟';
+      a.textContent = '📍 地圖';
+      const t = document.createElement('a');
+      t.className = 'link-chip';
+      t.target = '_blank'; t.rel = 'noopener';
+      t.title = '給司機看：泰文 Google 地圖';
+      t.textContent = '🛺 泰文';
+      t.style.marginLeft = '4px';
+      const upd = ()=>{ a.href = placeMapUrl(rows[ri][nc], ac!=null ? rows[ri][ac] : ''); t.href = thaiMapUrl(a.href); };
+      upd();
+      cell.appendChild(a);
+      t.addEventListener('click', e=>{ e.preventDefault(); openDriver(rows[ri][nc], ac!=null ? rows[ri][ac] : '', t.href); });
+      cell.appendChild(t);
+      cell.querySelector('textarea').addEventListener('input', upd);
+      if(ac!=null) tr.children[ac].querySelector('textarea').addEventListener('input', upd);
+    });
+  }
   table.querySelectorAll('textarea').forEach(ta=>{
     autosize(ta);
     // 若 cell 含 URL，加入可點擊連結按鈕
@@ -748,7 +912,8 @@ function renderSimplePanel(key){
 
   const table = buildSimpleTable(headers, rows,
     (ri,ci,val)=>{ rows[ri][ci] = val; },
-    (ri)=>{ data.rows.splice(ri,1); renderAll(); }
+    (ri)=>{ data.rows.splice(ri,1); renderAll(); },
+    MAP_COLS[key]
   );
   wrap.appendChild(table);
 
@@ -760,6 +925,13 @@ function renderSimplePanel(key){
     renderAll();
   });
   wrap.appendChild(addBtn);
+
+  if(key==='massage'){
+    const mapLink = document.createElement('p');
+    mapLink.innerHTML = '<a class="link-chip" href="https://fdz59q7ggf-commits.github.io/chiang-mai-massage/" target="_blank" rel="noopener">🗺️ 所有按摩店總地圖</a> <a class="link-chip" href="https://github.com/fdz59q7ggf-commits/chiang-mai-massage#readme" target="_blank" rel="noopener">📖 38間按摩店詳細介紹</a>';
+    mapLink.style.marginTop = '12px';
+    wrap.appendChild(mapLink);
+  }
 
   if(data.tip){
     const tip = document.createElement('p');
