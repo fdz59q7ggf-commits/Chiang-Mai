@@ -177,15 +177,16 @@ function defaultData(){
   return {
     meta:{ title:"清邁 8 天 7 夜行程規劃", range:"2026/11/11（三）→ 11/18（三）", people:"6 人全程包車" },
     days:[
-      {date:"11/11",weekday:"三",theme:"抵達清邁＋古城寺廟巡禮＋Akha Ama Coffee＋長康路夜市",stay:"清邁 Loi Kroh Road（已訂）",items:[
+      {date:"11/11",weekday:"三",theme:"抵達清邁＋從塔佩門出發慢慢逛古城（Akha Ama Coffee→契迪龍寺→帕辛寺）＋Health Land 按摩＋長康路夜市",stay:"清邁 Loi Kroh Road（已訂）",items:[
         mk("07:20","桃園機場起飛","桃園機場","飛行約3.5～4小時，泰國比台灣慢1小時","—"),
         mk("~10:30","抵達清邁機場(CNX)，包車接機","清邁機場","車程約15～20分鐘到民宿","—"),
         mk("11:00","民宿 Check-in / 寄放行李","Loi Kroh Road","近長康路夜市","—"),
         mk("12:00","午餐：Lemongrass Thai Cuisine","Loi Kroh Rd","推薦 Khao Soi 泰北咖哩麵、香蕉捲","150～250"),
-        mk("13:30","契迪龍寺 Wat Chedi Luang","古城內","外國人門票約40銖（左側外國人入口），清邁最具歷史感寺廟","40"),
-        mk("14:30","帕辛寺 Wat Phra Singh","古城內","門票40銖，古城內最美蘭納寺廟","40"),
-        mk("15:30","★ Akha Ama Coffee (The New Original)","Moonmueang Soi 9, 古城北區","必去！阿卡族咖啡，單品咖啡60～150銖，營業08:00-17:00","80～150",true,"https://www.google.com/maps/search/?api=1&query=Akha+Ama+Coffee+The+New+Original+Chiang+Mai&hl=en"),
-        mk("16:30","塔佩門 Tha Phae Gate 拍照散步","古城東門","免費，鴿子廣場","免費"),
+        mk("13:15","🚶 古城慢慢逛起點：塔佩門 Tha Phae Gate","古城東門（從 Loi Kroh 路民宿步行約10分鐘）","下午用走的慢慢逛，不用趕：先在塔佩門城牆、鴿子廣場拍照，看看護城河，約30～40分鐘","免費"),
+        mk("14:10","★ Akha Ama Coffee (The New Original)","Moonmueang Soi 9, 古城北區（塔佩門往北沿護城河內側走約10分鐘）","必去！阿卡族咖啡，單品咖啡60～150銖，營業08:00-17:00；坐下來慢慢喝、休息約40分鐘","80～150",true,"https://www.google.com/maps/search/?api=1&query=Akha+Ama+Coffee+The+New+Original+Chiang+Mai&hl=en"),
+        mk("14:50","🚶 古城巷弄散步 → 契迪龍寺 Wat Chedi Luang","古城中心 Prapokklao Rd","從 Akha Ama 穿過古城巷弄往西南走約15分鐘，沿路老木屋、小店、壁畫；契迪龍寺外國人約40銖（左側外國人入口），清邁最具歷史感的大佛塔，停留約50分鐘","40"),
+        mk("15:55","🚶 Ratchadamnoen 路 → 帕辛寺 Wat Phra Singh","古城西側 Ratchadamnoen Rd 底","沿著週日步行街那條 Ratchadamnoen 路往西走約10分鐘；帕辛寺主殿約40銖，古城最美蘭納寺廟，主殿約17:00關，停留約40分鐘","40"),
+        mk("16:40","叫車／包車前往 Health Land","帕辛寺 → 長康路","古城西側到長康路約3公里，車程約15分鐘（走路太遠，請包車司機來接或叫 Grab）","—"),
         mk("17:00","💆 Health Land Spa & Massage 清邁（指定必去，吃飯前先按）","288/55 Chang Klan Rd（近長康路夜市）","CNN評選全球15大最幸福按摩店之一，環境高級乾淨，營業09:00-23:00，強烈建議提前電話/官網預約（+66 53 278 855），2小時套餐","700～900",true,"https://www.google.com/maps/search/?api=1&query=Health+Land+Spa+%26+Massage+Chiang+Mai+288%2F55+Chang+Klan+Road&hl=en","https://www.klook.com/zh-TW/activity/31359-health-land-spa-treatments-chiang-mai/"),
         mk("19:00","晚餐＋長康路夜市 Night Bazaar","Chang Klan Rd","按完餓了剛好去吃！Anusarn美食廣場、Kalare夜市","200～400"),
       ]},
@@ -386,7 +387,7 @@ function defaultData(){
       schedule:{
         headers:["日期","包車時段/類型","備註"],
         rows:[
-          ["11/11","機場接送＋市區半日（約4小時）","接機後直接到民宿，下午可視情況加購市區半日包車"],
+          ["11/11","機場接送＋傍晚一趟（帕辛寺→Health Land）","下午古城用走的，16:40 從帕辛寺接去 Health Land；不包半日也可改叫 Grab"],
           ["11/12","市區全天（約8小時）","素帖山雙龍寺＋寧曼路＋夜間動物園（約18:00-21:30）"],
           ["11/13","清邁→清萊 單程／兩天一夜包車起點","建議直接談兩天一夜方案（B），司機全程跟車比較省事"],
           ["11/14","清萊→清邁 單程／兩天一夜包車終點","若選方案B，同一台車直接送回清邁市區；公開報價參考：Akgotour 清萊2日小巴約NT$11,088/車（含司機住宿餐費）"],
