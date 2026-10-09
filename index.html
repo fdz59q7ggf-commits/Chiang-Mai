@@ -608,6 +608,11 @@ function autoMapUrl(it){
   return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q + ' Thailand') + '&hl=en';
 }
 
+// 給司機看：同一個地圖連結改成泰文介面（hl=th）
+function thaiMapUrl(u){
+  if(!/google\.[a-z.]+\/maps/.test(u)) return u;
+  return /[?&]hl=/.test(u) ? u.replace(/([?&])hl=[^&]*/, '$1hl=th') : u + (u.includes('?') ? '&' : '?') + 'hl=th';
+}
 function renderItem(day, it, idx){
   const el = document.createElement('div');
   el.className = 'item' + (it.pinned ? ' pinned' : '');
@@ -616,7 +621,8 @@ function renderItem(day, it, idx){
     <div class="item-row1">
       <input class="time-input" value="${esc(it.time)}" data-f="time" />
       <input class="title-input" value="${esc(it.title)}" data-f="title" />
-      <a class="map-btn" href="${esc(mapUrl)}" target="_blank" rel="noopener" title="在 Google Map 開啟">📍</a>
+      <a class="map-btn" href="${esc(mapUrl)}" target="_blank" rel="noopener" title="在 Google Map 開啟（英文）">📍</a>
+      <a class="map-btn th-btn" href="${esc(thaiMapUrl(mapUrl))}" target="_blank" rel="noopener" title="給司機看：泰文 Google 地圖">🛺</a>
       ${it.booking ? `<a class="map-btn book-btn" href="${esc(it.booking)}" target="_blank" rel="noopener" title="預約／購票連結">🎫</a>` : ''}
       <button class="pin-badge ${it.pinned?'':'off'}" data-act="pin">${it.pinned?'★ 必去':'☆ 標為必去'}</button>
       ${(it.note && /⚠️|須提前|須預約|建議先訂|Klook|預約/.test(it.note)) ? '<span class="book-badge" title="此項目須提前預約">⚠️ 須預約</span>' : ''}
@@ -636,7 +642,9 @@ function renderItem(day, it, idx){
       const f = e.target.dataset.f;
       it[f]=e.target.value;
       if(f==='title' || f==='location' || f==='map'){
-        el.querySelector('.map-btn').href = it.map ? it.map : autoMapUrl(it);
+        const u = it.map ? it.map : autoMapUrl(it);
+        el.querySelector('.map-btn').href = u;
+        el.querySelector('.th-btn').href = thaiMapUrl(u);
       }
       if(f==='booking'){
         let bBtn = el.querySelector('.book-btn');
@@ -648,7 +656,7 @@ function renderItem(day, it, idx){
             bBtn.rel = 'noopener';
             bBtn.title = '預約／購票連結';
             bBtn.textContent = '🎫';
-            el.querySelector('.map-btn').after(bBtn);
+            el.querySelector('.th-btn').after(bBtn);
           }
           bBtn.href = it.booking;
         } else if(bBtn){
@@ -728,9 +736,16 @@ function buildSimpleTable(headers, rows, onEdit, onDelete, mapCols){
       a.target = '_blank'; a.rel = 'noopener';
       a.title = '在 Google Map 開啟';
       a.textContent = '📍 地圖';
-      const upd = ()=>{ a.href = placeMapUrl(rows[ri][nc], ac!=null ? rows[ri][ac] : ''); };
+      const t = document.createElement('a');
+      t.className = 'link-chip';
+      t.target = '_blank'; t.rel = 'noopener';
+      t.title = '給司機看：泰文 Google 地圖';
+      t.textContent = '🛺 泰文';
+      t.style.marginLeft = '4px';
+      const upd = ()=>{ a.href = placeMapUrl(rows[ri][nc], ac!=null ? rows[ri][ac] : ''); t.href = thaiMapUrl(a.href); };
       upd();
       cell.appendChild(a);
+      cell.appendChild(t);
       cell.querySelector('textarea').addEventListener('input', upd);
       if(ac!=null) tr.children[ac].querySelector('textarea').addEventListener('input', upd);
     });
