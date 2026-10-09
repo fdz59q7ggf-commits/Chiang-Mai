@@ -63,6 +63,17 @@ nav.tabs button:hover:not(.active){border-color:var(--gold);color:var(--ink);}
 .note-more{grid-column:1/-1;font-size:11.5px;color:var(--coral);cursor:pointer;margin-top:-4px;background:none;border:none;text-align:left;padding:0;font-family:inherit;}
 .modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(27,42,68,.55);padding:16px;}
 .modal.open{display:flex;}
+#driver{position:fixed;inset:0;z-index:200;background:#fffaf3;display:none;flex-direction:column;overflow:auto;}
+#driver.open{display:flex;}
+#driver .dhead{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);}
+#driver .dhead button{font-size:16px;padding:8px 16px;border-radius:999px;border:none;background:var(--navy);color:var(--paper);font-family:inherit;cursor:pointer;}
+#driver .dbody{padding:16px;max-width:900px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:10px;color:#1b2a44;}
+#driver .please{font-size:22px;color:#6b7280;}
+#driver .thname{font-size:clamp(30px,7vw,52px);font-weight:800;line-height:1.25;}
+#driver .thnear{font-size:clamp(22px,5vw,32px);color:var(--coral);font-weight:700;}
+#driver .zh{font-size:14px;color:#6b7280;}
+#driver iframe{width:100%;height:48vh;min-height:280px;border:1px solid var(--line);border-radius:12px;}
+#driver .big{display:block;text-align:center;font-size:20px;font-weight:700;text-decoration:none;color:#fff;background:var(--coral);border-radius:12px;padding:14px;}
 .modal-card{background:#fff;border-radius:16px;width:100%;max-width:640px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.3);}
 .modal-head{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--paper-2);}
 .modal-head h3{margin:0;font-size:15px;flex:1;line-height:1.4;}
@@ -138,6 +149,18 @@ footer{text-align:center;font-size:11px;color:var(--muted);margin-top:30px;}
   <div id="panels"></div>
 
   <footer>清邁行程規劃 · 純前端本機編輯，資料不會上傳到任何伺服器</footer>
+</div>
+
+<div id="driver" role="dialog" aria-modal="true">
+  <div class="dhead"><b>🛺 給司機看</b><button onclick="closeDriver()">關閉 ✕</button></div>
+  <div class="dbody">
+    <div class="please">กรุณาไปส่งที่นี่ครับ/ค่ะ 🙏</div>
+    <div class="thname" id="dName"></div>
+    <div class="thnear" id="dNear"></div>
+    <div class="zh" id="dZh"></div>
+    <iframe id="dMap" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="แผนที่"></iframe>
+    <a class="big" id="dOpen" target="_blank" rel="noopener">เปิดใน Google Maps（泰文導航）</a>
+  </div>
 </div>
 
 <div class="modal" id="noteModal" onclick="if(event.target===this)closeNoteModal()">
@@ -608,6 +631,89 @@ function autoMapUrl(it){
   return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q + ' Thailand') + '&hl=en';
 }
 
+// 給司機看：常用地點的泰文名稱與司機認得的地標（依名稱關鍵字比對）
+const THAI_PLACES = [
+  [/清邁機場|CNX|前往清邁機場|抵達機場|機場免稅|飛機起飛/, 'ท่าอากาศยานนานาชาติเชียงใหม่', 'สนามบินเชียงใหม่'],
+  [/民宿|Loi Kroh|Check-out|退房/, 'ที่พัก ถนนลอยเคราะห์', 'ถนนลอยเคราะห์ ใกล้ไนท์บาซาร์'],
+  [/Lemongrass/i, 'ร้านอาหารเลมอนกราส', 'ถนนลอยเคราะห์ ใกล้ไนท์บาซาร์'],
+  [/Chedi Luang|契迪龍/i, 'วัดเจดีย์หลวง', 'ถนนพระปกเกล้า เมืองเก่า'],
+  [/Phra Singh|帕辛寺/i, 'วัดพระสิงห์', 'ปลายถนนราชดำเนิน เมืองเก่า'],
+  [/Akha Ama/i, 'อาข่า อ่ามา คอฟฟี่', 'ซอยมูลเมือง 9 เมืองเก่า'],
+  [/Tha Phae|塔佩門/i, 'ประตูท่าแพ', 'ประตูท่าแพ เมืองเก่า'],
+  [/Health Land/i, 'เฮลท์แลนด์ สปา แอนด์ มาสสาจ', 'ถนนช้างคลาน ใกล้ไนท์บาซาร์'],
+  [/長康路夜市|Night Bazaar/i, 'ไนท์บาซาร์ เชียงใหม่', 'ถนนช้างคลาน'],
+  [/雙龍寺|素帖山|Doi Suthep/i, 'วัดพระธาตุดอยสุเทพ', 'ดอยสุเทพ'],
+  [/Ginger Farm/i, 'จิงเจอร์ ฟาร์ม คิทเช่น', 'วันนิมมาน ถนนนิมมานเหมินท์'],
+  [/Ristr8to/i, 'ริสเตรตโต้ คอฟฟี่', 'ถนนนิมมานเหมินท์'],
+  [/夜間動物園|Night Safari/i, 'เชียงใหม่ไนท์ซาฟารี', 'อ.หางดง'],
+  [/媽卡江|Mae Kachan/i, 'บ่อน้ำพุร้อนแม่ขะจาน', 'อ.เวียงป่าเป้า ทางหลวง 118'],
+  [/白廟|Rong Khun/i, 'วัดร่องขุ่น', 'อ.เมืองเชียงราย'],
+  [/清萊玉佛寺/, 'วัดพระแก้ว เชียงราย', 'อ.เมืองเชียงราย'],
+  [/Wilacha|維拉茶/i, 'วิลาชา เชียงราย', 'ต.ริมกก อ.เมืองเชียงราย'],
+  [/清萊鐘樓|Clock Tower/i, 'หอนาฬิกาเชียงราย', 'ใจกลางเมืองเชียงราย'],
+  [/清萊夜市/, 'ไนท์บาซาร์เชียงราย', 'ใกล้หอนาฬิกาเชียงราย'],
+  [/藍廟|Rong Suea Ten/i, 'วัดร่องเสือเต้น', 'ต.ริมกก อ.เมืองเชียงราย'],
+  [/黑屋|Baan Dam/i, 'พิพิธภัณฑ์บ้านดำ', 'ต.นางแล อ.เมืองเชียงราย'],
+  [/Wualai|週六步行街/i, 'ถนนคนเดินวัวลาย (วันเสาร์)', 'ถนนวัวลาย ใกล้ประตูเชียงใหม่'],
+  [/湄康蓬|Mae Kampong/i, 'หมู่บ้านแม่กำปอง', 'อ.แม่ออน'],
+  [/Guay Jub Chang Moi/i, 'ก๋วยจั๊บช้างม่อยตัดใหม่', 'ถนนช้างม่อย ใกล้ตลาดวโรรส'],
+  [/女子監獄|Correctional/i, 'ศูนย์ฝึกวิชาชีพ ทัณฑสถานหญิงเชียงใหม่ (นวดแผนไทย)', 'ถนนราชวิถี เมืองเก่า'],
+  [/瓦洛洛|Warorot/i, 'ตลาดวโรรส (กาดหลวง)', 'ถนนช้างม่อย ริมแม่น้ำปิง'],
+  [/週日步行街|Sunday Walking|週日夜市/i, 'ถนนคนเดินวันอาทิตย์', 'ถนนราชดำเนิน ประตูท่าแพ'],
+  [/雙塔|Mahathat/i, 'พระมหาธาตุนภเมทนีดล-นภพลภูมิสิริ', 'ดอยอินทนนท์'],
+  [/Kew Mae Pan/i, 'เส้นทางศึกษาธรรมชาติกิ่วแม่ปาน', 'ดอยอินทนนท์'],
+  [/何孟|Hmong Market/i, 'ตลาดม้ง ดอยอินทนนท์', 'ดอยอินทนนท์'],
+  [/Wachirathan/i, 'น้ำตกวชิรธาร', 'ดอยอินทนนท์'],
+  [/茵他儂|Inthanon/i, 'อุทยานแห่งชาติดอยอินทนนท์', 'อ.จอมทอง'],
+  [/Riverside|River Side/i, 'เดอะ ริเวอร์ไซด์ บาร์ แอนด์ เรสเตอรองท์', 'ถนนเจริญราษฎร์ ริมแม่น้ำปิง'],
+  [/森林寺|Umong/i, 'วัดอุโมงค์ (สวนพุทธธรรม)', 'ใกล้ถนนสุเทพ'],
+  [/博桑|Bo Sang/i, 'หมู่บ้านทำร่มบ่อสร้าง', 'อ.สันกำแพง'],
+  [/Meena/i, 'มีนา ไรซ์ เบส คูซีน', 'อ.สันกำแพง'],
+  [/山甘烹|San Kamphaeng/i, 'ถนนสายหัตถกรรม สันกำแพง', 'อ.สันกำแพง'],
+  [/Makkha/i, 'มรรคา เฮลท์ แอนด์ สปา', 'เมืองเก่า เชียงใหม่'],
+  [/Baan Landai/i, 'บ้านลานดาย ไฟน์ ไทย คูซีน', 'เมืองเก่า เชียงใหม่'],
+  [/Khao Soi Maesai/i, 'ข้าวซอยแม่สาย', 'ใกล้นิมมาน'],
+  [/Huen Muan Jai/i, 'เฮือนม่วนใจ', ''],
+  [/SP Chicken/i, 'เอสพี ไก่ย่าง', 'ใกล้วัดพระสิงห์'],
+  [/Lim Lao Ngow|林老五/i, 'หลิมเหล่าโหงว', ''],
+  [/Huan Soontaree/i, 'เฮือนสุนทรี', 'ริมแม่น้ำปิง'],
+  [/Big Big Shabu/i, 'บิ๊กบิ๊ก ชาบู', ''],
+  [/Kung Yim/i, 'กุ้งยิ้ม', ''],
+  [/Faham Moo Krata/i, 'หมูกระทะ ฟ้าฮ่าม', ''],
+  [/Let's Relax/i, 'เล็ทส์ รีแลกซ์ สปา', ''],
+  [/Fah Lanna/i, 'ฟ้าล้านนา สปา', ''],
+  [/Zira/i, 'ซีร่า สปา', 'ถนนราชวิถี เมืองเก่า'],
+  [/Cheeva/i, 'ชีวา สปา', ''],
+  [/Lila/i, 'ลีลา นวดไทย', 'เมืองเก่า'],
+  [/Relax Express/i, 'รีแลกซ์ เอ็กซ์เพรส', 'ใกล้ประตูเชียงใหม่'],
+  [/Nimman House/i, 'นิมมานเฮ้าส์ นวดไทย', 'ถนนนิมมานเหมินท์'],
+  [/安納塔拉|Anantara/i, 'อนันตรา เชียงใหม่ รีสอร์ท', 'ถนนเจริญประเทศ ริมแม่น้ำปิง'],
+  [/寧曼|Nimman/i, 'ถนนนิมมานเหมินท์', 'นิมมาน'],
+  [/清萊/, 'ตัวเมืองเชียงราย', 'ใกล้หอนาฬิกาเชียงราย'],
+];
+function findThai(text){
+  for (const [re, th, near] of THAI_PLACES) if (re.test(text)) return {th, near};
+  return null;
+}
+function openDriver(title, location, url){
+  const m = findThai(title) || findThai(location || '');
+  document.getElementById('dName').textContent = m ? m.th : title;
+  document.getElementById('dNear').textContent = m && m.near ? '📍 ' + m.near : (location ? '📍 ' + location : '');
+  document.getElementById('dZh').textContent = title + (location ? '｜' + location : '');
+  const q = (url.match(/[?&]query=([^&]*)/) || [])[1];
+  document.getElementById('dMap').src = q ? 'https://maps.google.com/maps?q=' + q + '&hl=th&z=16&output=embed' : 'about:blank';
+  document.getElementById('dMap').style.display = q ? '' : 'none';
+  document.getElementById('dOpen').href = url;
+  document.getElementById('driver').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDriver(){
+  document.getElementById('driver').classList.remove('open');
+  document.getElementById('dMap').src = 'about:blank';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape' && document.getElementById('driver').classList.contains('open')) closeDriver(); });
+
 // 給司機看：同一個地圖連結改成泰文介面（hl=th）
 function thaiMapUrl(u){
   if(!/google\.[a-z.]+\/maps/.test(u)) return u;
@@ -637,6 +743,10 @@ function renderItem(day, it, idx){
       <button class="note-more" data-act="note">${it.note?'🔍 點開看完整備註／編輯':'✏️ 新增備註'}</button>
       <div class="note-links" style="grid-column:1/-1;">${renderLinkChips(extractUrls(it.note))}</div>
     </div>`;
+  el.querySelector('.th-btn').addEventListener('click', e=>{
+    e.preventDefault();
+    openDriver(cleanForQuery(it.title) || it.title, it.location, el.querySelector('.th-btn').href);
+  });
   el.querySelectorAll('[data-f]').forEach(inp=>{
     inp.addEventListener('input',e=>{
       const f = e.target.dataset.f;
@@ -745,6 +855,7 @@ function buildSimpleTable(headers, rows, onEdit, onDelete, mapCols){
       const upd = ()=>{ a.href = placeMapUrl(rows[ri][nc], ac!=null ? rows[ri][ac] : ''); t.href = thaiMapUrl(a.href); };
       upd();
       cell.appendChild(a);
+      t.addEventListener('click', e=>{ e.preventDefault(); openDriver(rows[ri][nc], ac!=null ? rows[ri][ac] : '', t.href); });
       cell.appendChild(t);
       cell.querySelector('textarea').addEventListener('input', upd);
       if(ac!=null) tr.children[ac].querySelector('textarea').addEventListener('input', upd);
