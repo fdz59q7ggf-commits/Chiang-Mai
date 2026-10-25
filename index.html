@@ -71,6 +71,8 @@ nav.tabs button:hover:not(.active){border-color:var(--gold);color:var(--ink);}
 #driver .please{font-size:22px;color:#6b7280;}
 #driver .thname{font-size:clamp(30px,7vw,52px);font-weight:800;line-height:1.25;}
 #driver .thnear{font-size:clamp(22px,5vw,32px);color:var(--coral);font-weight:700;}
+#driver .thaddr{font-size:clamp(22px,5.5vw,34px);font-weight:700;line-height:1.4;padding:12px 14px;border:2px solid var(--coral);border-radius:12px;background:#fff;white-space:pre-line;}
+#driver .thaddr small{display:block;font-size:16px;font-weight:400;color:#6b7280;}
 #driver .zh{font-size:14px;color:#6b7280;}
 #driver iframe{width:100%;height:48vh;min-height:280px;border:1px solid var(--line);border-radius:12px;}
 #driver .big{display:block;text-align:center;font-size:20px;font-weight:700;text-decoration:none;color:#fff;background:var(--coral);border-radius:12px;padding:14px;}
@@ -157,6 +159,7 @@ footer{text-align:center;font-size:11px;color:var(--muted);margin-top:30px;}
     <div class="please">กรุณาไปส่งที่นี่ครับ/ค่ะ 🙏</div>
     <div class="thname" id="dName"></div>
     <div class="thnear" id="dNear"></div>
+    <div class="thaddr" id="dAddr"></div>
     <div class="zh" id="dZh"></div>
     <iframe id="dMap" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="แผนที่"></iframe>
     <a class="big" id="dOpen" target="_blank" rel="noopener">เปิดใน Google Maps（泰文導航）</a>
@@ -644,7 +647,7 @@ function autoMapUrl(it){
 const THAI_PLACES = [
   [/Fah Lanna Massage|Fah Lanna.*Night Bazaar/i, 'ฟ้าล้านนา มาสสาจ (ไนท์บาซาร์)', 'ถนนช้างคลาน ข้างพาวิลเลียน ไนท์บาซาร์'],
   [/清邁機場|CNX|前往清邁機場|抵達機場|機場免稅|飛機起飛/, 'ท่าอากาศยานนานาชาติเชียงใหม่', 'สนามบินเชียงใหม่'],
-  [/民宿|Check-out|退房/, 'ที่พัก (ใกล้ไนท์บาซาร์)', '147/2 ถนนลอยเคราะห์ ตำบลช้างคลาน อำเภอเมืองเชียงใหม่ จังหวัดเชียงใหม่ 50100'],
+  [/民宿|Check-out|退房/, 'ที่พัก (ใกล้ไนท์บาซาร์)', 'ถนนลอยเคราะห์ ใกล้ไนท์บาซาร์', {th:'ที่อยู่: 147/2 ถนนลอยเคราะห์ ตำบลช้างคลาน อำเภอเมืองเชียงใหม่ จังหวัดเชียงใหม่ 50100', en:'147/2 Loi Kroh Road, Tambon Chang Khlan, Chang Wat Chiang Mai 50100'}],
   [/Lemongrass/i, 'ร้านอาหารเลมอนกราส', 'ถนนลอยเคราะห์ ใกล้ไนท์บาซาร์'],
   [/Chedi Luang|契迪龍/i, 'วัดเจดีย์หลวง', 'ถนนพระปกเกล้า เมืองเก่า'],
   [/Phra Singh|帕辛寺/i, 'วัดพระสิงห์', 'ปลายถนนราชดำเนิน เมืองเก่า'],
@@ -705,13 +708,16 @@ const THAI_PLACES = [
   [/清萊/, 'ตัวเมืองเชียงราย', 'ใกล้หอนาฬิกาเชียงราย'],
 ];
 function findThai(text){
-  for (const [re, th, near] of THAI_PLACES) if (re.test(text)) return {th, near};
+  for (const [re, th, near, addr] of THAI_PLACES) if (re.test(text)) return {th, near, addr};
   return null;
 }
 function openDriver(title, location, url){
   const m = findThai(title) || findThai(location || '');
   document.getElementById('dName').textContent = m ? m.th : title;
   document.getElementById('dNear').textContent = m && m.near ? '📍 ' + m.near : (location ? '📍 ' + location : '');
+  const dAddr = document.getElementById('dAddr');
+  dAddr.innerHTML = m && m.addr ? esc(m.addr.th) + '<small>' + esc(m.addr.en) + '</small>' : '';
+  dAddr.style.display = m && m.addr ? '' : 'none';
   document.getElementById('dZh').textContent = title + (location ? '｜' + location : '');
   const q = (url.match(/[?&]query=([^&]*)/) || [])[1];
   document.getElementById('dMap').src = q ? 'https://maps.google.com/maps?q=' + q + '&hl=th&z=16&output=embed' : 'about:blank';
