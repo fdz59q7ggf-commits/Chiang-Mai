@@ -112,6 +112,7 @@ nav.tabs button:hover:not(.active){border-color:var(--gold);color:var(--ink);}
 .trip-items small{display:block;color:var(--muted);font-size:11.5px;}
 .trip-swap{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;padding-bottom:12px;}
 .trip-swap .btn.here{background:var(--coral-dim);border-color:var(--coral);color:var(--ink);cursor:default;}
+.copy-bar{display:flex;gap:8px;flex-wrap:wrap;margin:-6px 0 14px;}
 .day-total{text-align:right;font-size:12px;color:var(--muted);margin:10px 2px 0;}
 table.simple{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line);table-layout:fixed;}
 table.simple th{background:var(--navy);color:var(--paper);font-size:12px;font-weight:500;text-align:left;padding:8px 10px;word-break:break-word;}
@@ -187,6 +188,13 @@ footer{text-align:center;font-size:11px;color:var(--muted);margin-top:30px;}
     <iframe id="dMap" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="แผนที่"></iframe>
     <a class="big" id="dOpen" target="_blank" rel="noopener">เปิดใน Google Maps（泰文導航）</a>
     <a class="big apple" id="dApple" target="_blank" rel="noopener">เปิดใน Apple Maps（Apple 地圖）</a>
+  </div>
+</div>
+
+<div class="modal" id="copyModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-card">
+    <div class="modal-head"><h3>行程文字（已全選，可直接複製）</h3><button class="modal-close" onclick="document.getElementById('copyModal').classList.remove('open')">關閉 ✕</button></div>
+    <div class="modal-body"><textarea readonly></textarea></div>
   </div>
 </div>
 
@@ -753,6 +761,39 @@ function shareSwapsUrl(){
   return location.origin + location.pathname + location.search + (s ? '#swap=' + s : '');
 }
 
+// 複製行程：輸入框沒辦法一次選取多個項目，改成產生純文字直接複製
+function itemsToText(items){
+  return items.map(it=>{
+    const head = [it.time, it.title].filter(Boolean).join(' ');
+    const sub = [it.location ? '📍' + it.location : '', it.cost && it.cost!=='—' ? '💰' + it.cost + (/\d/.test(it.cost) && !/銖/.test(it.cost) ? '銖' : '') : ''].filter(Boolean).join('　');
+    return head + (sub ? '\n　' + sub : '') + (it.note ? '\n　' + it.note : '');
+  }).join('\n');
+}
+function dayToText(day){
+  return `【${day.date}（${day.weekday}）】${day.theme}` + (day.stay ? `\n住宿：${day.stay}` : '') + '\n' + itemsToText(day.items);
+}
+function allDaysToText(){
+  return state.meta.title + '\n' + state.meta.range + '｜' + state.meta.people + '\n\n' +
+    state.days.filter(d=>!d.date.startsWith('備') && !d.date.startsWith('按摩')).map(dayToText).join('\n\n');
+}
+function planToText(p){
+  const head = p.short + (p.book ? '\n前一天要做：' + p.book : '');
+  if(p.items13) return head + '\n\n【11/13（五）】' + p.theme13 + '\n' + itemsToText(p.items13) + '\n\n【11/14（六）】' + p.theme14 + '\n' + itemsToText(p.items14);
+  return head + '\n\n' + p.theme + '\n' + itemsToText(p.items);
+}
+function copyText(text){
+  const showBox = ()=>{
+    const m = document.getElementById('copyModal');
+    const ta = m.querySelector('textarea');
+    ta.value = text;
+    m.classList.add('open');
+    ta.focus(); ta.select();
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>alert('已複製！可以直接貼到 LINE 或記事本。'), showBox);
+  } else showBox();
+}
+
 function renderTripsPanel(){
   const wrap = document.createElement('div');
   const intro = document.createElement('p');
@@ -800,8 +841,9 @@ function renderTripsPanel(){
       ${p.book ? `<div class="trip-book">📝 前一天要做：${esc(p.book)}</div>` : ''}
       <div class="trip-day">11/13(五)：${esc(p.theme13)}</div>${list(p.items13)}
       <div class="trip-day">11/14(六)：${esc(p.theme14)}</div>${list(p.items14)}
-      <div class="trip-swap"><button class="btn${here?' here':''}" ${here?'disabled':''}>${here?'✓ 目前就是這個':'換成這個清萊玩法'}</button></div>`;
-    card.querySelector('.trip-swap button').addEventListener('click',()=>assignCr(p.id));
+      <div class="trip-swap"><button class="btn${here?' here':''}" data-cr ${here?'disabled':''}>${here?'✓ 目前就是這個':'換成這個清萊玩法'}</button><button class="btn" data-copy>📋 複製行程</button></div>`;
+    card.querySelector('.trip-swap button[data-cr]').addEventListener('click',()=>assignCr(p.id));
+    card.querySelector('[data-copy]').addEventListener('click',()=>copyText(planToText(p)));
     wrap.appendChild(card);
   });
 
@@ -825,8 +867,9 @@ function renderTripsPanel(){
         const here = currentPlanId(d)===p.id;
         const w = planWarning(p, d);
         return `<button class="btn${here?' here':''}" data-date="${d}" ${here?'disabled':''} title="${esc(w)}">${here?'✓ ':''}${d}(${esc(weekdayOf(d))})${w?' ⚠️':''}</button>`;
-      }).join('')}</div>`;
+      }).join('')}<button class="btn" data-copy>📋 複製行程</button></div>`;
     card.querySelectorAll('.trip-swap button[data-date]').forEach(b=>b.addEventListener('click',()=>assignPlan(b.dataset.date, p.id)));
+    card.querySelector('[data-copy]').addEventListener('click',()=>copyText(planToText(p)));
     wrap.appendChild(card);
   });
   return wrap;
@@ -1094,6 +1137,13 @@ function renderDaysPanel(){
     inp.addEventListener('input',e=>{ day[e.target.dataset.f]=e.target.value; });
   });
   wrap.appendChild(themeBar);
+
+  const copyBar = document.createElement('div');
+  copyBar.className = 'copy-bar';
+  copyBar.innerHTML = '<button class="btn" data-copy-day>📋 複製這天行程</button><button class="btn" data-copy-all>📋 複製全部行程</button>';
+  copyBar.querySelector('[data-copy-day]').addEventListener('click',()=>copyText(dayToText(day)));
+  copyBar.querySelector('[data-copy-all]').addEventListener('click',()=>copyText(allDaysToText()));
+  wrap.appendChild(copyBar);
 
   const timeline = document.createElement('div');
   timeline.className = 'timeline';
