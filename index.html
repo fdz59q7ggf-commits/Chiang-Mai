@@ -97,6 +97,8 @@ nav.tabs button:hover:not(.active){border-color:var(--gold);color:var(--ink);}
 .swap-row b{flex:none;color:var(--navy);min-width:72px;}
 .swap-row span{flex:1;min-width:160px;}
 .swap-actions{margin-top:10px;}
+.trip-section{font-size:16px;color:var(--navy);margin:22px 0 10px;}
+.trip-day{font-size:13px;font-weight:700;color:var(--navy);margin:6px 0 4px;}
 .trip-card{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:10px;padding:0 14px;}
 .trip-card.orig{background:var(--paper-2);}
 .trip-card.on{border-color:var(--coral);}
@@ -701,13 +703,14 @@ function loadSwaps(){
     decodeURIComponent(m[1]).split(',').forEach(pair=>{
       const [d, id] = pair.split(':');
       const date = (d||'').replace('-','/');
-      if(SWAP_DATES.includes(date) && getPlan(id)) swaps[date] = id;
+      if(validSwap(date, id)) swaps[date] = id;
     });
     saveSwaps();
     try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
   }
-  Object.keys(swaps).forEach(d=>{ if(!SWAP_DATES.includes(d) || !getPlan(swaps[d])) delete swaps[d]; });
+  Object.keys(swaps).forEach(d=>{ if(!validSwap(d, swaps[d])) delete swaps[d]; });
 }
+function validSwap(date, id){ return (SWAP_DATES.includes(date) && !!getPlan(id)) || (date===CR_KEY && !!getCrPlan(id)); }
 function saveSwaps(){ try{ localStorage.setItem(SWAP_KEY, JSON.stringify(swaps)); }catch(e){} }
 function currentPlanId(date){ return swaps[date] || 'orig-'+date; }
 function applyPlanToDay(date){
@@ -717,7 +720,7 @@ function applyPlanToDay(date){
   day.theme = p.theme;
   day.items = p.items.map(it=>Object.assign({}, it, {id:uid()}));
 }
-function applySwaps(){ Object.keys(swaps).forEach(applyPlanToDay); }
+function applySwaps(){ Object.keys(swaps).forEach(d=>{ if(d===CR_KEY) applyCr(); else applyPlanToDay(d); }); }
 function weekdayOf(date){ const d = state.days.find(x=>x.date===date); return d ? d.weekday : ''; }
 function planWarning(p, date){
   const wd = weekdayOf(date);
@@ -746,7 +749,7 @@ function assignPlan(date, pid){
   renderAll();
 }
 function shareSwapsUrl(){
-  const s = SWAP_DATES.filter(d=>swaps[d]).map(d=>d.replace('/','-')+':'+swaps[d]).join(',');
+  const s = SWAP_DATES.concat([CR_KEY]).filter(d=>swaps[d]).map(d=>d.replace('/','-')+':'+swaps[d]).join(',');
   return location.origin + location.pathname + location.search + (s ? '#swap=' + s : '');
 }
 
@@ -755,7 +758,7 @@ function renderTripsPanel(){
   const intro = document.createElement('p');
   intro.className = 'hint';
   intro.style.fontSize = '13px';
-  intro.textContent = '除了 11/13～14 清萊兩天，其他天都是從民宿出發、晚上回民宿，所以 11/12、11/15、11/16、11/17 都可以前一天再決定要玩哪一個。按「換到 11/xx」就會把那天的每日行程整個換掉；換到已經排在別天的行程時，兩天會互換。這支手機會記住選擇；要讓大家看到一樣的安排，按「複製分享連結」傳到群組。';
+  intro.textContent = '11/12、11/15、11/16、11/17 都是從民宿出發、晚上回民宿，可以前一天再決定要玩哪一個一日遊；11/13～14 清萊兩天也有好幾種玩法可選（住 Wilacha 不變），在最下面。按「換到 11/xx」就會把那天的每日行程整個換掉；換到已經排在別天的行程時，兩天會互換。這支手機會記住選擇；要讓大家看到一樣的安排，按「複製分享連結」傳到群組。';
   wrap.appendChild(intro);
 
   const now = document.createElement('div');
@@ -763,8 +766,10 @@ function renderTripsPanel(){
   now.innerHTML = '<h3>目前安排</h3>' + SWAP_DATES.map(d=>{
     const p = getPlan(currentPlanId(d));
     return `<div class="swap-row"><b>${d}(${esc(weekdayOf(d))})</b><span>${esc(p.short)}</span>${swaps[d] ? `<button class="btn" data-restore="${d}">換回原定</button>` : ''}</div>`;
-  }).join('') + '<div class="swap-actions"><button class="btn primary" data-share>📤 複製分享連結</button></div>';
+  }).join('') + `<div class="swap-row"><b>11/13～14 清萊</b><span>${esc(getCrPlan(crCurrentId()).short)}</span>${swaps[CR_KEY] ? '<button class="btn" data-cr-restore>換回原定</button>' : ''}</div>` + '<div class="swap-actions"><button class="btn primary" data-share>📤 複製分享連結</button></div>';
   now.querySelectorAll('[data-restore]').forEach(b=>b.addEventListener('click',()=>assignPlan(b.dataset.restore, 'orig-'+b.dataset.restore)));
+  const crRestore = now.querySelector('[data-cr-restore]');
+  if(crRestore) crRestore.addEventListener('click',()=>assignCr('cr-orig'));
   now.querySelector('[data-share]').addEventListener('click',()=>{
     const url = shareSwapsUrl();
     const done = ()=>alert('已複製分享連結，貼到群組，大家點開就會看到一樣的安排：\n' + url);
@@ -773,6 +778,10 @@ function renderTripsPanel(){
   });
   wrap.appendChild(now);
 
+  const h1 = document.createElement('h3');
+  h1.className = 'trip-section';
+  h1.textContent = '🚐 一日遊（11/12、11/15、11/16、11/17 可換）';
+  wrap.appendChild(h1);
   getPlans().forEach(p=>{
     const onDate = SWAP_DATES.find(d=>currentPlanId(d)===p.id);
     const total = p.items.reduce((s,it)=>s+parseCostMid(it.cost),0);
@@ -793,7 +802,170 @@ function renderTripsPanel(){
     card.querySelectorAll('.trip-swap button[data-date]').forEach(b=>b.addEventListener('click',()=>assignPlan(b.dataset.date, p.id)));
     wrap.appendChild(card);
   });
+
+  const h2 = document.createElement('h3');
+  h2.className = 'trip-section';
+  h2.textContent = '🏨 清萊兩天一夜（11/13～14，住 Wilacha 不變）';
+  wrap.appendChild(h2);
+  const crHint = document.createElement('p');
+  crHint.className = 'hint';
+  crHint.textContent = '每個玩法都是 11/13 早上從清邁出發、晚上住 Wilacha，11/14 中午前退房、下午回清邁；11/14 晚上的 Fah Lanna 按摩＋週六步行街都不變。兩天會一起換。';
+  wrap.appendChild(crHint);
+  getCrPlans().forEach(p=>{
+    const here = crCurrentId()===p.id;
+    const total = p.items13.concat(p.items14).reduce((s,it)=>s+parseCostMid(it.cost),0);
+    const list = items => `<ol class="trip-items">${items.map(it=>`<li><b>${esc(it.time)}</b> ${esc(it.title)}<small>${esc(it.location)}</small></li>`).join('')}</ol>`;
+    const card = document.createElement('details');
+    card.className = 'trip-card' + (p.isOrig ? ' orig' : '') + (here ? ' on' : '');
+    card.innerHTML = `
+      <summary>
+        <div class="trip-title">${esc(p.short)}</div>
+        <div class="trip-meta">${esc(p.tags)}・約 ${Math.round(total).toLocaleString()} 銖／人（兩天）${here ? '<span class="trip-on">目前安排</span>' : ''}</div>
+      </summary>
+      ${p.book ? `<div class="trip-book">📝 前一天要做：${esc(p.book)}</div>` : ''}
+      <div class="trip-day">11/13(五)：${esc(p.theme13)}</div>${list(p.items13)}
+      <div class="trip-day">11/14(六)：${esc(p.theme14)}</div>${list(p.items14)}
+      <div class="trip-swap"><button class="btn${here?' here':''}" ${here?'disabled':''}>${here?'✓ 目前就是這個':'換成這個清萊玩法'}</button></div>`;
+    card.querySelector('.trip-swap button').addEventListener('click',()=>assignCr(p.id));
+    wrap.appendChild(card);
+  });
   return wrap;
+}
+
+// 清萊兩天一夜選單：住 Wilacha（已訂，11/13 14:00 入住、11/14 12:00 前退房）不變；11/14 晚上回清邁的 Fah Lanna 按摩＋週六步行街也不變
+const CR_KEY = '11/13';
+function crPlans(){
+  const mk = (time,title,location,note,cost,pinned,map,booking)=>({id:uid(),time,title,location,note:note||"",cost:cost||"",pinned:!!pinned,map:map||"",booking:booking||""});
+  const G = q => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q) + '&hl=en';
+  const HOME = 'https://www.google.com/maps/search/?api=1&query=18.783861,99.002111&hl=en';
+  const base = defaultData();
+  const d13 = base.days.find(d=>d.date==='11/13'), d14 = base.days.find(d=>d.date==='11/14');
+  const pick = (d, re) => d.items.filter(it=>re.test(it.title)).map(it=>Object.assign({}, it));
+  // 共用：Wilacha 入住、退房，以及 11/14 晚上回清邁的固定行程
+  const checkin = t => Object.assign(pick(d13, /Wilacha/)[0], {time:t});
+  const checkout = () => pick(d14, /Wilacha 退房/)[0];
+  const backHome = (t) => [
+    mk(t,"包車返回清邁","公路","車程約3～3.5小時","—",false,HOME),
+    ...pick(d14, /抵達清邁民宿|Fah Lanna|Wualai|回民宿休息/),
+  ];
+  const whiteTemple = (t) => Object.assign(pick(d13, /白廟/)[0], {time:t});
+  const blueTemple = (t) => Object.assign(pick(d14, /藍廟/)[0], {time:t});
+  const hotSpring = (t) => Object.assign(pick(d13, /媽卡江/)[0], {time:t});
+  const evening13 = (massageTime) => pick(d13, /清萊按摩推薦|晚餐：清萊夜市|燈光秀|休息 \/ 河畔散步/)
+    .map(it=>/清萊按摩推薦/.test(it.title) && massageTime ? Object.assign(it, {time:massageTime}) : it);
+  const plans = [
+    {id:'cr-golden', short:'金三角版：白廟＋金三角＋鴉片博物館／藍廟＋九層塔觀音寺＋勝獅公園', tags:'🛕 白廟・🌏 金三角（泰寮緬交界）・🐘 勝獅公園',
+     book:'包車要先講好第一天下午會去金三角（清萊市區往北約1小時15分）；鴉片博物館 Hall of Opium 週一休館（11/13 是週五沒問題）',
+     theme13:'包車前往清萊＋白廟＋金三角（湄公河三國交界）＋鴉片博物館＋鐘樓燈光秀',
+     theme14:'清萊藍廟＋九層塔觀音寺 Wat Huay Pla Kang＋勝獅公園午餐＋返回清邁＋Fah Lanna 按摩＋週六步行街',
+     items13:[
+      mk("07:00","早餐＋退房寄放大件行李（只帶過夜包）","民宿附近","今天比原定早30分鐘出發","50～150",false,HOME),
+      mk("07:30","包車出發前往清萊","公路","","—",false,G('Chiang Rai city')),
+      hotSpring("09:30"),
+      whiteTemple("11:15"),
+      mk("12:15","午餐：白廟附近或清萊市區","清萊","","100～250",false,G('Wat Rong Khun White Temple Chiang Rai')),
+      mk("13:00","前往金三角","清萊往北約1小時15分","","—",false,G('Golden Triangle Sop Ruak')),
+      mk("14:15","🌏 金三角 Golden Triangle（泰國・寮國・緬甸交界）","清盛 Chiang Saen／Sop Ruak","湄公河與 Ruak 河交會處，站在泰國看寮國和緬甸；金色大佛、觀景台、三國交界紀念牌必拍；可加購湄公河遊船（約30～40分鐘），約1小時","0～300",false,G('Golden Triangle Park Sop Ruak')),
+      mk("15:15","鴉片博物館 Hall of Opium","金三角公園","泰國皇太后基金會設立的大型博物館，介紹金三角鴉片歷史，很有質感；外國人約200銖，約08:30-16:00、週一休館；看約45分鐘","200",false,G('Hall of Opium Golden Triangle')),
+      mk("16:00","返回清萊","公路","約1小時","—",false,G('Wilacha Chiang Rai')),
+      checkin("17:00"),
+      ...evening13("17:30"),
+     ],
+     items14:[
+      checkout(),
+      blueTemple("08:45"),
+      mk("09:45","🛕 九層塔觀音寺 Wat Huay Pla Kang","清萊市區西北約20分鐘","巨大白色觀音像（可搭電梯上到觀音像內部看風景，約40銖以現場為準）＋中式九層塔，免費參觀，約1小時","0～40",false,G('Wat Huay Pla Kang Chiang Rai')),
+      mk("11:15","🐘 勝獅公園 Singha Park＋午餐","清萊市區南邊（往清邁方向，順路）","勝獅啤酒的大型農場：茶園、草地、長頸鹿；可搭園區遊園車（約150銖，以現場為準）；園內餐廳 Bhu Bhirom 吃午餐","200～400",false,G('Singha Park Chiang Rai')),
+      ...backHome("13:30"),
+     ]},
+    {id:'cr-tea', short:'茶園版：白廟＋崔峰茶園下午茶／藍廟＋黑屋（輕鬆不趕）', tags:'🛕 白廟・🍵 茶園・🖤 黑屋',
+     book:'不用預約；第一天不去溫泉、玉佛寺，改去崔峰茶園看茶園梯田、喝下午茶',
+     theme13:'包車前往清萊＋白廟＋崔峰茶園 Choui Fong 下午茶＋鐘樓燈光秀',
+     theme14:'清萊藍廟＋黑屋博物館＋返回清邁＋Fah Lanna 按摩＋週六步行街',
+     items13:[
+      ...pick(d13, /早餐＋退房寄放/),
+      ...pick(d13, /包車出發前往清萊/),
+      whiteTemple("11:30"),
+      mk("12:45","午餐：清萊市區","清萊市區","推薦 Khao Soi Restaurant（清萊最有名的 Khao Soi）","100～200",false,G('Khao Soi Restaurant Chiang Rai')),
+      mk("14:00","🍵 崔峰茶園 Choui Fong Tea Plantation","Mae Chan 湄占（清萊市區往北約45分鐘）","整片山坡茶園梯田，玻璃屋茶館看茶園喝茶、吃抹茶甜點，很好拍；免費入園，約1.5小時","100～250",false,G('Choui Fong Tea Plantation')),
+      mk("15:45","回清萊","公路","約45分鐘","—",false,G('Wilacha Chiang Rai')),
+      checkin("16:30"),
+      ...evening13(),
+     ],
+     items14:[
+      checkout(),
+      ...pick(d14, /藍廟|黑屋|午餐：清萊市區/),
+      ...backHome("13:30"),
+     ]},
+    {id:'cr-salong', short:'美斯樂山城版：白廟＋美斯樂茶山／藍廟＋黑屋', tags:'🛕 白廟・⛰️ 美斯樂（雲南孤軍茶山村）・🖤 黑屋',
+     book:'第一天車程很長（清邁→清萊3小時＋清萊↔美斯樂來回約3小時），容易暈車的人先吃藥；包車要先講好會上美斯樂山',
+     theme13:'包車前往清萊＋白廟＋美斯樂 Doi Mae Salong 茶山（雲南村、101茶園、皇太后紀念塔）',
+     theme14:'清萊藍廟＋黑屋博物館＋返回清邁＋Fah Lanna 按摩＋週六步行街',
+     items13:[
+      mk("07:00","早餐＋退房寄放大件行李（只帶過夜包）","民宿附近","今天比原定早30分鐘出發","50～150",false,HOME),
+      mk("07:30","包車出發前往清萊","公路","","—",false,G('Chiang Rai city')),
+      whiteTemple("10:30"),
+      mk("11:30","前往美斯樂（路上簡單吃午餐）","清萊往北約1.5小時","","100～200",false,G('Doi Mae Salong')),
+      mk("13:00","⛰️ 美斯樂 Doi Mae Salong：雲南村＋午茶","美斯樂山城","國共內戰後雲南孤軍落腳的山城，講中文也通、有雲南菜（雲南麵、豬腳）；滿山烏龍茶園，到茶行試喝買茶","100～300",false,G('Doi Mae Salong')),
+      mk("14:15","101 茶園 101 Tea Plantation","美斯樂","山坡茶園觀景台，拍照很美，約45分鐘","0～100",false,G('101 Tea Plantation Mae Salong')),
+      mk("14:50","皇太后紀念塔 Princess Mother Pagoda","美斯樂山頂","山頂佛塔，可以看整片美斯樂山景，約30分鐘","0",false,G('Princess Mother Pagoda Doi Mae Salong')),
+      mk("15:30","下山回清萊","公路","約1.5小時","—",false,G('Wilacha Chiang Rai')),
+      checkin("17:00"),
+      ...evening13("17:30"),
+     ],
+     items14:[
+      checkout(),
+      ...pick(d14, /藍廟|黑屋|午餐：清萊市區/),
+      ...backHome("13:30"),
+     ]},
+    {id:'cr-easy', short:'輕鬆版：溫泉泡腳＋白廟＋早點入住／藍廟＋觀音寺＋勝獅公園', tags:'🐢 輕鬆・♨️ 溫泉・🐘 勝獅公園',
+     book:'不用預約；第一天早點入住 Wilacha 休息，晚上2小時按摩；第二天不去黑屋，改去九層塔觀音寺和勝獅公園',
+     theme13:'包車前往清萊＋媽卡江溫泉（慢慢泡腳）＋白廟＋早點入住休息＋2小時按摩＋鐘樓燈光秀',
+     theme14:'清萊藍廟＋九層塔觀音寺＋勝獅公園午餐＋返回清邁＋Fah Lanna 按摩＋週六步行街',
+     items13:[
+      ...pick(d13, /早餐＋退房寄放/),
+      ...pick(d13, /包車出發前往清萊/),
+      Object.assign(hotSpring("10:00"), {note:'118號公路64～65公里處，每日07:00-19:00；今天多停一下：煮溫泉蛋、泡腳，對面有私人礦泉浴池可以泡（另外付費），約1小時'}),
+      whiteTemple("12:00"),
+      mk("13:15","午餐：清萊市區","清萊市區","推薦 Khao Soi Restaurant","100～200",false,G('Khao Soi Restaurant Chiang Rai')),
+      checkin("14:30"),
+      mk("15:00","飯店休息／午睡","Wilacha Chiang Rai","","—",false,'https://maps.app.goo.gl/Sb3ux8SnXoJ63J3Y9?g_st=ic'),
+      mk("16:30","💆 清萊2小時按摩（今天按久一點）","清萊市區","清萊比清邁便宜，2小時約400～700銖；推薦 The Thai Massage ChiangRai（鐘樓附近）","400～700",false,G('The Thai Massage Chiang Rai')),
+      ...evening13().filter(it=>!/清萊按摩推薦/.test(it.title)),
+     ],
+     items14:[
+      checkout(),
+      blueTemple("08:45"),
+      mk("09:45","🛕 九層塔觀音寺 Wat Huay Pla Kang","清萊市區西北約20分鐘","巨大白色觀音像（可搭電梯上到觀音像內部看風景，約40銖以現場為準）＋中式九層塔，免費參觀，約1小時","0～40",false,G('Wat Huay Pla Kang Chiang Rai')),
+      mk("11:15","🐘 勝獅公園 Singha Park＋午餐","清萊市區南邊（往清邁方向，順路）","勝獅啤酒的大型農場：茶園、草地、長頸鹿；可搭園區遊園車（約150銖，以現場為準）；園內餐廳 Bhu Bhirom 吃午餐","200～400",false,G('Singha Park Chiang Rai')),
+      ...backHome("13:30"),
+     ]},
+  ];
+  const orig = {id:'cr-orig', short:'原定：溫泉＋白廟＋玉佛寺＋鐘樓／藍廟＋黑屋', tags:'📌 原本排好的行程', book:'',
+    theme13:d13.theme, theme14:d14.theme, items13:d13.items, items14:d14.items, isOrig:true};
+  return [orig].concat(plans);
+}
+let CR_PLANS = null;
+function getCrPlans(){ return CR_PLANS || (CR_PLANS = crPlans()); }
+function getCrPlan(id){ return getCrPlans().find(p=>p.id===id); }
+function crCurrentId(){ return swaps[CR_KEY] || 'cr-orig'; }
+function applyCr(){
+  const p = getCrPlan(crCurrentId());
+  [['11/13','theme13','items13'],['11/14','theme14','items14']].forEach(([date, th, its])=>{
+    const day = state.days.find(d=>d.date===date);
+    if(!day || !p) return;
+    day.theme = p[th];
+    day.items = p[its].map(it=>Object.assign({}, it, {id:uid()}));
+  });
+}
+function assignCr(id){
+  if(crCurrentId()===id) return;
+  const p = getCrPlan(id);
+  if(!confirm('清萊兩天（11/13～11/14）要換成「' + p.short + '」嗎？\n\n住 Wilacha 不變；11/14 晚上回清邁的 Fah Lanna 按摩＋週六步行街也不變。\n\n（這兩天在網頁上自己改過的內容會被蓋掉；隨時可以換回原定）')) return;
+  if(id==='cr-orig') delete swaps[CR_KEY]; else swaps[CR_KEY] = id;
+  saveSwaps();
+  applyCr();
+  renderAll();
 }
 
 let state = JSON.parse(JSON.stringify(defaultData()));
@@ -908,6 +1080,12 @@ function renderDaysPanel(){
     banner.innerHTML = `<span>🔄 這天可以前一天再換成別的一日遊（目前：${esc(getPlan(currentPlanId(day.date)).short)}）</span><button class="btn">看一日遊選單</button>`;
     banner.querySelector('button').addEventListener('click',()=>{ activeMainTab='trips'; renderAll(); window.scrollTo(0,0); });
     wrap.appendChild(banner);
+  } else if(day.date==='11/13' || day.date==='11/14'){
+    const banner = document.createElement('div');
+    banner.className = 'swap-banner';
+    banner.innerHTML = `<span>🔄 清萊兩天可以換別的玩法，住 Wilacha 不變（目前：${esc(getCrPlan(crCurrentId()).short)}）</span><button class="btn">看清萊選單</button>`;
+    banner.querySelector('button').addEventListener('click',()=>{ activeMainTab='trips'; renderAll(); const h = [...document.querySelectorAll('.trip-section')].pop(); if(h) h.scrollIntoView(); });
+    wrap.appendChild(banner);
   }
   const themeBar = document.createElement('div');
   themeBar.className = 'day-theme';
@@ -1010,6 +1188,14 @@ const THAI_PLACES = [
   [/Ristr8to/i, 'ริสเตรตโต้ คอฟฟี่', 'ถนนนิมมานเหมินท์'],
   [/夜間動物園|Night Safari/i, 'เชียงใหม่ไนท์ซาฟารี', 'อ.หางดง'],
   [/媽卡江|Mae Kachan/i, 'บ่อน้ำพุร้อนแม่ขะจาน', 'อ.เวียงป่าเป้า ทางหลวง 118'],
+  [/觀音寺|Huay Pla Kang/i, 'วัดห้วยปลากั้ง', 'อ.เมืองเชียงราย'],
+  [/勝獅|Singha Park/i, 'สิงห์ปาร์ค เชียงราย', 'อ.เมืองเชียงราย'],
+  [/鴉片博物館|Hall of Opium/i, 'หอฝิ่น อุทยานสามเหลี่ยมทองคำ', 'สบรวก อ.เชียงแสน'],
+  [/金三角|Golden Triangle/i, 'สามเหลี่ยมทองคำ', 'สบรวก อ.เชียงแสน'],
+  [/崔峰|Choui Fong/i, 'ไร่ชาฉุยฟง', 'อ.แม่จัน'],
+  [/101 茶園|101 Tea/i, 'ไร่ชา 101 ดอยแม่สลอง', 'ดอยแม่สลอง'],
+  [/皇太后紀念塔|Princess Mother/i, 'พระบรมธาตุเจดีย์ศรีนครินทร์', 'ดอยแม่สลอง'],
+  [/美斯樂|Mae Salong/i, 'ดอยแม่สลอง', 'อ.แม่ฟ้าหลวง'],
   [/白廟|Rong Khun/i, 'วัดร่องขุ่น', 'อ.เมืองเชียงราย'],
   [/清萊玉佛寺/, 'วัดพระแก้ว เชียงราย', 'อ.เมืองเชียงราย'],
   [/清萊鐘樓|Clock Tower/i, 'หอนาฬิกาเชียงราย', 'ใจกลางเมืองเชียงราย'],
