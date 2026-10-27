@@ -90,6 +90,26 @@ nav.tabs button:hover:not(.active){border-color:var(--gold);color:var(--ink);}
 .link-chip:hover{background:var(--coral);color:#fff;}
 .book-badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:#fff;background:var(--danger);border-radius:999px;padding:3px 10px;flex:none;cursor:default;border:none;}
 .book-badge:hover{background:#922d22;}
+.swap-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#FFF4EC;border:1px solid var(--coral-dim);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--navy-2);}
+.swap-now{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:16px;}
+.swap-now h3{margin:0 0 8px;font-size:15px;color:var(--navy);}
+.swap-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px;}
+.swap-row b{flex:none;color:var(--navy);min-width:72px;}
+.swap-row span{flex:1;min-width:160px;}
+.swap-actions{margin-top:10px;}
+.trip-card{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:10px;padding:0 14px;}
+.trip-card.orig{background:var(--paper-2);}
+.trip-card.on{border-color:var(--coral);}
+.trip-card summary{cursor:pointer;padding:12px 0;list-style-position:outside;}
+.trip-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:15px;color:var(--ink);display:inline;}
+.trip-meta{font-size:12px;color:var(--muted);margin-top:4px;}
+.trip-on{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;color:#fff;background:var(--coral);border-radius:999px;padding:1px 8px;}
+.trip-book{font-size:12.5px;background:#FFF9E8;border:1px solid var(--gold-dim);border-radius:8px;padding:8px 10px;margin-bottom:8px;}
+.trip-items{margin:0 0 10px;padding-left:20px;font-size:13px;}
+.trip-items li{margin-bottom:4px;}
+.trip-items small{display:block;color:var(--muted);font-size:11.5px;}
+.trip-swap{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;padding-bottom:12px;}
+.trip-swap .btn.here{background:var(--coral-dim);border-color:var(--coral);color:var(--ink);cursor:default;}
 .day-total{text-align:right;font-size:12px;color:var(--muted);margin:10px 2px 0;}
 table.simple{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line);table-layout:fixed;}
 table.simple th{background:var(--navy);color:var(--paper);font-size:12px;font-weight:500;text-align:left;padding:8px 10px;word-break:break-word;}
@@ -145,7 +165,7 @@ footer{text-align:center;font-size:11px;color:var(--muted);margin-top:30px;}
     <button class="btn" id="btnPrint">🖨 列印 / 存成 PDF</button>
     <button class="btn danger" id="btnReset">↺ 還原成預設行程</button>
   </div>
-  <p class="hint">此頁面完全在你的瀏覽器裡運作，重新整理頁面會回到最初版本 — 修改後記得按「匯出 JSON 存檔」，下次用「匯入 JSON」把檔案讀回來即可繼續編輯。標示 <span style="color:#8A6D06;">★ 必去</span> 的項目已鎖定，需先取消釘選才能刪除。</p>
+  <p class="hint">此頁面完全在你的瀏覽器裡運作，重新整理頁面會回到最初版本 — 修改後記得按「匯出 JSON 存檔」，下次用「匯入 JSON」把檔案讀回來即可繼續編輯（「🔄 一日遊選單」換過的天數這支手機會記住）。標示 <span style="color:#8A6D06;">★ 必去</span> 的項目已鎖定，需先取消釘選才能刪除。</p>
 
   <nav class="tabs" id="mainTabs"></nav>
 
@@ -488,12 +508,270 @@ function defaultData(){
   };
 }
 
+// 一日遊選單：清萊兩天以外，每天都從民宿出發、晚上回民宿，前一天可以換成選單裡任一個一日行程
+const SWAP_DATES = ['11/12','11/15','11/16','11/17'];
+const SWAP_KEY = 'cm-dayswap-v1';
+function dayTripPlans(){
+  const mk = (time,title,location,note,cost,pinned,map,booking)=>({id:uid(),time,title,location,note:note||"",cost:cost||"",pinned:!!pinned,map:map||"",booking:booking||""});
+  const G = q => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q) + '&hl=en';
+  const HOME = 'https://www.google.com/maps/search/?api=1&query=18.783861,99.002111&hl=en';
+  const KLOOK = q => 'https://www.klook.com/zh-TW/search/result/?query=' + encodeURIComponent(q);
+  const plans = [
+    {id:'lampang', short:'南邦一日（大象保育中心＋南邦鑾寺＋馬車）', tags:'🐘 大象・🛕 古寺・🐴 馬車', drive:'單程約1.5小時（約100公里）',
+     book:'包車先講好是「南邦一日」（比市區遠，可能加價）；大象保育中心不用預約，表演時間出發前打電話確認 054 829 333',
+     theme:'南邦 Lampang 一日：泰國大象保育中心＋南邦鑾寺＋馬車遊古城＋公雞碗博物館＋按摩',
+     items:[
+      mk("07:00","早餐：民宿附近／7-11","民宿附近","今天車程較遠，早點吃","50～100",false,HOME),
+      mk("07:45","包車出發前往南邦","11號公路","先到大象保育中心，約1小時15分","—",false,G('Thai Elephant Conservation Center Lampang')),
+      mk("09:00","🐘 泰國大象保育中心 Thai Elephant Conservation Center","南邦 Hang Chat（清邁—南邦公路旁）","泰國政府經營的大象保育機構；平日約09:45大象洗澡，表演約10:00、11:00、13:30；可餵香蕉；外國人門票約170銖（以現場為準），園區大可搭接駁車（約20銖）；停留約2小時","170～250",false,G('Thai Elephant Conservation Center Lampang')),
+      mk("11:30","🛕 南邦鑾寺 Wat Phra That Lampang Luang","南邦 Ko Kha 區","13世紀蘭納木造古寺，有城牆圍繞；小暗室裡有佛塔倒影的「針孔成像」；服裝過肩過膝，約1小時","20～50",false,G('Wat Phra That Lampang Luang')),
+      mk("12:45","午餐：南邦市區","南邦市區","南邦物價比清邁低，市區泰北麵、Khao Soi 都便宜","100～200",false,G('Lampang city')),
+      mk("14:00","🐴 南邦馬車遊古城","南邦市區（王河 Wang River 河畔）","南邦是泰國唯一還保留馬車的城市；一台坐2～3人，6人約2～3台；繞市區約30～60分鐘，每台約400～600銖，上車前先講價","150～300",false,G('Lampang horse carriage')),
+      mk("15:00","公雞碗博物館 Dhanabadee Ceramic Museum","南邦市區","南邦名產公雞碗的博物館＋工廠，可以自己彩繪公雞碗帶回家，也能買伴手禮","0～200",false,G('Dhanabadee Ceramic Museum Lampang')),
+      mk("16:00","包車返回清邁","公路","約1.5小時","—",false,HOME),
+      mk("17:45","回到民宿休息","民宿","","—",false,HOME),
+      mk("18:30","💆 按摩（吃飯前先按）","Loi Kroh Road／長康路","坐了一天車，按個腳底或泰式按摩；民宿旁 Fah Lanna 夜市分店或路邊平價店","250～600",false,G('Fah Lanna Massage - Night Bazaar Chiang Mai')),
+      mk("20:00","晚餐：長康路夜市 Anusarn／Kalare 美食區","長康路夜市","","200～400",false,G('Chiang Mai Night Bazaar Chang Klan Road')),
+      mk("21:30","回民宿","民宿","","",false,HOME),
+     ]},
+    {id:'maetaeng', short:'湄登一日（大象保護園區＋黏瀑布）', tags:'🐘 大象・💦 爬瀑布', drive:'單程約1小時',
+     book:'⚠️ 大象園區要前一天以上預約（Klook 或官網），選「不騎象」的保護園區；跟園區說包車「自行前往」並問集合時間；帶可弄濕的衣服、拖鞋、毛巾、防蚊液',
+     theme:'湄登 Mae Taeng 一日：大象保護園區（不騎象）半日＋黏瀑布 Bua Tong＋七彩泉＋按摩',
+     items:[
+      mk("07:00","早餐：民宿附近","民宿附近","","50～100",false,HOME),
+      mk("07:30","包車出發前往湄登 Mae Taeng 大象園區","清邁北邊約1小時","包車直接載去（多數園區也有接送，但今天下午還要去黏瀑布，用包車比較順）","—",false,G('Elephant sanctuary Mae Taeng Chiang Mai')),
+      mk("08:30","🐘 大象保護園區半日（不騎象）","Mae Taeng 湄登區","選不騎象、不表演的保護園區（如 Elephant Nature Park、Elephant Jungle Sanctuary、Kanta Elephant Sanctuary 等），內容通常是準備食物餵大象、陪大象散步、看大象洗澡；半日約1,500～2,500銖/人，多數含午餐，須預約","1,500～2,500",false,G('Elephant Nature Park Chiang Mai'),KLOOK('清邁 大象')),
+      mk("12:30","午餐（園區多數有附；沒有的話在湄登路邊吃）","Mae Taeng","","0～150",false,G('Mae Taeng Chiang Mai')),
+      mk("13:45","💦 黏瀑布 Bua Tong Sticky Waterfall","清邁東北約60公里","石灰岩沉積的瀑布不會滑，可以赤腳往上爬，泰國很少見；免費，每日約08:00-17:00；穿可弄濕的衣服、帶毛巾，約1.5小時","0",false,G('Bua Tong Sticky Waterfall')),
+      mk("15:15","七彩泉 Chet Si Fountain（黏瀑布上游）","黏瀑布同一個園區","瀑布的水源，泉水清澈，步行可到，約20分鐘","0",false,G('Chet Si Fountain Bua Tong')),
+      mk("16:00","包車返回市區","公路","約1小時","—",false,HOME),
+      mk("17:15","回民宿換衣服","民宿","","—",false,HOME),
+      mk("17:45","💆 按摩（爬完瀑布按腿最舒服）","Loi Kroh Road／長康路","Health Land（長康路）或 Fah Lanna 夜市分店","250～900",false,G('Health Land Spa Massage Chiang Mai')),
+      mk("19:30","晚餐：長康路夜市或 River Side 河畔餐廳","濱江區/長康路","","200～400",false,G('The Riverside Bar & Restaurant Chiang Mai')),
+      mk("21:30","回民宿","民宿","","",false,HOME),
+     ]},
+    {id:'chiangdao', short:'清道一日（班丹寺＋清道洞＋山中寺）', tags:'🛕 寺廟・🕳️ 鐘乳洞・⛰️ 山景', drive:'單程約1.5小時（約75公里）',
+     book:'包車先講好是「清道一日」（比市區遠，可能加價）；清道洞深處要現場請提燈嚮導（約200～300銖/組）；穿好走、不怕髒的鞋',
+     theme:'清道 Chiang Dao 一日：Wat Ban Den 班丹寺＋清道洞＋Wat Tham Pha Plong 山中寺＋按摩',
+     items:[
+      mk("07:00","早餐：民宿附近","民宿附近","","50～100",false,HOME),
+      mk("07:45","包車出發往北","107號公路","","—",false,G('Wat Ban Den Chiang Mai')),
+      mk("08:30","🛕 班丹寺 Wat Ban Den（Wat Den Salee Sri Muang Gan）","Mae Taeng 湄登區","金色、白色交錯的大型蘭納寺廟群，佛塔依十二生肖分開，遊客少、很好拍；免費（可隨喜捐獻），約1小時；服裝過肩過膝","0",false,G('Wat Ban Den Chiang Mai')),
+      mk("09:45","前往清道","107號公路","約1小時","—",false,G('Chiang Dao Cave')),
+      mk("10:45","🕳️ 清道洞 Chiang Dao Cave（Wat Tham Chiang Dao）","清道","深入石灰岩山的天然鐘乳洞；外國人約40銖，每日約07:00-17:00；有燈的區域可以自己走，深處要請提燈嚮導（約200～300銖/組，6人可分2組），約1小時；地面濕滑","40～100",false,G('Chiang Dao Cave')),
+      mk("12:00","午餐：清道山谷餐廳","清道","清道山谷有不少看山景的餐廳和咖啡店","150～300",false,G('Chiang Dao restaurant')),
+      mk("13:30","⛰️ Wat Tham Pha Plong 帕普隆洞寺","清道洞附近","森林裡的修行寺，爬約500階樓梯到半山腰佛塔，可以俯瞰清道山谷；免費，約1小時；寺內保持安靜","0",false,G('Wat Tham Pha Plong Chiang Dao')),
+      mk("14:45","包車返回清邁","公路","約1.5小時","—",false,HOME),
+      mk("16:30","回民宿休息","民宿","","—",false,HOME),
+      mk("17:30","💆 按摩（爬完樓梯按腿）","Loi Kroh Road／長康路","","250～600",false,G('Fah Lanna Massage - Night Bazaar Chiang Mai')),
+      mk("19:00","晚餐＋長康路夜市","長康路夜市","","200～400",false,G('Chiang Mai Night Bazaar Chang Klan Road')),
+      mk("21:00","回民宿","民宿","","",false,HOME),
+     ]},
+    {id:'maerim', short:'湄林山谷一日（瀑布＋植物園樹冠步道＋Mon Jam 山頂）', tags:'🌿 自然・🌸 花園・⛰️ 山景', drive:'單程約40分鐘～1.5小時',
+     book:'不用預約；Mon Jam 山上傍晚很涼，帶薄外套；山路彎多，容易暈車的人先吃藥',
+     theme:'湄林 Mae Rim 山谷一日：Mae Sa 瀑布＋詩麗吉皇后植物園（樹冠步道）＋Mon Jam 山頂花田＋按摩',
+     items:[
+      mk("07:30","早餐：民宿附近","民宿附近","","50～150",false,HOME),
+      mk("08:30","包車出發前往 Mae Sa 山谷","清邁北邊","約40分鐘","—",false,G('Mae Sa Waterfall')),
+      mk("09:15","💦 Mae Sa 瀑布 Mae Sa Waterfall","Mae Sa 山谷（國家公園）","共10層的瀑布，沿步道往上走，可以走到喜歡的層數就折返，約1小時；國家公園外國人門票約100銖（以現場為準）","100",false,G('Mae Sa Waterfall')),
+      mk("10:30","🌿 詩麗吉皇后植物園 Queen Sirikit Botanic Garden","Mae Rim","必走「樹冠步道 Canopy Walkway」（約400公尺長、離地約20公尺，在樹頂上走）；還有大型溫室群（蘭花、雨林、沙漠植物）；外國人約100銖（另收車輛費），約08:30-16:30／17:00；園區很大，包車開進去各點，約2小時","100",false,G('Queen Sirikit Botanic Garden')),
+      mk("12:45","午餐：Mae Rim 山谷景觀餐廳","Mae Rim","沿路有很多景觀餐廳和咖啡店","150～300",false,G('Mae Rim restaurant')),
+      mk("14:00","前往 Mon Jam（約1小時山路）","Mae Rim 山區","","—",false,G('Mon Jam Chiang Mai')),
+      mk("15:00","⛰️ Mon Jam 夢詹山（皇家計畫花田）","Nong Hoi 皇家計畫","海拔約1,600公尺，山坡花田、梯田和山景，有咖啡店可坐；傍晚涼，11月可能只有15度左右；約1.5小時；部分花園收少許門票","0～50",false,G('Mon Jam Chiang Mai')),
+      mk("16:30","下山回市區","公路","約1.5小時","—",false,HOME),
+      mk("18:00","回民宿","民宿","","—",false,HOME),
+      mk("18:30","💆 按摩（吃飯前先按）","Loi Kroh Road／長康路","","250～600",false,G('Fah Lanna Massage - Night Bazaar Chiang Mai')),
+      mk("20:00","晚餐：長康路夜市","長康路夜市","","200～400",false,G('Chiang Mai Night Bazaar Chang Klan Road')),
+      mk("21:30","回民宿","民宿","","",false,HOME),
+     ]},
+    {id:'lamphun', short:'南奔文化慢遊（古城遺址＋千年古寺＋白橋）', tags:'🛕 歷史・🐢 輕鬆・📷 拍照', drive:'單程約30～40分鐘',
+     book:'不用預約，行程輕鬆，適合前一天很累的時候；Wiang Kum Kam 的馬車／電車現場買',
+     theme:'南奔 Lamphun 文化慢遊：清邁古城遺址 Wiang Kum Kam＋哈利奔猜寺＋占瑪特威寺＋白橋＋2小時按摩',
+     items:[
+      mk("08:00","早餐：民宿附近（今天輕鬆，睡晚一點）","民宿附近","","50～150",false,HOME),
+      mk("09:00","包車出發","清邁市區南邊","約15分鐘","—",false,G('Wiang Kum Kam Chiang Mai')),
+      mk("09:20","🛕 清邁古城遺址 Wiang Kum Kam","清邁市區南邊","700多年前清邁建城前的都城遺址，散落20多座寺廟遺跡；搭馬車或小電車繞一圈約1小時（約200～300銖/車）","50～150",false,G('Wiang Kum Kam Chiang Mai')),
+      mk("10:45","前往南奔","公路","約30分鐘","—",false,G('Wat Phra That Hariphunchai Lamphun')),
+      mk("11:15","🛕 哈利奔猜寺 Wat Phra That Hariphunchai","南奔市區","泰北最古老的寺廟之一（約1,000年），金色大佛塔、巨大銅鑼；外國人約50銖（以現場為準），約45分鐘；服裝過肩過膝","50",false,G('Wat Phra That Hariphunchai Lamphun')),
+      mk("12:15","午餐：南奔市區","南奔市區","寺廟周邊有泰北麵、小吃","80～150",false,G('Lamphun city')),
+      mk("13:30","占瑪特威寺 Wat Chama Thewi（Wat Ku Kut）","南奔市區","哈利奔猜王國時期的階梯形佛塔，人少很安靜，約30分鐘","0～20",false,G('Wat Chama Thewi Lamphun')),
+      mk("14:15","📷 白橋 Tha Chomphu White Bridge","南奔 Mae Tha","百年白色鐵路橋，拍照景點，約30分鐘（車程約30分鐘）","0",false,G('Tha Chomphu White Bridge')),
+      mk("15:15","包車返回清邁","公路","約1小時","—",false,HOME),
+      mk("16:30","💆 2小時長按摩（今天時間多，按久一點）","古城或長康路","Let's Relax、Fah Lanna 本店、Health Land 都有2小時套餐","500～1,200",false,G('Health Land Spa Massage Chiang Mai')),
+      mk("18:45","晚餐：Huen Phen 泰北菜","古城 Ratchamanka Rd","在地人也愛的泰北老店，Khao Soi、泰北香腸、泰北拼盤","150～300",false,G('Huen Phen Chiang Mai')),
+      mk("20:15","長康路夜市散步","長康路夜市","","—",false,G('Chiang Mai Night Bazaar Chang Klan Road')),
+      mk("21:30","回民宿","民宿","","",false,HOME),
+     ]},
+    {id:'hangdong', short:'杭東一日（大峽谷玩水＋木雕村＋皇家花園）', tags:'💦 玩水・🌸 花園・🛍️ 手工藝', drive:'單程約30分鐘',
+     book:'大峽谷水上樂園建議前一天在 Klook 買票（網路價約1,000銖左右，以實際為準）；帶泳衣、毛巾、防曬',
+     theme:'杭東 Hang Dong 一日：清邁大峽谷水上樂園＋Baan Tawai 木雕村＋拉差帕皇家花園＋按摩',
+     items:[
+      mk("08:00","早餐：民宿附近","民宿附近","","50～150",false,HOME),
+      mk("09:00","包車出發前往清邁大峽谷","Hang Dong","約30分鐘","—",false,G('Grand Canyon Water Park Chiang Mai')),
+      mk("09:30","💦 清邁大峽谷水上樂園 Grand Canyon Water Park","Hang Dong","舊採石場改建的湖，有水上充氣樂園、滑水道、跳水台；11月早上水涼，中午後較舒服；不想玩水的人可在旁邊餐廳看風景；約3小時","900～1,100",false,G('Grand Canyon Water Park Chiang Mai'),KLOOK('Grand Canyon Water Park Chiang Mai')),
+      mk("12:30","午餐：大峽谷周邊餐廳","Hang Dong","","150～250",false,G('Grand Canyon Chiang Mai restaurant')),
+      mk("13:45","🛍️ Baan Tawai 木雕村","Hang Dong","清邁最大的木雕手工藝村，家具、木雕、居家擺飾，慢慢逛約1小時","0",false,G('Baan Tawai Village Chiang Mai')),
+      mk("15:00","🌸 拉差帕皇家花園 Royal Park Rajapruek","清邁夜間動物園旁","大型皇家花園，泰式皇家館、蘭花園、各國庭園，可搭園區電車；外國人約200銖，每日約08:00-18:00，約1.5小時","200",false,G('Royal Park Rajapruek Chiang Mai')),
+      mk("16:45","回市區","公路","約30分鐘","—",false,HOME),
+      mk("17:30","💆 按摩（吃飯前先按）","Loi Kroh Road／長康路","","250～600",false,G('Fah Lanna Massage - Night Bazaar Chiang Mai')),
+      mk("19:00","晚餐：長康路夜市或 River Side 河畔餐廳","濱江區/長康路","","200～400",false,G('The Riverside Bar & Restaurant Chiang Mai')),
+      mk("21:00","回民宿","民宿","","",false,HOME),
+     ]},
+    {id:'relax', short:'輕鬆日（泰菜料理課＋2小時SPA＋帝王餐秀）', tags:'🍳 體驗・💆 SPA・💃 晚餐秀', drive:'不用長途包車（料理學校多數到民宿接送）',
+     book:'⚠️ 料理課、帝王餐都要前一天預約（Klook）；料理課選「上午班含市場導覽」，訂的時候填民宿地址 147/2 Loi Kroh Road 讓學校來接；2小時SPA也建議先預約',
+     theme:'輕鬆日：上午泰菜料理課（含市場導覽）＋下午2小時SPA＋晚上 Khantoke 帝王餐＋蘭納舞蹈秀',
+     items:[
+      mk("08:00","料理學校到民宿接送","民宿","早餐不用吃太飽，上課會一直吃","—",false,HOME),
+      mk("08:30","🍳 泰式料理課 Thai Cooking Class（上午班，含逛傳統市場）","清邁市區或郊區農場","推薦 Thai Farm Cooking School（有機農場）、Grandma's Home Cooking School、Asia Scenic；先逛市場認識香料，再每人自己做4～6道菜（冬蔭功、綠咖哩、炒河粉、芒果糯米），做完就是午餐，會送食譜；約1,000～1,500銖/人","1,000～1,500",false,G('Thai Farm Cooking School Chiang Mai'),KLOOK('清邁 料理課')),
+      mk("13:30","回民宿休息／午睡","民宿","","—",false,HOME),
+      mk("15:00","💆 2小時 SPA（今天的重點放鬆）","長康路／古城","Health Land（長康路，2小時套餐約700～900）、Let's Relax、Fah Lanna 本店（有接送）","700～1,500",false,G('Health Land Spa Massage Chiang Mai'),'https://www.klook.com/zh-TW/destination/c5-chiang-mai/1011-spa/'),
+      mk("17:30","自由時間：逛長康路夜市、買伴手禮","長康路夜市","","—",false,G('Chiang Mai Night Bazaar Chang Klan Road')),
+      mk("18:45","包車／Grab 前往帝王餐","清邁市區","約15分鐘","—",false,G('Old Chiang Mai Cultural Center')),
+      mk("19:00","💃 Khantoke 帝王餐＋蘭納傳統舞蹈秀","Old Chiang Mai Cultural Center（或 Khum Khantoke）","坐在矮桌旁吃蘭納傳統料理（可續），邊看傳統舞蹈和山地民族表演，約19:00-21:30；約600～900銖/人，需預約","600～900",false,G('Old Chiang Mai Cultural Center'),KLOOK('清邁 帝王餐')),
+      mk("21:45","回民宿","民宿","","",false,HOME),
+     ]},
+    {id:'rainy', short:'雨天／室內日（3D美術館＋文化中心＋購物中心）', tags:'☔ 室內・❄️ 冷氣・🛍️ 購物', drive:'都在市區',
+     book:'不用預約；下雨或太熱時的備案；清邁藝術文化中心各網站寫的休館日不同（可能週一或週一、二休），去之前先確認',
+     closed:{'一':'清邁藝術文化中心可能週一休館（可改去 Maya／One Nimman 商場）','二':'清邁藝術文化中心可能週二休館（可改去 Maya／One Nimman 商場）'},
+     theme:'雨天／室內日：Art in Paradise 3D 美術館＋清邁藝術文化中心＋Central 購物中心＋按摩',
+     items:[
+      mk("08:30","早餐：民宿附近","民宿附近","","50～150",false,HOME),
+      mk("09:30","🖼️ Art in Paradise 3D 幻覺美術館","Chiang Mai Land（長康路南邊）","室內冷氣，100多幅3D畫可以走進畫裡拍照，6人一起拍超好玩，約2小時；外國人約400銖（Klook 較便宜）","300～400",false,G('Art in Paradise Chiang Mai'),KLOOK('Art in Paradise Chiang Mai')),
+      mk("11:45","午餐：古城（見美食清單）","古城","","100～250",false,G('Old City Chiang Mai restaurant')),
+      mk("13:15","🏛️ 清邁藝術文化中心 Chiang Mai City Arts & Cultural Centre","三王紀念碑後方","用模型、影片介紹清邁歷史，冷氣室內，約1小時；約90銖；休館日各網站寫法不同，先確認","90",false,G('Chiang Mai City Arts and Cultural Centre')),
+      mk("14:30","🛍️ Central Chiang Mai（Central Festival）購物中心","清邁東北 Superhighway","室內大商場，Tops 超市買伴手禮（乾燥芒果、泰式醬料、零食）、美食街；約2小時","—",false,G('Central Chiang Mai Festival')),
+      mk("17:00","💆 按摩（回長康路）","Loi Kroh Road／長康路","","250～900",false,G('Health Land Spa Massage Chiang Mai')),
+      mk("19:00","晚餐：長康路夜市 Anusarn 美食區（有屋頂）","長康路夜市","","200～400",false,G('Anusarn Market Chiang Mai')),
+      mk("21:00","回民宿","民宿","","",false,HOME),
+     ]},
+  ];
+  // 原定的四天也放進選單，換掉之後可以換回來，或搬到別天
+  const base = defaultData();
+  const orig = SWAP_DATES.map(date=>{
+    const d = base.days.find(x=>x.date===date);
+    return {id:'orig-'+date, short:'原定 '+date+'：'+d.theme.split('＋').slice(0,3).join('＋'), tags:'📌 原本排好的行程', drive:'',
+      book: date==='11/15' ? '週日步行街只有週日晚上；女子監獄按摩週日營業到16:30' : (date==='11/16' ? 'Kew Mae Pan 徒步需包車＋現場請嚮導，出發前打電話確認步道開放' : ''),
+      only: date==='11/15' ? '日' : '', onlyNote: date==='11/15' ? '週日步行街只有週日，換到別天就逛不到了' : '',
+      theme:d.theme, items:d.items, isOrig:true};
+  });
+  return orig.concat(plans);
+}
+let PLANS = null;
+function getPlans(){ return PLANS || (PLANS = dayTripPlans()); }
+function getPlan(id){ return getPlans().find(p=>p.id===id); }
+
+let swaps = {};
+function loadSwaps(){
+  try{ swaps = JSON.parse(localStorage.getItem(SWAP_KEY) || '{}') || {}; }catch(e){ swaps = {}; }
+  // 分享連結：#swap=11-12:lampang,11-16:relax
+  const m = location.hash.match(/swap=([^&]*)/);
+  if(m){
+    swaps = {};
+    decodeURIComponent(m[1]).split(',').forEach(pair=>{
+      const [d, id] = pair.split(':');
+      const date = (d||'').replace('-','/');
+      if(SWAP_DATES.includes(date) && getPlan(id)) swaps[date] = id;
+    });
+    saveSwaps();
+    try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+  }
+  Object.keys(swaps).forEach(d=>{ if(!SWAP_DATES.includes(d) || !getPlan(swaps[d])) delete swaps[d]; });
+}
+function saveSwaps(){ try{ localStorage.setItem(SWAP_KEY, JSON.stringify(swaps)); }catch(e){} }
+function currentPlanId(date){ return swaps[date] || 'orig-'+date; }
+function applyPlanToDay(date){
+  const day = state.days.find(d=>d.date===date);
+  const p = getPlan(currentPlanId(date));
+  if(!day || !p) return;
+  day.theme = p.theme;
+  day.items = p.items.map(it=>Object.assign({}, it, {id:uid()}));
+}
+function applySwaps(){ Object.keys(swaps).forEach(applyPlanToDay); }
+function weekdayOf(date){ const d = state.days.find(x=>x.date===date); return d ? d.weekday : ''; }
+function planWarning(p, date){
+  const wd = weekdayOf(date);
+  if(p.only && p.only!==wd) return p.onlyNote || ('這個行程適合週' + p.only);
+  if(p.closed && p.closed[wd]) return p.closed[wd];
+  return '';
+}
+function assignPlan(date, pid){
+  const cur = currentPlanId(date);
+  if(cur===pid) return;
+  const other = SWAP_DATES.find(d=>d!==date && currentPlanId(d)===pid);
+  const p = getPlan(pid);
+  let msg = date + '(' + weekdayOf(date) + ') 要換成「' + p.short + '」嗎？';
+  if(other) msg += '\n\n這個行程原本在 ' + other + '，' + other + ' 會換成 ' + date + ' 原本的「' + getPlan(cur).short + '」（兩天互換）。';
+  const w1 = planWarning(p, date), w2 = other ? planWarning(getPlan(cur), other) : '';
+  if(w1) msg += '\n\n⚠️ ' + w1;
+  if(w2) msg += '\n\n⚠️ ' + other + '：' + w2;
+  msg += '\n\n（這天在網頁上自己改過的內容會被蓋掉；隨時可以從選單換回原定行程）';
+  if(!confirm(msg)) return;
+  swaps[date] = pid;
+  if(other) swaps[other] = cur;
+  SWAP_DATES.forEach(d=>{ if(swaps[d]==='orig-'+d) delete swaps[d]; });
+  saveSwaps();
+  applyPlanToDay(date);
+  if(other) applyPlanToDay(other);
+  renderAll();
+}
+function shareSwapsUrl(){
+  const s = SWAP_DATES.filter(d=>swaps[d]).map(d=>d.replace('/','-')+':'+swaps[d]).join(',');
+  return location.origin + location.pathname + location.search + (s ? '#swap=' + s : '');
+}
+
+function renderTripsPanel(){
+  const wrap = document.createElement('div');
+  const intro = document.createElement('p');
+  intro.className = 'hint';
+  intro.style.fontSize = '13px';
+  intro.textContent = '除了 11/13～14 清萊兩天，其他天都是從民宿出發、晚上回民宿，所以 11/12、11/15、11/16、11/17 都可以前一天再決定要玩哪一個。按「換到 11/xx」就會把那天的每日行程整個換掉；換到已經排在別天的行程時，兩天會互換。這支手機會記住選擇；要讓大家看到一樣的安排，按「複製分享連結」傳到群組。';
+  wrap.appendChild(intro);
+
+  const now = document.createElement('div');
+  now.className = 'swap-now';
+  now.innerHTML = '<h3>目前安排</h3>' + SWAP_DATES.map(d=>{
+    const p = getPlan(currentPlanId(d));
+    return `<div class="swap-row"><b>${d}(${esc(weekdayOf(d))})</b><span>${esc(p.short)}</span>${swaps[d] ? `<button class="btn" data-restore="${d}">換回原定</button>` : ''}</div>`;
+  }).join('') + '<div class="swap-actions"><button class="btn primary" data-share>📤 複製分享連結</button></div>';
+  now.querySelectorAll('[data-restore]').forEach(b=>b.addEventListener('click',()=>assignPlan(b.dataset.restore, 'orig-'+b.dataset.restore)));
+  now.querySelector('[data-share]').addEventListener('click',()=>{
+    const url = shareSwapsUrl();
+    const done = ()=>alert('已複製分享連結，貼到群組，大家點開就會看到一樣的安排：\n' + url);
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, ()=>prompt('複製這個連結：', url));
+    else prompt('複製這個連結：', url);
+  });
+  wrap.appendChild(now);
+
+  getPlans().forEach(p=>{
+    const onDate = SWAP_DATES.find(d=>currentPlanId(d)===p.id);
+    const total = p.items.reduce((s,it)=>s+parseCostMid(it.cost),0);
+    const card = document.createElement('details');
+    card.className = 'trip-card' + (p.isOrig ? ' orig' : '') + (onDate ? ' on' : '');
+    card.innerHTML = `
+      <summary>
+        <div class="trip-title">${esc(p.short)}</div>
+        <div class="trip-meta">${esc(p.tags)}${p.drive ? '・🚐 ' + esc(p.drive) : ''}・約 ${Math.round(total).toLocaleString()} 銖／人${onDate ? `<span class="trip-on">目前排在 ${onDate}</span>` : ''}</div>
+      </summary>
+      ${p.book ? `<div class="trip-book">📝 前一天要做：${esc(p.book)}</div>` : ''}
+      <ol class="trip-items">${p.items.map(it=>`<li><b>${esc(it.time)}</b> ${esc(it.title)}<small>${esc(it.location)}</small></li>`).join('')}</ol>
+      <div class="trip-swap">換到：${SWAP_DATES.map(d=>{
+        const here = currentPlanId(d)===p.id;
+        const w = planWarning(p, d);
+        return `<button class="btn${here?' here':''}" data-date="${d}" ${here?'disabled':''} title="${esc(w)}">${here?'✓ ':''}${d}(${esc(weekdayOf(d))})${w?' ⚠️':''}</button>`;
+      }).join('')}</div>`;
+    card.querySelectorAll('.trip-swap button[data-date]').forEach(b=>b.addEventListener('click',()=>assignPlan(b.dataset.date, p.id)));
+    wrap.appendChild(card);
+  });
+  return wrap;
+}
+
 let state = JSON.parse(JSON.stringify(defaultData()));
 let activeMainTab = 'days';
 let activeDay = 0;
 
 const TABS = [
   {key:'days', label:'每日行程'},
+  {key:'trips', label:'🔄 一日遊選單'},
   {key:'backup', label:'備用行程'},
   {key:'massage', label:'按摩清單'},
   {key:'food', label:'米其林＆美食清單'},
@@ -555,6 +833,7 @@ function renderPanels(){
   const panel = document.createElement('div');
   panel.className = 'panel active';
   if(activeMainTab==='days') panel.appendChild(renderDaysPanel());
+  else if(activeMainTab==='trips') panel.appendChild(renderTripsPanel());
   else panel.appendChild(renderSimplePanel(activeMainTab));
   root.appendChild(panel);
   root.querySelectorAll('table.simple textarea').forEach(autosize);
@@ -592,6 +871,13 @@ function renderDaysPanel(){
   });
 
   const day = state.days[activeDay];
+  if(SWAP_DATES.includes(day.date)){
+    const banner = document.createElement('div');
+    banner.className = 'swap-banner';
+    banner.innerHTML = `<span>🔄 這天可以前一天再換成別的一日遊（目前：${esc(getPlan(currentPlanId(day.date)).short)}）</span><button class="btn">看一日遊選單</button>`;
+    banner.querySelector('button').addEventListener('click',()=>{ activeMainTab='trips'; renderAll(); window.scrollTo(0,0); });
+    wrap.appendChild(banner);
+  }
   const themeBar = document.createElement('div');
   themeBar.className = 'day-theme';
   themeBar.innerHTML = `<input data-f="theme" value="${esc(day.theme)}" placeholder="這天的主題" /><input data-f="stay" value="${esc(day.stay)}" placeholder="住宿地" style="max-width:220px;" />`;
@@ -651,6 +937,34 @@ const THAI_PLACES = [
   [/清邁機場|CNX|前往清邁機場|抵達機場|機場免稅|飛機起飛/, 'ท่าอากาศยานนานาชาติเชียงใหม่', 'สนามบินเชียงใหม่'],
   [/Wilacha|維拉茶/i, 'วิลาชา เชียงราย', 'ต.ริมกก อ.เมืองเชียงราย', {th:'399/1 ถนนแม่กก ตำบลริมกก เมือง เชียงราย 57100', en:'399/1 Moo 4, T. Rimkok, A. Muang, Chiang Rai 57100'}],
   [/民宿|Check-out|退房/, 'ที่พัก (ใกล้ไนท์บาซาร์)', 'ถนนลอยเคราะห์ ใกล้ไนท์บาซาร์', {th:'147/2, ถนนลอยเคราะห์, ช้างคลาน, เมืองเชียงใหม่, เชียงใหม่, 50100', en:'147/2 Loi Kroh Road, Tambon Chang Khlan, Chang Wat Chiang Mai 50100'}],
+  [/大象保育中心|Elephant Conservation/i, 'ศูนย์อนุรักษ์ช้างไทย', 'อ.ห้างฉัตร จ.ลำปาง'],
+  [/南邦鑾寺|Lampang Luang/i, 'วัดพระธาตุลำปางหลวง', 'อ.เกาะคา จ.ลำปาง'],
+  [/南邦馬車/, 'รถม้าลำปาง', 'ตัวเมืองลำปาง'],
+  [/公雞碗|Dhanabadee/i, 'พิพิธภัณฑ์เซรามิคธนบดี', 'ตัวเมืองลำปาง'],
+  [/南邦|Lampang/i, 'ตัวเมืองลำปาง', 'จ.ลำปาง'],
+  [/大象保護園區|大象園區|Elephant Nature Park/i, 'ปางช้าง แม่แตง (ไม่ขี่ช้าง)', 'อ.แม่แตง'],
+  [/黏瀑布|Bua Tong/i, 'น้ำตกบัวตอง (น้ำตกติดหนึบ)', 'อ.แม่แตง'],
+  [/七彩泉|Chet Si/i, 'น้ำพุเจ็ดสี', 'ในน้ำตกบัวตอง อ.แม่แตง'],
+  [/班丹寺|Wat Ban Den/i, 'วัดบ้านเด่น (วัดเด่นสะหรีศรีเมืองแกน)', 'อ.แม่แตง'],
+  [/清道洞|Chiang Dao Cave/i, 'ถ้ำเชียงดาว', 'อ.เชียงดาว'],
+  [/Pha Plong|帕普隆/i, 'วัดถ้ำผาปล่อง', 'อ.เชียงดาว'],
+  [/清道|Chiang Dao/i, 'อำเภอเชียงดาว', 'อ.เชียงดาว'],
+  [/Mae Sa/i, 'น้ำตกแม่สา', 'อ.แม่ริม'],
+  [/植物園|Botanic Garden/i, 'สวนพฤกษศาสตร์สมเด็จพระนางเจ้าสิริกิติ์', 'อ.แม่ริม'],
+  [/Mon Jam|夢詹/i, 'ม่อนแจ่ม', 'บ้านหนองหอย อ.แม่ริม'],
+  [/Wiang Kum Kam|古城遺址/i, 'เวียงกุมกาม', 'อ.สารภี'],
+  [/哈利奔猜|Hariphunchai/i, 'วัดพระธาตุหริภุญชัย', 'ตัวเมืองลำพูน'],
+  [/占瑪特威|Chama Thewi/i, 'วัดจามเทวี', 'ตัวเมืองลำพูน'],
+  [/白橋|White Bridge/i, 'สะพานขาวทาชมภู', 'อ.แม่ทา จ.ลำพูน'],
+  [/南奔|Lamphun/i, 'ตัวเมืองลำพูน', 'จ.ลำพูน'],
+  [/大峽谷|Grand Canyon/i, 'แกรนด์แคนยอน วอเตอร์พาร์ค', 'อ.หางดง'],
+  [/木雕村|Tawai/i, 'หมู่บ้านหัตถกรรมบ้านถวาย', 'อ.หางดง'],
+  [/皇家花園|Rajapruek/i, 'อุทยานหลวงราชพฤกษ์', 'ใกล้เชียงใหม่ไนท์ซาฟารี'],
+  [/帝王餐|Khantoke/i, 'ศูนย์วัฒนธรรมเชียงใหม่ (ขันโตก)', ''],
+  [/Art in Paradise|3D/i, 'อาร์ตอินพาราไดซ์ เชียงใหม่', 'เชียงใหม่แลนด์ ถนนช้างคลาน'],
+  [/藝術文化中心|Arts & Cultural/i, 'หอศิลปวัฒนธรรมเมืองเชียงใหม่', 'หลังอนุสาวรีย์สามกษัตริย์'],
+  [/Central/i, 'เซ็นทรัล เชียงใหม่ (เซ็นทรัลเฟสติวัล)', 'ถนนซุปเปอร์ไฮเวย์'],
+  [/Huen Phen/i, 'เฮือนเพ็ญ', 'ถนนราชมรรคา เมืองเก่า'],
   [/Lemongrass/i, 'ร้านอาหารเลมอนกราส', 'ถนนลอยเคราะห์ ใกล้ไนท์บาซาร์'],
   [/Chedi Luang|契迪龍/i, 'วัดเจดีย์หลวง', 'ถนนพระปกเกล้า เมืองเก่า'],
   [/Phra Singh|帕辛寺/i, 'วัดพระสิงห์', 'ปลายถนนราชดำเนิน เมืองเก่า'],
@@ -1064,6 +1378,7 @@ document.getElementById('fileImport').addEventListener('change',e=>{
       const data = JSON.parse(ev.target.result);
       if(!data.days || !data.meta) throw new Error('格式不符');
       state = data;
+      swaps = {}; saveSwaps();
       activeDay = 0;
       renderAll();
     }catch(err){
@@ -1079,11 +1394,14 @@ document.getElementById('btnPrint').addEventListener('click',()=>window.print())
 document.getElementById('btnReset').addEventListener('click',()=>{
   if(!confirm('確定要還原成最初版本嗎？目前的修改會消失（建議先匯出 JSON 備份）。')) return;
   state = JSON.parse(JSON.stringify(defaultData()));
+  swaps = {}; saveSwaps();
   activeDay = 0;
   activeMainTab = 'days';
   renderAll();
 });
 
+loadSwaps();
+applySwaps();
 renderAll();
 </script>
 </body>
