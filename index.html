@@ -75,6 +75,7 @@ nav.tabs button:hover:not(.active){border-color:var(--gold);color:var(--ink);}
 #driver .thaddr small{display:block;font-size:16px;font-weight:400;color:#6b7280;}
 #driver .zh{font-size:14px;color:#6b7280;}
 #driver iframe{width:100%;height:48vh;min-height:280px;border:1px solid var(--line);border-radius:12px;}
+#driver .big.apple{background:#1b2a44;}
 #driver .big{display:block;text-align:center;font-size:20px;font-weight:700;text-decoration:none;color:#fff;background:var(--coral);border-radius:12px;padding:14px;}
 .modal-card{background:#fff;border-radius:16px;width:100%;max-width:640px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.3);}
 .modal-head{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--paper-2);}
@@ -163,6 +164,7 @@ footer{text-align:center;font-size:11px;color:var(--muted);margin-top:30px;}
     <div class="zh" id="dZh"></div>
     <iframe id="dMap" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="แผนที่"></iframe>
     <a class="big" id="dOpen" target="_blank" rel="noopener">เปิดใน Google Maps（泰文導航）</a>
+    <a class="big apple" id="dApple" target="_blank" rel="noopener">เปิดใน Apple Maps（Apple 地圖）</a>
   </div>
 </div>
 
@@ -444,7 +446,7 @@ function defaultData(){
         ["⚠️ 清萊兩天一夜包車","11/13-14","提前1～2個月","https://www.klook.com/en-HK/activity/1598-private-car-charter-thailand-chiang-mai/","同一台車跟全程最方便；司機過夜補助另計300～500銖"],
         ["⚠️ 茵他儂國家公園＋Kew Mae Pan 徒步一日遊（週一）","11/16","提前1～2週","https://tripsora.musement.com/uk/chiang-mai/doi-inthanon-park-and-kew-mae-pan-trail-private-tour-from-chiang-mai-489338","💡 推薦：包車自行前往（當天包車已含在每日包車內），現場付國家公園門票約300銖/人＋Kew Mae Pan嚮導200銖/組，6人合計約2,000銖；若改訂私人團約2,600銖/人起×6人。步道每年約11/1重開，出發前打 053 286 729 確認；穿長褲運動鞋、帶薄外套"],
         ["⚠️ Baan Landai 告別晚宴","11/17","提前3～7天","https://www.baan-landai.com/","米其林推薦精緻泰北料理；6人建議先訂位"],
-        ["✅ 清萊住宿（已訂）","11/13-14","已完成","Booking.com","Wilacha Chiang Rai（維拉茶清萊酒店），399/1 Moo 4, T. Rimkok, A. Muang, Chiang Rai 57100（泰文：399/1 ถนนแม่กก ตำบลริมกก เมือง เชียงราย 57100，Grab 上查到的地址，叫 Grab 時可直接搜尋）；14:00起入住、12:00前退房；6人4間房，已用Booking.com付款"],
+        ["✅ 清萊住宿（已訂）","11/13-14","已完成","Booking.com","Wilacha Chiang Rai（維拉茶清萊酒店），399/1 Moo 4, T. Rimkok, A. Muang, Chiang Rai 57100（泰文：399/1 ถนนแม่กก ตำบลริมกก เมือง เชียงราย 57100，Grab 上查到的地址，叫 Grab 時可直接搜尋；Apple 地圖：https://maps.apple.com/?address=399%2F1%20%E0%B8%96%E0%B8%99%E0%B8%99%E0%B9%81%E0%B8%A1%E0%B9%88%E0%B8%81%E0%B8%81%20%E0%B8%95%E0%B8%B3%E0%B8%9A%E0%B8%A5%E0%B8%A3%E0%B8%B4%E0%B8%A1%E0%B8%81%E0%B8%81%20%E0%B9%80%E0%B8%A1%E0%B8%B7%E0%B8%AD%E0%B8%87%20%E0%B9%80%E0%B8%8A%E0%B8%B5%E0%B8%A2%E0%B8%87%E0%B8%A3%E0%B8%B2%E0%B8%A2%2057100 ）；14:00起入住、12:00前退房；6人4間房，已用Booking.com付款"],
         ["夜間動物園門票","11/12","可當天但Klook較便宜","https://www.klook.com/zh-TW/destination/c5-chiang-mai/?city_ids=5&frontend_id_list=28","Klook先買票比現場便宜；含tram約1,200～1,600銖/人"],
         ["⚠️ Fah Lanna Massage - Night Bazaar（民宿旁）","11/14","提前1天","電話 053 416191","長康路 Pavilion 夜市旁（離民宿約60公尺）；6人同時段建議先預約；官網營業12:00-21:00，最後預約20:00"],
         ["Health Land Spa 按摩","11/11","提前1天","https://www.klook.com/zh-TW/activity/31359-health-land-spa-treatments-chiang-mai/","CNN評選全球15大最幸福按摩店；2小時套餐700～900銖"],
@@ -474,7 +476,7 @@ function defaultData(){
         ["按摩SPA⑥ 其他Klook可預約","Zira Spa（市區，中高價位）、The Square Massage（寧曼，新開幕）、Suandok Health Spa（當地人推薦）、清邁門 Relax Express（平價快按摩）；完整清邁SPA/按摩Klook頁面：https://www.klook.com/zh-TW/destination/c5-chiang-mai/1011-spa/ ；6人同行建議都先Klook預約，避免現場客滿"],
         ["清萊按摩推薦（11/13）","① The Thai Massage ChiangRai（⭐4.8，鐘樓附近，11:00-22:00，現代乾淨，遊客評為泰國最棒按摩之一，泰式/腳底約250～350/小時，建議先預約）；② Siamese Spa（⭐4.9，1055 Sanambin Rd，傳統泰式SPA，氣氛寧靜，技師專業）；③ Monmueng Lanna Massage（⭐4.4，879/7-8 Phahonyothin Rd，蘭納風格，300/小時，先洗腳再按）；④ Sabai Thai Massage（⭐4.7，Rop Wiang區飯店3樓，安靜不趕時間）；⑤ Natural Thai Spa and Cafe（較高級，2小時泰式1000銖，附冷毛巾和茶）；⑥ Tivaa Ratrii Spa at The Riverie（河畔飯店SPA，泰式60/90/120分=1000/1300/1500銖）。清萊按摩比清邁便宜，市區一般200～350/小時，6人可現場或電話預約"],
         ["清萊午餐/美食推薦（11/13）","① Khao Soi Restaurant（⭐4.7，清萊夜市南邊，清萊最有名Khao Soi專賣店，便宜，每日僅5-6道泰式料理，椰奶咖哩湯底＋酥脆麵條，必吃！）；② Leelawadee Chiang Rai Restaurant（⭐4.2，河畔Kok River，泰式料理，有現場演奏區和安靜河畔景觀區，適合6人聚餐，價格合理）；③ Chivit Thamma Da Coffee House Bistro Bar（河畔人氣餐酒館，泰式+西式，咖啡甜點也強，環境舒適）；④ RIBSandCO（⭐4.6，美式餐廳，招牌豬肋排入口即化、軟殼蟹沙拉，不想吃泰式可選，平價）；⑤ De Lanna Riverfront Cafe Restaurant（河畔，義式+泰式，離鐘樓近tuk-tuk可到）；⑥ 清萊夜市小吃（鐘樓旁，傍晚後有各式街頭小吃，便宜）。清萊物價比清邁低，市區餐廳人均100～300銖"],
-        ["清邁民宿地址（給司機看）","英文：147/2 Loi Kroh Road, Tambon Chang Khlan, Chang Wat Chiang Mai 50100, Thailand；泰文：147/2, ถนนลอยเคราะห์, ช้างคลาน, เมืองเชียงใหม่, เชียงใหม่, 50100（此泰文地址是在 Grab 上查到的，叫 Grab 時可直接搜尋）（地址搜尋：https://www.google.com/maps/search/?api=1&query=147%2F2+Loi+Kroh+Road%2C+Tambon+Chang+Khlan%2C+Chang+Wat+Chiang+Mai+50100%2C+Thailand；行程頁使用的座標釘選 18.783861, 99.002111：https://www.google.com/maps/search/?api=1&query=18.783861,99.002111&hl=en，兩個連結請比對是否落在同一處）。給嘟嘟車/雙條車/計程車司機：直接秀泰文地址或手機地圖最準；口說可講「ไปถนนลอยเคราะห์ ใกล้ไนท์บาซาร์」（Bai Thanon Loi Kro, glai Night Bazaar＝到 Loi Kroh 路、靠近夜市）；上車前先講好價錢，或用 Grab/Bolt 叫車免議價"],
+        ["清邁民宿地址（給司機看）","英文：147/2 Loi Kroh Road, Tambon Chang Khlan, Chang Wat Chiang Mai 50100, Thailand；泰文：147/2, ถนนลอยเคราะห์, ช้างคลาน, เมืองเชียงใหม่, เชียงใหม่, 50100（此泰文地址是在 Grab 上查到的，叫 Grab 時可直接搜尋；Apple 地圖：https://maps.apple.com/?address=147%2F2%2C%20%E0%B8%96%E0%B8%99%E0%B8%99%E0%B8%A5%E0%B8%AD%E0%B8%A2%E0%B9%80%E0%B8%84%E0%B8%A3%E0%B8%B2%E0%B8%B0%E0%B8%AB%E0%B9%8C%2C%20%E0%B8%8A%E0%B9%89%E0%B8%B2%E0%B8%87%E0%B8%84%E0%B8%A5%E0%B8%B2%E0%B8%99%2C%20%E0%B9%80%E0%B8%A1%E0%B8%B7%E0%B8%AD%E0%B8%87%E0%B9%80%E0%B8%8A%E0%B8%B5%E0%B8%A2%E0%B8%87%E0%B9%83%E0%B8%AB%E0%B8%A1%E0%B9%88%2C%20%E0%B9%80%E0%B8%8A%E0%B8%B5%E0%B8%A2%E0%B8%87%E0%B9%83%E0%B8%AB%E0%B8%A1%E0%B9%88%2C%2050100 ）（地址搜尋：https://www.google.com/maps/search/?api=1&query=147%2F2+Loi+Kroh+Road%2C+Tambon+Chang+Khlan%2C+Chang+Wat+Chiang+Mai+50100%2C+Thailand；行程頁使用的座標釘選 18.783861, 99.002111：https://www.google.com/maps/search/?api=1&query=18.783861,99.002111&hl=en，兩個連結請比對是否落在同一處）。給嘟嘟車/雙條車/計程車司機：直接秀泰文地址或手機地圖最準；口說可講「ไปถนนลอยเคราะห์ ใกล้ไนท์บาซาร์」（Bai Thanon Loi Kro, glai Night Bazaar＝到 Loi Kroh 路、靠近夜市）；上車前先講好價錢，或用 Grab/Bolt 叫車免議價"],
         ["住宿狀態","清邁 6 晚（11/11-12、11/14-17）已訂好，地址 147/2 Loi Kroh Road, Tambon Chang Khlan, Chang Wat Chiang Mai 50100（泰文：147/2, ถนนลอยเคราะห์, ช้างคลาน, เมืองเชียงใหม่, เชียงใหม่, 50100），長康路夜市旁（座標 18°47'01.9\"N 99°00'07.6\"E，Google 地圖：https://www.google.com/maps/search/?api=1&query=18.783861,99.002111 ）；清萊 11/13 一晚已訂好（Wilacha Chiang Rai（維拉茶清萊酒店），地址 399/1 Moo 4, T. Rimkok, A. Muang, Chiang Rai 57100（泰文：399/1 ถนนแม่กก ตำบลริมกก เมือง เชียงราย 57100），4間房，Booking.com已付款，11/13 14:00起入住、11/14 12:00前退房）"],
         ["保險","建議投保旅遊平安險"],
         ["2026 門票異動（已查證）","白廟：2026/1/1起外國人200銖（原100）；藍廟：免費；黑屋：80銖；契迪龍寺：約40銖；帕辛寺主殿：約40銖；雙龍寺：約30銖＋纜車約20銖/單程；茵他儂國家公園：約300銖/人＋車輛費；Kew Mae Pan 嚮導：200銖/組；夜間動物園：外國人含tram約1,200銖，官網線上約8折。皆以現場公告為準"],
@@ -647,8 +649,8 @@ function autoMapUrl(it){
 const THAI_PLACES = [
   [/Fah Lanna Massage|Fah Lanna.*Night Bazaar/i, 'ฟ้าล้านนา มาสสาจ (ไนท์บาซาร์)', 'ถนนช้างคลาน ข้างพาวิลเลียน ไนท์บาซาร์'],
   [/清邁機場|CNX|前往清邁機場|抵達機場|機場免稅|飛機起飛/, 'ท่าอากาศยานนานาชาติเชียงใหม่', 'สนามบินเชียงใหม่'],
-  [/Wilacha|維拉茶/i, 'วิลาชา เชียงราย', 'ต.ริมกก อ.เมืองเชียงราย', {th:'ที่อยู่: 399/1 ถนนแม่กก ตำบลริมกก เมือง เชียงราย 57100', en:'399/1 Moo 4, T. Rimkok, A. Muang, Chiang Rai 57100'}],
-  [/民宿|Check-out|退房/, 'ที่พัก (ใกล้ไนท์บาซาร์)', 'ถนนลอยเคราะห์ ใกล้ไนท์บาซาร์', {th:'ที่อยู่: 147/2, ถนนลอยเคราะห์, ช้างคลาน, เมืองเชียงใหม่, เชียงใหม่, 50100', en:'147/2 Loi Kroh Road, Tambon Chang Khlan, Chang Wat Chiang Mai 50100'}],
+  [/Wilacha|維拉茶/i, 'วิลาชา เชียงราย', 'ต.ริมกก อ.เมืองเชียงราย', {th:'399/1 ถนนแม่กก ตำบลริมกก เมือง เชียงราย 57100', en:'399/1 Moo 4, T. Rimkok, A. Muang, Chiang Rai 57100'}],
+  [/民宿|Check-out|退房/, 'ที่พัก (ใกล้ไนท์บาซาร์)', 'ถนนลอยเคราะห์ ใกล้ไนท์บาซาร์', {th:'147/2, ถนนลอยเคราะห์, ช้างคลาน, เมืองเชียงใหม่, เชียงใหม่, 50100', en:'147/2 Loi Kroh Road, Tambon Chang Khlan, Chang Wat Chiang Mai 50100'}],
   [/Lemongrass/i, 'ร้านอาหารเลมอนกราส', 'ถนนลอยเคราะห์ ใกล้ไนท์บาซาร์'],
   [/Chedi Luang|契迪龍/i, 'วัดเจดีย์หลวง', 'ถนนพระปกเกล้า เมืองเก่า'],
   [/Phra Singh|帕辛寺/i, 'วัดพระสิงห์', 'ปลายถนนราชดำเนิน เมืองเก่า'],
@@ -707,6 +709,8 @@ const THAI_PLACES = [
   [/寧曼|Nimman/i, 'ถนนนิมมานเหมินท์', 'นิมมาน'],
   [/清萊/, 'ตัวเมืองเชียงราย', 'ใกล้หอนาฬิกาเชียงราย'],
 ];
+// Apple 地圖用地址搜尋（Google 地圖搜同一個地址會跑錯，Apple 地圖找得到）
+function appleMapUrl(addr){ return 'https://maps.apple.com/?address=' + encodeURIComponent(addr); }
 function findThai(text){
   for (const [re, th, near, addr] of THAI_PLACES) if (re.test(text)) return {th, near, addr};
   return null;
@@ -716,8 +720,11 @@ function openDriver(title, location, url){
   document.getElementById('dName').textContent = m ? m.th : title;
   document.getElementById('dNear').textContent = m && m.near ? '📍 ' + m.near : (location ? '📍 ' + location : '');
   const dAddr = document.getElementById('dAddr');
-  dAddr.innerHTML = m && m.addr ? esc(m.addr.th) + '<small>' + esc(m.addr.en) + '</small>' : '';
+  dAddr.innerHTML = m && m.addr ? 'ที่อยู่: ' + esc(m.addr.th) + '<small>' + esc(m.addr.en) + '</small>' : '';
   dAddr.style.display = m && m.addr ? '' : 'none';
+  const dApple = document.getElementById('dApple');
+  dApple.href = m && m.addr ? appleMapUrl(m.addr.th) : '#';
+  dApple.style.display = m && m.addr ? '' : 'none';
   document.getElementById('dZh').textContent = title + (location ? '｜' + location : '');
   const q = (url.match(/[?&]query=([^&]*)/) || [])[1];
   document.getElementById('dMap').src = q ? 'https://maps.google.com/maps?q=' + q + '&hl=th&z=16&output=embed' : 'about:blank';
