@@ -758,15 +758,15 @@ function renderTripsPanel(){
   const intro = document.createElement('p');
   intro.className = 'hint';
   intro.style.fontSize = '13px';
-  intro.textContent = '11/12、11/15、11/16、11/17 都是從民宿出發、晚上回民宿，可以前一天再決定要玩哪一個一日遊；11/13～14 清萊兩天也有好幾種玩法可選（住 Wilacha 不變），在最下面。按「換到 11/xx」就會把那天的每日行程整個換掉；換到已經排在別天的行程時，兩天會互換。這支手機會記住選擇；要讓大家看到一樣的安排，按「複製分享連結」傳到群組。';
+  intro.textContent = '11/12、11/15、11/16、11/17 都是從民宿出發、晚上回民宿，可以前一天再決定要玩哪一個一日遊；11/13～14 清萊兩天也有好幾種玩法可選（住 Wilacha 不變），放在最上面。按「換到 11/xx」就會把那天的每日行程整個換掉；換到已經排在別天的行程時，兩天會互換。這支手機會記住選擇；要讓大家看到一樣的安排，按「複製分享連結」傳到群組。';
   wrap.appendChild(intro);
 
   const now = document.createElement('div');
   now.className = 'swap-now';
-  now.innerHTML = '<h3>目前安排</h3>' + SWAP_DATES.map(d=>{
+  now.innerHTML = '<h3>目前安排</h3>' + `<div class="swap-row"><b>11/13～14 清萊</b><span>${esc(getCrPlan(crCurrentId()).short)}</span>${swaps[CR_KEY] ? '<button class="btn" data-cr-restore>換回原定</button>' : ''}</div>` + SWAP_DATES.map(d=>{
     const p = getPlan(currentPlanId(d));
     return `<div class="swap-row"><b>${d}(${esc(weekdayOf(d))})</b><span>${esc(p.short)}</span>${swaps[d] ? `<button class="btn" data-restore="${d}">換回原定</button>` : ''}</div>`;
-  }).join('') + `<div class="swap-row"><b>11/13～14 清萊</b><span>${esc(getCrPlan(crCurrentId()).short)}</span>${swaps[CR_KEY] ? '<button class="btn" data-cr-restore>換回原定</button>' : ''}</div>` + '<div class="swap-actions"><button class="btn primary" data-share>📤 複製分享連結</button></div>';
+  }).join('') + '<div class="swap-actions"><button class="btn primary" data-share>📤 複製分享連結</button></div>';
   now.querySelectorAll('[data-restore]').forEach(b=>b.addEventListener('click',()=>assignPlan(b.dataset.restore, 'orig-'+b.dataset.restore)));
   const crRestore = now.querySelector('[data-cr-restore]');
   if(crRestore) crRestore.addEventListener('click',()=>assignCr('cr-orig'));
@@ -777,31 +777,6 @@ function renderTripsPanel(){
     else prompt('複製這個連結：', url);
   });
   wrap.appendChild(now);
-
-  const h1 = document.createElement('h3');
-  h1.className = 'trip-section';
-  h1.textContent = '🚐 一日遊（11/12、11/15、11/16、11/17 可換）';
-  wrap.appendChild(h1);
-  getPlans().forEach(p=>{
-    const onDate = SWAP_DATES.find(d=>currentPlanId(d)===p.id);
-    const total = p.items.reduce((s,it)=>s+parseCostMid(it.cost),0);
-    const card = document.createElement('details');
-    card.className = 'trip-card' + (p.isOrig ? ' orig' : '') + (onDate ? ' on' : '');
-    card.innerHTML = `
-      <summary>
-        <div class="trip-title">${esc(p.short)}</div>
-        <div class="trip-meta">${esc(p.tags)}${p.drive ? '・🚐 ' + esc(p.drive) : ''}・約 ${Math.round(total).toLocaleString()} 銖／人${onDate ? `<span class="trip-on">目前排在 ${onDate}</span>` : ''}</div>
-      </summary>
-      ${p.book ? `<div class="trip-book">📝 前一天要做：${esc(p.book)}</div>` : ''}
-      <ol class="trip-items">${p.items.map(it=>`<li><b>${esc(it.time)}</b> ${esc(it.title)}<small>${esc(it.location)}</small></li>`).join('')}</ol>
-      <div class="trip-swap">換到：${SWAP_DATES.map(d=>{
-        const here = currentPlanId(d)===p.id;
-        const w = planWarning(p, d);
-        return `<button class="btn${here?' here':''}" data-date="${d}" ${here?'disabled':''} title="${esc(w)}">${here?'✓ ':''}${d}(${esc(weekdayOf(d))})${w?' ⚠️':''}</button>`;
-      }).join('')}</div>`;
-    card.querySelectorAll('.trip-swap button[data-date]').forEach(b=>b.addEventListener('click',()=>assignPlan(b.dataset.date, p.id)));
-    wrap.appendChild(card);
-  });
 
   const h2 = document.createElement('h3');
   h2.className = 'trip-section';
@@ -827,6 +802,31 @@ function renderTripsPanel(){
       <div class="trip-day">11/14(六)：${esc(p.theme14)}</div>${list(p.items14)}
       <div class="trip-swap"><button class="btn${here?' here':''}" ${here?'disabled':''}>${here?'✓ 目前就是這個':'換成這個清萊玩法'}</button></div>`;
     card.querySelector('.trip-swap button').addEventListener('click',()=>assignCr(p.id));
+    wrap.appendChild(card);
+  });
+
+  const h1 = document.createElement('h3');
+  h1.className = 'trip-section';
+  h1.textContent = '🚐 一日遊（11/12、11/15、11/16、11/17 可換）';
+  wrap.appendChild(h1);
+  getPlans().forEach(p=>{
+    const onDate = SWAP_DATES.find(d=>currentPlanId(d)===p.id);
+    const total = p.items.reduce((s,it)=>s+parseCostMid(it.cost),0);
+    const card = document.createElement('details');
+    card.className = 'trip-card' + (p.isOrig ? ' orig' : '') + (onDate ? ' on' : '');
+    card.innerHTML = `
+      <summary>
+        <div class="trip-title">${esc(p.short)}</div>
+        <div class="trip-meta">${esc(p.tags)}${p.drive ? '・🚐 ' + esc(p.drive) : ''}・約 ${Math.round(total).toLocaleString()} 銖／人${onDate ? `<span class="trip-on">目前排在 ${onDate}</span>` : ''}</div>
+      </summary>
+      ${p.book ? `<div class="trip-book">📝 前一天要做：${esc(p.book)}</div>` : ''}
+      <ol class="trip-items">${p.items.map(it=>`<li><b>${esc(it.time)}</b> ${esc(it.title)}<small>${esc(it.location)}</small></li>`).join('')}</ol>
+      <div class="trip-swap">換到：${SWAP_DATES.map(d=>{
+        const here = currentPlanId(d)===p.id;
+        const w = planWarning(p, d);
+        return `<button class="btn${here?' here':''}" data-date="${d}" ${here?'disabled':''} title="${esc(w)}">${here?'✓ ':''}${d}(${esc(weekdayOf(d))})${w?' ⚠️':''}</button>`;
+      }).join('')}</div>`;
+    card.querySelectorAll('.trip-swap button[data-date]').forEach(b=>b.addEventListener('click',()=>assignPlan(b.dataset.date, p.id)));
     wrap.appendChild(card);
   });
   return wrap;
@@ -1084,7 +1084,7 @@ function renderDaysPanel(){
     const banner = document.createElement('div');
     banner.className = 'swap-banner';
     banner.innerHTML = `<span>🔄 清萊兩天可以換別的玩法，住 Wilacha 不變（目前：${esc(getCrPlan(crCurrentId()).short)}）</span><button class="btn">看清萊選單</button>`;
-    banner.querySelector('button').addEventListener('click',()=>{ activeMainTab='trips'; renderAll(); const h = [...document.querySelectorAll('.trip-section')].pop(); if(h) h.scrollIntoView(); });
+    banner.querySelector('button').addEventListener('click',()=>{ activeMainTab='trips'; renderAll(); const h = document.querySelector('.trip-section'); if(h) h.scrollIntoView(); });
     wrap.appendChild(banner);
   }
   const themeBar = document.createElement('div');
