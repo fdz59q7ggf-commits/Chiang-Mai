@@ -30,8 +30,9 @@ nav.tabs button.active{background:var(--navy);border-color:var(--navy);color:var
 nav.tabs button:hover:not(.active){border-color:var(--gold);color:var(--ink);}
 .panel{display:none;}
 .panel.active{display:block;}
-.daytabs{display:flex;gap:4px;overflow-x:auto;margin-bottom:14px;border-bottom:2px solid var(--line);}
-.daytabs button{flex:none;padding:8px 14px 10px;border:none;background:none;font-family:'Noto Sans TC',sans-serif;font-size:13px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;}
+/* 每日分頁固定在畫面最上方，往下捲也能直接點別天 */
+.daytabs{display:flex;gap:4px;overflow-x:auto;margin-bottom:14px;border-bottom:2px solid var(--line);position:sticky;top:0;z-index:50;background:var(--paper);padding-top:6px;box-shadow:0 6px 8px -8px rgba(27,42,68,.35);}
+.daytabs button{flex:none;padding:10px 14px 12px;border:none;background:none;font-family:'Noto Sans TC',sans-serif;font-size:14px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;}
 .daytabs button.active{color:var(--navy);font-weight:700;border-bottom-color:var(--coral);}
 .day-theme{background:var(--paper-2);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--navy-2);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;}
 .day-theme input{flex:1;min-width:200px;background:transparent;border:none;border-bottom:1px dashed var(--line);font-family:inherit;font-size:13px;color:var(--navy-2);padding:2px 0;}
@@ -1109,7 +1110,16 @@ function renderDaysPanel(){
     const label = (d.date.startsWith('備') || d.date.startsWith('按摩')) ? d.date : `Day${i+1} ${d.date}(${d.weekday})`;
     return `<button data-i="${i}" class="${i===activeDay?'active':''}">${label}</button>`;
   }).join('');
-  dtabs.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ activeDay=+b.dataset.i; renderAll(); }));
+  dtabs.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+    // 已經往下捲時，換天後回到這天的開頭（分頁列貼在最上方）
+    const tabsTop = dtabs.getBoundingClientRect().top + window.scrollY - 6;
+    const scrolledPast = window.scrollY > tabsTop;
+    activeDay=+b.dataset.i; renderAll();
+    if(scrolledPast){
+      const nt = document.querySelector('.daytabs');
+      if(nt) window.scrollTo(0, nt.getBoundingClientRect().top + window.scrollY - 6);
+    }
+  }));
   wrap.appendChild(dtabs);
   // 點擊後將作用中分頁捲動到可見範圍中央，避免備用天被擠到右邊看不到
   requestAnimationFrame(()=>{
