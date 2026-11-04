@@ -1114,6 +1114,10 @@ function renderDaysPanel(){
     activeDay=+b.dataset.i; renderAll();
     scrollToDayStart();
   }));
+  // 分頁列是 sticky，貼住時量不到原本位置，所以前面放一個定位點給換天時捲動用
+  const anchor = document.createElement('div');
+  anchor.id = 'dayAnchor';
+  wrap.appendChild(anchor);
   wrap.appendChild(dtabs);
   // 點擊後將作用中分頁捲動到可見範圍中央，避免備用天被擠到右邊看不到
   requestAnimationFrame(()=>{
@@ -1681,8 +1685,8 @@ document.getElementById('btnReset').addEventListener('click',()=>{
 
 // 換天後畫面跳到這天的第一個行程（分頁列貼在最上方）
 function scrollToDayStart(){
-  const nt = document.querySelector('.daytabs');
-  if(nt) window.scrollTo(0, nt.getBoundingClientRect().top + window.scrollY - 6);
+  const a = document.getElementById('dayAnchor');
+  if(a) window.scrollTo(0, a.getBoundingClientRect().top + window.scrollY);
 }
 // 旅行期間打開網頁、或過了午夜，自動切到「今天」那一天（泰國時間）
 function todayInThailand(){
