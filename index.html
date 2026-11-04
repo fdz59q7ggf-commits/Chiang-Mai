@@ -1111,14 +1111,8 @@ function renderDaysPanel(){
     return `<button data-i="${i}" class="${i===activeDay?'active':''}">${label}</button>`;
   }).join('');
   dtabs.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
-    // 已經往下捲時，換天後回到這天的開頭（分頁列貼在最上方）
-    const tabsTop = dtabs.getBoundingClientRect().top + window.scrollY - 6;
-    const scrolledPast = window.scrollY > tabsTop;
     activeDay=+b.dataset.i; renderAll();
-    if(scrolledPast){
-      const nt = document.querySelector('.daytabs');
-      if(nt) window.scrollTo(0, nt.getBoundingClientRect().top + window.scrollY - 6);
-    }
+    scrollToDayStart();
   }));
   wrap.appendChild(dtabs);
   // 點擊後將作用中分頁捲動到可見範圍中央，避免備用天被擠到右邊看不到
@@ -1685,9 +1679,35 @@ document.getElementById('btnReset').addEventListener('click',()=>{
   renderAll();
 });
 
+// 換天後畫面跳到這天的第一個行程（分頁列貼在最上方）
+function scrollToDayStart(){
+  const nt = document.querySelector('.daytabs');
+  if(nt) window.scrollTo(0, nt.getBoundingClientRect().top + window.scrollY - 6);
+}
+// 旅行期間打開網頁、或過了午夜，自動切到「今天」那一天（泰國時間）
+function todayInThailand(){
+  try{ return new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Bangkok',month:'numeric',day:'numeric'}).format(new Date()); }
+  catch(e){ const d = new Date(); return (d.getMonth()+1) + '/' + d.getDate(); }
+}
+let lastToday = '';
+function jumpToToday(){
+  const today = todayInThailand();
+  if(today === lastToday) return;
+  lastToday = today;
+  const i = state.days.findIndex(d=>d.date===today);
+  if(i < 0) return;
+  activeMainTab = 'days';
+  activeDay = i;
+  renderAll();
+  scrollToDayStart();
+}
+
 loadSwaps();
 applySwaps();
 renderAll();
+jumpToToday();
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') jumpToToday(); });
+setInterval(()=>{ if(document.visibilityState==='visible') jumpToToday(); }, 60000);
 </script>
 </body>
 </html>
