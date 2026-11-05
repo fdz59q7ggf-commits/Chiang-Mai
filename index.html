@@ -116,6 +116,20 @@ nav.tabs button:hover:not(.active){border-color:var(--gold);color:var(--ink);}
 .trip-items small{display:block;color:var(--muted);font-size:11.5px;}
 .trip-swap{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;padding-bottom:12px;}
 .trip-swap .btn.here{background:var(--coral-dim);border-color:var(--coral);color:var(--ink);cursor:default;}
+.todo-head{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:14px;display:flex;flex-direction:column;gap:6px;}
+.todo-head b{font-size:16px;color:var(--navy);}
+.todo-bar{height:8px;background:var(--paper-2);border-radius:999px;overflow:hidden;}
+.todo-bar i{display:block;height:100%;background:var(--ok);}
+.todo-group{background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 14px;margin-bottom:12px;}
+.todo-group h3{font-size:15px;color:var(--navy);margin:8px 0 4px;}
+.todo-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px dashed var(--line);cursor:pointer;font-size:14px;line-height:1.5;}
+.todo-group h3 + .todo-item, .todo-done summary + .todo-item{border-top:none;}
+.todo-item input{width:22px;height:22px;flex:none;margin-top:1px;accent-color:var(--ok);}
+.todo-item small{display:block;color:var(--muted);font-size:12px;margin-top:2px;}
+.todo-item .link-chip{margin-top:6px;margin-right:6px;}
+.todo-item.done .todo-text{text-decoration:line-through;color:var(--muted);}
+.todo-done summary{cursor:pointer;font-weight:700;color:var(--ok);padding:8px 0;}
+.todo-allset{font-size:16px;font-weight:700;color:var(--ok);text-align:center;margin:0 0 12px;}
 .copy-bar{display:flex;gap:8px;flex-wrap:wrap;margin:-6px 0 14px;}
 .day-total{text-align:right;font-size:12px;color:var(--muted);margin:10px 2px 0;}
 table.simple{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line);table-layout:fixed;}
@@ -806,6 +820,97 @@ function copyText(text){
   } else showBox();
 }
 
+// 出發前待辦：打勾後自動移到「已完成」，記在這支手機
+const TODO_KEY = 'cm-todo-v1';
+const TODO_GROUPS = [
+  {title:'🔴 最急（會卡住行程）', items:[
+    {id:'insurance', text:'旅平險', note:'多人一起保：國泰 11/5、新光 11/7 截止（富邦已過）；或每個人自己上網保個人方案，出發前 1 小時都能保'},
+    {id:'car-1112', text:'11/12 包車：09:00 民宿出發 → 雙龍寺 → 寧曼 → 夜間動物園，約 21:45 回民宿', note:'超過 12 小時，訂車時講好到 22:00 或預留超時費'},
+    {id:'car-1115', text:'11/15 包車：08:00 民宿出發 → 湄康蓬村 → 12:30 回市區（Chang Moi 路）', note:'下午古城走路＋週日步行街，可以只包半天'},
+    {id:'car-1116', text:'11/16 包車：07:00 民宿出發 → 茵他儂國家公園 → 約 18:00 回民宿', note:'一定要包車；Kew Mae Pan 嚮導現場請（200 銖/組）'},
+    {id:'car-1117', text:'11/17 包車：09:00 送到古城帕陶寺 → 12:00 古城接 → Meena → 博桑 → 山甘烹 → 15:45 回民宿', note:'可以包半天'},
+    {id:'car-1118', text:'11/18 送機：08:30 民宿接人 → 清邁機場（11:50 班機）', note:'6 人＋6 件大行李，要 9 人座'},
+    {id:'luggage', text:'問民宿：11/13 退房後能不能寄放大件行李一晚（11/14 回來再入住）', note:'11/13 那晚沒有訂民宿'},
+  ]},
+  {title:'📞 要預約的', items:[
+    {id:'b-healthland', text:'11/11 17:45 Health Land 按摩 2 小時（6 人）', tel:'+6653278855'},
+    {id:'b-kiew', text:'11/11 20:00 Kiew Kai Ka 晚餐（6 人），問最後點餐時間', tel:'+66910740498'},
+    {id:'b-safari', text:'11/12 夜間動物園網路票（官網約 8 折）', link:'https://ticket.chiangmainightsafari.com'},
+    {id:'b-phulae', text:'11/13 12:30 Phu Lae 午餐（6 人）', tel:'+6653600500'},
+    {id:'b-bhubhirom', text:'11/14 12:15 勝獅公園 Bhu Bhirom 午餐（6 人）', tel:'+66915760371'},
+    {id:'b-fahlanna', text:'11/14 Fah Lanna 夜市店按摩（6 人），建議約 18:00，從清萊回來比較不趕', tel:'+6653416191'},
+    {id:'b-kewmaepan', text:'11/16 打給茵他儂公園辦公室，確認 Kew Mae Pan 步道有開', tel:'+6653286729'},
+    {id:'b-makkha', text:'11/17 16:30 Makkha 按摩（Klook），按 90 分鐘或晚宴改 19:00', link:'https://www.klook.com/zh-TW/activity/108447-makkha-health-spa-rachadamnoen-chiang-mai-thailand/'},
+    {id:'b-baanlandai', text:'11/17 Baan Landai 告別晚宴（6 人），建議訂 19:00'},
+  ]},
+  {title:'✈️ 要確認的', items:[
+    {id:'c-br257', text:'拿機票確認去程 BR257 時間（網頁寫 07:20 起飛、約 10:30 抵達）'},
+    {id:'c-return', text:'回程班機號碼（11/18 11:50 起飛），訂送機要用'},
+    {id:'c-driver', text:'11/12 收漢清邁 email：清萊包車司機名字、電話、車牌（看垃圾郵件匣）'},
+    {id:'c-maplink', text:'點開漢清邁憑證上的 Google 地圖連結，確認是民宿 147/2 Loi Kroh Road'},
+  ]},
+  {title:'🎒 出發前準備', items:[
+    {id:'p-cash', text:'換泰銖現金：清萊回程加油約 1,300～1,700 銖（全車）、門票、小費、夜市'},
+    {id:'p-grab', text:'手機裝 Grab 並綁信用卡'},
+    {id:'p-sim', text:'網卡或 eSIM'},
+    {id:'p-clothes', text:'寺廟服裝：長褲／過膝裙、有袖上衣、一條大圍巾'},
+    {id:'p-shoes', text:'運動鞋（11/16 山路）＋好穿脫的涼鞋或拖鞋'},
+    {id:'p-jacket', text:'薄外套（雙龍寺、茵他儂山上、早晚涼）'},
+    {id:'p-vouchers', text:'憑證、訂房確認截圖存手機（漢清邁 _01 _02 _03、Booking.com）'},
+  ]},
+  {title:'✅ 已經訂好', done:true, items:[
+    {id:'d-minsu', text:'清邁民宿（11/11–12、11/14–17）'},
+    {id:'d-wilacha', text:'清萊 Wilacha（11/13，Booking.com 已付款）'},
+    {id:'d-pickup', text:'11/11 漢清邁接機'},
+    {id:'d-crcar', text:'11/13–14 漢清邁清萊包車（_01、_02）'},
+    {id:'d-longneck', text:'長頸族村門票（_03，一人 250 銖）'},
+  ]},
+];
+function loadTodo(){
+  let t = {};
+  try{ t = JSON.parse(localStorage.getItem(TODO_KEY) || '{}') || {}; }catch(e){}
+  // 「已經訂好」那一組預設打勾
+  TODO_GROUPS.forEach(g=>{ if(g.done) g.items.forEach(it=>{ if(!(it.id in t)) t[it.id] = true; }); });
+  return t;
+}
+function saveTodo(t){ try{ localStorage.setItem(TODO_KEY, JSON.stringify(t)); }catch(e){} }
+function renderTodoPanel(){
+  const checked = loadTodo();
+  const all = TODO_GROUPS.flatMap(g=>g.items);
+  const doneCount = all.filter(it=>checked[it.id]).length;
+  const wrap = document.createElement('div');
+  const head = document.createElement('div');
+  head.className = 'todo-head';
+  head.innerHTML = `<b>已完成 ${doneCount} / ${all.length}</b><div class="todo-bar"><i style="width:${Math.round(doneCount/all.length*100)}%"></i></div><span class="hint" style="margin:0">打勾就會移到最下面的「已完成」，不用再注意。勾選只記在這支手機。</span>`;
+  wrap.appendChild(head);
+  const item = (it, isDone) => `<label class="todo-item${isDone?' done':''}"><input type="checkbox" data-todo="${it.id}" ${isDone?'checked':''}><span><span class="todo-text">${esc(it.text)}</span>${it.note?`<small>${esc(it.note)}</small>`:''}${it.tel?`<a class="link-chip" href="tel:${it.tel}">☎️ 撥打 ${esc(it.tel)}</a>`:''}${it.link?`<a class="link-chip" href="${esc(it.link)}" target="_blank" rel="noopener">🔗 連結</a>`:''}</span></label>`;
+  TODO_GROUPS.forEach(g=>{
+    const open = g.items.filter(it=>!checked[it.id]);
+    if(!open.length) return;
+    const sec = document.createElement('div');
+    sec.className = 'todo-group';
+    sec.innerHTML = `<h3>${esc(g.title)}</h3>` + open.map(it=>item(it,false)).join('');
+    wrap.appendChild(sec);
+  });
+  const done = all.filter(it=>checked[it.id]);
+  if(done.length){
+    const d = document.createElement('details');
+    d.className = 'todo-group todo-done';
+    d.innerHTML = `<summary>✅ 已完成（${done.length}）</summary>` + done.map(it=>item(it,true)).join('');
+    wrap.appendChild(d);
+  }
+  if(doneCount === all.length){
+    const p = document.createElement('p');
+    p.className = 'todo-allset';
+    p.textContent = '🎉 全部完成，可以安心出發了！';
+    wrap.insertBefore(p, wrap.children[1]);
+  }
+  wrap.querySelectorAll('input[data-todo]').forEach(cb=>cb.addEventListener('change',()=>{
+    const t = loadTodo(); t[cb.dataset.todo] = cb.checked; saveTodo(t); renderAll();
+  }));
+  return wrap;
+}
+
 function renderTripsPanel(){
   const wrap = document.createElement('div');
   const intro = document.createElement('p');
@@ -1031,6 +1136,7 @@ let activeDay = 0;
 
 const TABS = [
   {key:'days', label:'每日行程'},
+  {key:'todo', label:'✅ 出發前待辦'},
   {key:'trips', label:'🔄 一日遊選單'},
   {key:'backup', label:'備用行程'},
   {key:'massage', label:'按摩清單'},
@@ -1093,6 +1199,7 @@ function renderPanels(){
   const panel = document.createElement('div');
   panel.className = 'panel active';
   if(activeMainTab==='days') panel.appendChild(renderDaysPanel());
+  else if(activeMainTab==='todo') panel.appendChild(renderTodoPanel());
   else if(activeMainTab==='trips') panel.appendChild(renderTripsPanel());
   else panel.appendChild(renderSimplePanel(activeMainTab));
   root.appendChild(panel);
