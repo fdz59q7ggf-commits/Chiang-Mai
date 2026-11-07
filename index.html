@@ -332,13 +332,13 @@ function defaultData(){
         mk("18:30","★ 告別晚宴：Baan Landai Fine Thai Cuisine（米其林推薦）","古城旗艦店","精緻泰北蘭納料理，百年蘭納建築，需預約","400～800",false,"https://www.google.com/maps/search/?api=1&query=Baan+Landai+Chiang+Mai&hl=en"),
         mk("20:30","最後一晚夜市閒逛 / 採買伴手禮","長康路夜市","","",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+Night+Bazaar&hl=en"),
       ]},
-      {date:"11/18",weekday:"三",theme:"最後採買＋11:50 飛機返程（泰國時間，抵台約16:20）",stay:"—",items:[
+      {date:"11/18",weekday:"三",theme:"最後採買＋11:50 長榮 BR258 返程（泰國時間，抵台約16:20）",stay:"—",items:[
         mk("07:00","早餐＋收拾行李","民宿附近","簡單吃或7-11解決，今天飛機較早要提早出發","50～100",false,"https://www.google.com/maps/search/?api=1&query=18.783861,99.002111&hl=en"),
         mk("08:00","Check-out，司機到民宿接人，行李上車","民宿","今天時間較早，退房前按摩來不及；6人＋6件大行李，9人座","",false,"https://www.google.com/maps/search/?api=1&query=18.783861,99.002111&hl=en"),
         mk("08:10","前往清邁機場","機場","車程約15～20分鐘，約08:30到機場","—",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+International+Airport"),
         mk("08:30","抵達機場辦理登機","清邁機場","國際線建議提前2小時；今天比較早到，可以慢慢辦手續、逛免稅店","—",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+International+Airport"),
         mk("10:15","最後採買（機場免稅店）","清邁機場","⚠️ Central Airport Plaza約10:00才開來不及；伴手禮建議前一天先買好，剩下的在機場免稅店補買","—",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+International+Airport"),
-        mk("11:50","飛機起飛返回桃園","清邁機場","泰國時間起飛（比台灣慢1小時），飛行約3.5～4小時，抵達桃園約16:20～16:50台灣時間","",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+International+Airport"),
+        mk("11:50","飛機起飛返回桃園（長榮航空 BR258）","清邁機場","泰國時間起飛（比台灣慢1小時），飛行約3.5～4小時，抵達桃園約16:20～16:50台灣時間","",false,"https://www.google.com/maps/search/?api=1&query=Chiang+Mai+International+Airport"),
       ]},
       
 ],
@@ -892,7 +892,7 @@ const CHARTER_BRIEFS = [
 → Makkha Health & Spa（Rachadamnoen Rd，古城）`},
   {id:'1118', label:'11/18（三）送機', text:`11/18（三）08:00 接人
 民宿 147/2 Loi Kroh Road
-→ 清邁機場（班機 11:50 起飛，航班：＿＿＿）`},
+→ 清邁機場（長榮 BR258，11:50 起飛）`},
 ];
 function loadBriefSel(){
   try{ const v = JSON.parse(localStorage.getItem(BRIEF_KEY) || 'null'); if(Array.isArray(v)) return v; }catch(e){}
@@ -920,7 +920,7 @@ function renderBriefPanel(){
   });
   const foot = document.createElement('p');
   foot.className = 'hint';
-  foot.textContent = '⚠️ 送機那天記得把「航班：＿＿＿」改成回程班機號碼。從「一日遊選單」換過行程的話，這裡的內容不會自動跟著變，跟 Claude 說一聲再更新。';
+  foot.textContent = '⚠️ 從「一日遊選單」換過行程的話，這裡的內容不會自動跟著變，跟 Claude 說一聲再更新。';
   wrap.appendChild(foot);
   wrap.querySelectorAll('input[data-sel]').forEach(cb=>cb.addEventListener('change',()=>{
     let v = loadBriefSel().filter(x=>x!==cb.dataset.sel);
@@ -950,7 +950,7 @@ const TODO_GROUPS = [
     {id:'car-1115', text:'11/15 包車：08:00 民宿出發 → 湄康蓬村 → 12:30 回市區（Chang Moi 路）', note:'下午古城走路＋週日步行街，可以只包半天'},
     {id:'car-1116', text:'11/16 跟漢清邁訂中文保母車包車 3,150（不加導遊）：07:00 民宿出發 → 茵他儂 → 約 17:45 回市區直接去按摩', note:'油錢自付（司機自己決定何時加油，結束時結算，約 700～800 銖）；問清楚包幾小時、超時費；Kew Mae Pan 嚮導現場請（200～220 銖/組）'},
     {id:'car-1117', text:'11/17 包車：08:00 送到古城帕陶寺 → 12:00 清曼寺接 → Meena → 博桑 → 山甘烹 → Makkha 按摩', note:'可以包半天'},
-    {id:'car-1118', text:'11/18 送機：08:00 民宿接人 → 清邁機場（11:50 班機）', note:'6 人＋6 件大行李，要 9 人座'},
+    {id:'car-1118', text:'11/18 送機：08:00 民宿接人 → 清邁機場（長榮 BR258，11:50 起飛）', note:'6 人＋6 件大行李，要 9 人座'},
   ]},
   {title:'📞 要預約的', items:[
     {id:'b-fahlanna-1111', text:'11/11 中午放行李時，到民宿旁 Fah Lanna 夜市店預約 17:45 按摩（6 人）', note:'走路約 1 分鐘；也可以先打電話', tel:'+6653416191'},
@@ -964,7 +964,7 @@ const TODO_GROUPS = [
   ]},
   {title:'✈️ 要確認的', items:[
     {id:'c-br257', text:'拿機票確認去程 BR257 時間（網頁寫 07:20 起飛、約 10:30 抵達）'},
-    {id:'c-return', text:'回程班機號碼（11/18 11:50 起飛），訂送機要用'},
+    {id:'c-return', text:'拿機票確認回程 BR258 時間（網頁寫 11/18 11:50 起飛）'},
     {id:'c-driver', text:'11/12 收漢清邁 email：清萊包車司機名字、電話、車牌（看垃圾郵件匣）'},
     {id:'c-maplink', text:'點開漢清邁憑證上的 Google 地圖連結，確認是民宿 147/2 Loi Kroh Road'},
   ]},
