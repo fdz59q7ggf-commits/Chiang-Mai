@@ -116,6 +116,13 @@ nav.tabs button:hover:not(.active){border-color:var(--gold);color:var(--ink);}
 .trip-items small{display:block;color:var(--muted);font-size:11.5px;}
 .trip-swap{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;padding-bottom:12px;}
 .trip-swap .btn.here{background:var(--coral-dim);border-color:var(--coral);color:var(--ink);cursor:default;}
+.brief-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;position:sticky;top:0;z-index:40;background:var(--paper);padding:6px 0;}
+.brief-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px;}
+.brief-card.on{border-color:var(--coral);box-shadow:0 0 0 1px var(--coral) inset;}
+.brief-head{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:15px;color:var(--navy);}
+.brief-head input{width:22px;height:22px;accent-color:var(--coral);}
+.brief-note{font-size:12px;color:var(--muted);margin-top:4px;}
+.brief-card pre{white-space:pre-wrap;word-break:break-word;font-family:inherit;font-size:13.5px;line-height:1.6;background:var(--paper);border-radius:8px;padding:8px 10px;margin:8px 0;}
 .todo-head{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:14px;display:flex;flex-direction:column;gap:6px;}
 .todo-head b{font-size:16px;color:var(--navy);}
 .todo-bar{height:8px;background:var(--paper-2);border-radius:999px;overflow:hidden;}
@@ -845,6 +852,95 @@ function copyText(text){
   } else showBox();
 }
 
+// 包車簡介：每天分開，勾選想包的天數一起複製，或單天複製，直接貼給旅行社
+const BRIEF_KEY = 'cm-brief-v1';
+const CHARTER_BRIEFS = [
+  {id:'1112', label:'11/12（四）素帖山＋眉林', text:`11/12（四）08:00 接人
+民宿 147/2 Loi Kroh Road
+→ 素帖山雙龍寺 Wat Phra That Doi Suthep
+→ 蒲屏皇宮 Bhubing Palace（或 Doi Pui 苗族村）
+→ 帕拉寺 Wat Pha Lat
+→ 眉林午餐 Gongkham（Mae Rim）
+→ Mae Sa 瀑布 Mae Sa Waterfall
+→ 詩麗吉皇后植物園 Queen Sirikit Botanic Garden
+→ 按摩（長康路／Loi Kroh Road 附近）`},
+  {id:'1114', label:'11/14（六）清萊回來追加', booked:'清萊包車已訂（_02），這段是追加的', text:`11/14（六）追加（訂單 RZ261104DM3309_02）
+清萊回清邁後
+→ Health Land Spa（288/55 Chang Klan Rd）
+→ 民宿 147/2 Loi Kroh Road（放行李）
+→ 週六步行街 Wualai Road`},
+  {id:'1115', label:'11/15（日）湄康蓬村', text:`11/15（日）08:00 接人
+民宿 147/2 Loi Kroh Road
+→ 湄康蓬村 Mae Kampong
+→ Chang Moi 路（瓦洛洛市場 Warorot Market）`},
+  {id:'1116', label:'11/16（一）茵他儂', text:`11/16（一）07:00 接人
+民宿 147/2 Loi Kroh Road
+→ 茵他儂國家公園 Doi Inthanon
+→ Kew Mae Pan 步道
+→ 國王皇后雙塔 King & Queen Pagodas
+→ 午餐
+→ 苗族市場 Hmong Market
+→ Wachirathan 瀑布
+→ 按摩（長康路／Loi Kroh Road 附近）`},
+  {id:'1117', label:'11/17（二）古城＋山甘烹', text:`11/17（二）08:00 接人
+民宿 147/2 Loi Kroh Road
+→ 帕陶寺 Wat Phan Tao（下車，我們自己走古城）
+→ 清曼寺 Wat Chiang Man（上車）
+→ Meena 餐廳 Meena Rice Based Cuisine（San Kamphaeng）
+→ 博桑紙傘村 Bo Sang
+→ 山甘烹手工藝街 San Kamphaeng
+→ Makkha Health & Spa（Rachadamnoen Rd，古城）`},
+  {id:'1118', label:'11/18（三）送機', text:`11/18（三）08:00 接人
+民宿 147/2 Loi Kroh Road
+→ 清邁機場（班機 11:50 起飛，航班：＿＿＿）`},
+];
+function loadBriefSel(){
+  try{ const v = JSON.parse(localStorage.getItem(BRIEF_KEY) || 'null'); if(Array.isArray(v)) return v; }catch(e){}
+  return [];
+}
+function saveBriefSel(v){ try{ localStorage.setItem(BRIEF_KEY, JSON.stringify(v)); }catch(e){} }
+function renderBriefPanel(){
+  const sel = loadBriefSel();
+  const wrap = document.createElement('div');
+  const hint = document.createElement('p');
+  hint.className = 'hint';
+  hint.style.fontSize = '13px';
+  hint.textContent = '每天分開寫，只有地點和接人時間（司機自己會看路線）。勾選想包車的天數，按上面的「複製勾選的天數」一次複製；或在每天下面按「複製這天」。貼到 LINE 給旅行社就好。';
+  wrap.appendChild(hint);
+  const bar = document.createElement('div');
+  bar.className = 'brief-bar';
+  bar.innerHTML = `<button class="btn primary" data-copysel>📋 複製勾選的天數（${sel.length}）</button><button class="btn" data-all>全選</button><button class="btn" data-none>全不選</button>`;
+  wrap.appendChild(bar);
+  CHARTER_BRIEFS.forEach(b=>{
+    const on = sel.includes(b.id);
+    const card = document.createElement('div');
+    card.className = 'brief-card' + (on ? ' on' : '');
+    card.innerHTML = `<label class="brief-head"><input type="checkbox" data-sel="${b.id}" ${on?'checked':''}><b>${esc(b.label)}</b></label>${b.booked?`<div class="brief-note">ℹ️ ${esc(b.booked)}</div>`:''}<pre>${esc(b.text)}</pre><button class="btn" data-copy="${b.id}">📋 複製這天</button>`;
+    wrap.appendChild(card);
+  });
+  const foot = document.createElement('p');
+  foot.className = 'hint';
+  foot.textContent = '⚠️ 送機那天記得把「航班：＿＿＿」改成回程班機號碼。從「一日遊選單」換過行程的話，這裡的內容不會自動跟著變，跟 Claude 說一聲再更新。';
+  wrap.appendChild(foot);
+  wrap.querySelectorAll('input[data-sel]').forEach(cb=>cb.addEventListener('change',()=>{
+    let v = loadBriefSel().filter(x=>x!==cb.dataset.sel);
+    if(cb.checked) v.push(cb.dataset.sel);
+    saveBriefSel(v); renderAll();
+  }));
+  wrap.querySelectorAll('[data-copy]').forEach(btn=>btn.addEventListener('click',()=>{
+    const b = CHARTER_BRIEFS.find(x=>x.id===btn.dataset.copy); copyText(b.text);
+  }));
+  bar.querySelector('[data-copysel]').addEventListener('click',()=>{
+    const v = loadBriefSel();
+    const picked = CHARTER_BRIEFS.filter(b=>v.includes(b.id));
+    if(!picked.length){ alert('還沒勾選要包車的天數'); return; }
+    copyText('包車需求（中文保母車）\n\n' + picked.map(b=>b.text).join('\n\n'));
+  });
+  bar.querySelector('[data-all]').addEventListener('click',()=>{ saveBriefSel(CHARTER_BRIEFS.map(b=>b.id)); renderAll(); });
+  bar.querySelector('[data-none]').addEventListener('click',()=>{ saveBriefSel([]); renderAll(); });
+  return wrap;
+}
+
 // 出發前待辦：打勾後自動移到「已完成」，記在這支手機
 const TODO_KEY = 'cm-todo-v1';
 const TODO_GROUPS = [
@@ -1164,6 +1260,7 @@ let activeDay = 0;
 const TABS = [
   {key:'days', label:'每日行程'},
   {key:'todo', label:'✅ 出發前待辦'},
+  {key:'brief', label:'🚐 包車簡介'},
   {key:'trips', label:'🔄 一日遊選單'},
   {key:'backup', label:'備用行程'},
   {key:'massage', label:'按摩清單'},
@@ -1227,6 +1324,7 @@ function renderPanels(){
   panel.className = 'panel active';
   if(activeMainTab==='days') panel.appendChild(renderDaysPanel());
   else if(activeMainTab==='todo') panel.appendChild(renderTodoPanel());
+  else if(activeMainTab==='brief') panel.appendChild(renderBriefPanel());
   else if(activeMainTab==='trips') panel.appendChild(renderTripsPanel());
   else panel.appendChild(renderSimplePanel(activeMainTab));
   root.appendChild(panel);
