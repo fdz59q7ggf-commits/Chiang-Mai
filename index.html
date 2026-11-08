@@ -261,8 +261,8 @@ function defaultData(){
         mk("14:45","🌿 詩麗吉皇后植物園 Queen Sirikit Botanic Garden","Mae Rim","必走「樹冠步道 Canopy Walkway」（約400公尺長、離地約20公尺，在樹頂上走），還有大型溫室群（蘭花、雨林、沙漠植物）；外國人約100銖（另收車輛費），約08:30-16:30／17:00；園區大，包車開進去各點，約1.5小時（16:30前離開）","100",false,"https://www.google.com/maps/search/?api=1&query=Queen+Sirikit+Botanic+Garden&hl=en"),
         mk("16:30","回清邁","公路","約45分鐘～1小時","—",false,"https://www.google.com/maps/search/?api=1&query=18.783861,99.002111&hl=en"),
         mk("17:30","💆 按摩（包車直接載到，吃飯前先按）","Loi Kroh Road／長康路","民宿旁 Fah Lanna 夜市店、Health Land、Let's Relax 都近","250～900",false,"https://www.google.com/maps/search/?api=1&query=Fah+Lanna+Massage+-+Night+Bazaar+Chiang+Mai&hl=en"),
-        mk("19:30","晚餐：長康路夜市 Anusarn 美食區或 Ploen Ruedee 夜市","長康路夜市","走路就到","200～400",false,"https://www.google.com/maps/search/?api=1&query=Anusarn+Market+Chiang+Mai&hl=en"),
-        mk("21:00","回民宿休息","民宿","","",false,"https://www.google.com/maps/search/?api=1&query=18.783861,99.002111&hl=en"),
+        mk("19:30","🦐 晚餐：Big Big Shabu 火鍋海鮮自助（บิ๊กบิ๊กชาบู）","古城東北，清曼寺 Wat Chiang Man 附近（按摩完叫 Grab 約10分鐘，6人叫2台）","吃到飽火鍋＋海鮮，不限時間；網路資料寫傍晚 16:00 開到半夜，晚餐時段沒問題；⚠️ 大人價格網路上查不到最新的（舊評論寫一人約219銖起），海鮮是不是要加價也沒查到，6人建議先打電話訂位順便問（099 237 1331，這支是 Atsadathon 分店的電話，可以請他們轉告這間分店）；吃火鍋記得說怕辣：ไม่เผ็ด（不辣）","250～500",false,"https://www.google.com/maps/place/Big+Big+Shabu/@18.7951613,98.9885893,17z?hl=en"),
+        mk("21:00","叫 Grab 回民宿","Big Big Shabu → 民宿（約2公里，10分鐘）","6人叫2台；把民宿地址秀給司機看","30～50",false,"https://www.google.com/maps/search/?api=1&query=18.783861,99.002111&hl=en"),
       ]},
       {date:"11/13",weekday:"五",theme:"包車前往清萊＋白廟＋Phu Lae 午餐＋玉佛寺＋九層塔觀音寺＋鐘樓燈光秀",stay:"清萊 Wilacha Chiang Rai（維拉茶清萊酒店）（已訂）",items:[
         mk("07:00","早餐（民宿續住不退房，只帶過夜包去清萊）","民宿附近","清邁民宿 11/13 也有訂（續住），大件行李直接留在房間，不用退房；房卡/鑰匙記得帶或交給櫃檯；司機08:00到民宿，07:50前在大廳集合","50～150",false,"https://www.google.com/maps/search/?api=1&query=18.783861,99.002111&hl=en"),
@@ -952,6 +952,7 @@ const TODO_GROUPS = [
   {title:'📞 要預約的', items:[
     {id:'b-fahlanna-1111', text:'11/11 中午放行李時，到民宿旁 Fah Lanna 夜市店預約 16:00 按摩（6 人）', note:'走路約 1 分鐘；也可以先打電話', tel:'+6653416191'},
     {id:'b-kiew', text:'11/11 20:00 Kiew Kai Ka 晚餐（6 人），問最後點餐時間', tel:'+66910740498'},
+    {id:'b-bigbig', text:'11/12 19:30 Big Big Shabu 海鮮火鍋自助（6 人）', note:'問大人一位多少、海鮮要不要加價；這支電話是 Atsadathon 分店，訂的是清曼寺附近那間', tel:'+66992371331'},
     {id:'b-phulae', text:'11/13 12:30 Phu Lae 午餐（6 人），問清楚中午有沒有營業', note:'有網站只寫晚上 17:30 開；中午沒開就改去備案 Khao Soi Phor Jai', tel:'+6653600500'},
     {id:'b-bhubhirom', text:'11/14 12:15 勝獅公園 Bhu Bhirom 午餐（6 人）', tel:'+66915760371'},
     {id:'b-healthland-1114', text:'11/14 17:30 Health Land 按摩 2 小時（6 人）', note:'從清萊回來包車直接載去，按完包車經過民宿放包包再送去週六步行街', tel:'+6653278855'},
@@ -1467,6 +1468,7 @@ const THAI_PLACES = [
   [/苗族村|Doi Pui/i, 'หมู่บ้านม้งดอยปุย', 'ดอยปุย'],
   [/帕拉寺|Pha Lat/i, 'วัดผาลาด', 'ถนนขึ้นดอยสุเทพ'],
   [/Gongkham/i, 'ก้องคำ แม่ริม', 'อ.แม่ริม'],
+  [/Big Big Shabu/i, 'บิ๊กบิ๊กชาบู (บุฟเฟ่ต์ชาบู)', 'ในเมืองเก่า ใกล้วัดเชียงมั่น'],
   [/大象保育中心|Elephant Conservation/i, 'ศูนย์อนุรักษ์ช้างไทย', 'อ.ห้างฉัตร จ.ลำปาง'],
   [/南邦鑾寺|Lampang Luang/i, 'วัดพระธาตุลำปางหลวง', 'อ.เกาะคา จ.ลำปาง'],
   [/南邦馬車/, 'รถม้าลำปาง', 'ตัวเมืองลำปาง'],
